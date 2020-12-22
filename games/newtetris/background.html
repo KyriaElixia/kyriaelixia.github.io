@@ -1,0 +1,61 @@
+<head>
+    <style>
+        body {
+            background: 
+                
+                linear-gradient(
+                rgba(10, 10, 10, 0.8), 
+                rgba(10, 10, 10, 0.8)
+                ),
+                url("https://kyriaelixia.github.com/server/games/newtetris/sprites/background.png");
+            background-size: 525px 300px
+        }
+    </style>
+</head>
+<div id="area"></div>
+<script>
+
+    pic = [];
+    pic[0]  = ["I", "I", "I", "I", "T", "T", "T", "Z", "Z", "J", "J", "J"];
+    pic[1]  = ["J", "J", "O", "O", "J", "T", "O", "O", "Z", "Z", "L", "J"];
+    pic[2]  = ["J", "T", "O", "O", "J", "S", "O", "O", "L", "L", "L", "I"];
+    pic[3]  = ["J", "T", "T", "J", "J", "S", "S", "Z", "Z", "L", "L", "I"];
+    pic[4]  = ["I", "T", "I", "I", "I", "I", "S", "T", "Z", "Z", "L", "I"];
+    pic[5]  = ["I", "Z", "Z", "T", "T", "T", "T", "T", "Z", "Z", "L", "I"];
+    pic[6]  = ["I", "S", "Z", "Z", "T", "S", "S", "T", "I", "Z", "Z", "T"];
+    pic[7]  = ["I", "S", "S", "J", "S", "S", "O", "O", "I", "S", "T", "T"];
+    pic[8]  = ["O", "O", "S", "J", "J", "J", "O", "O", "I", "S", "S", "T"];
+    pic[9]  = ["O", "O", "L", "O", "O", "S", "L", "L", "I", "T", "S", "J"];
+    pic[10] = ["L", "L", "L", "O", "O", "S", "S", "L", "T", "T", "T", "J"];
+    pic[11] = ["T", "Z", "Z", "T", "T", "T", "S", "L", "O", "O", "J", "J"];
+    pic[12] = ["T", "T", "Z", "Z", "T", "O", "O", "T", "O", "O", "L", "L"];
+    pic[13] = ["T", "S", "S", "L", "L", "O", "O", "T", "T", "S", "S", "L"];
+    pic[14] = ["S", "S", "O", "O", "L", "O", "O", "T", "S", "S", "T", "L"];
+    pic[15] = ["Z", "Z", "O", "O", "L", "O", "O", "J", "J", "J", "T", "T"];
+    pic[16] = ["T", "Z", "Z", "S", "S", "T", "T", "T", "T", "J", "T", "I"];
+    pic[17] = ["T", "T", "S", "S", "T", "T", "T", "T", "S", "S", "Z", "I"];
+    pic[18] = ["T", "Z", "Z", "I", "I", "I", "I", "S", "S", "Z", "Z", "I"];
+    pic[19] = ["O", "O", "Z", "Z", "L", "J", "J", "J", "J", "Z", "T", "I"];
+    pic[20] = ["O", "O", "L", "L", "L", "J", "J", "J", "J", "T", "T", "T"];
+
+    size = 50;
+
+    if (true) {
+
+        for (i in pic) {
+            
+            for (j in pic[i]) {
+
+                img = document.createElement("img");
+                img.src = "https://kyriaelixia.github.com/server/games/newtetris/sprites/" + pic[20-i][j] + ".png";
+                img.width = size;
+                img.height = size;
+                img.style.position = "absolute";
+                img.style.left = size*i+size;
+                img.style.top = size*j+size;
+
+                document.getElementById("area").appendChild(img);
+            }        
+        }
+    }
+</script>
