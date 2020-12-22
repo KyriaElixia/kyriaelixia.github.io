@@ -1,0 +1,89 @@
+.playField {
+
+    padding: 0px;
+    background-color: rgb(189, 189, 189)
+}
+.playFieldDark {
+
+    padding: 0px;
+    background-color: #636363
+}
+.difficulty {
+
+    color: white;
+    /* background-image: url("sprites/tiles/tile.png");
+    background-repeat: no-repeat; */
+}
+
+input {
+    background-color: rgb(220, 220, 220); 
+    border: none;
+    border-bottom: solid lightseagreen;
+    border-width: 1px;
+    text-align: center;
+}  
+.pbar {
+    -webkit-appearance: none;
+    border: none;
+    height: 25px;            
+    background: rgb(25,3,2);
+    outline: none;
+    /* opacity: 0.7; */
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    
+    /* background-image: linear-gradient(to right, rgb(86,23,14), rgb(86,23,14) 0%, rgb(25,3,2) 0%, rgb(25,3,2)); */
+}
+.pbar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    width: 0px;
+    height: 25px;
+    background: yellow;
+    cursor: pointer;
+}
+.pbar::-moz-range-thumb {
+    width: 0px;
+    border: none;
+    height: 25px;
+    background: yellow;
+    cursor: pointer;
+}
+
+
+.pbar2 {
+    -webkit-appearance: none;
+    border: none;
+    height: 25px;            
+    background: rgb(25,3,2);
+    outline: none;
+    /* opacity: 0.7; */
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    
+    /* background-image: linear-gradient(to right, rgb(86,23,14), rgb(86,23,14) 0%, rgb(25,3,2) 0%, rgb(25,3,2)); */
+}
+.pbar2::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    width: 5px;
+    height: 25px;
+    background: rgb(86,23,14);
+    cursor: pointer;
+}
+.pbar2::-moz-range-thumb {
+    width: 5px;
+    border: none;
+    height: 25px;
+    background: rgb(86,23,14);
+    cursor: pointer;
+}
+
+.playPauseBtn {
+
+    background: rgb(86,23,14);
+    color: white;
+    border: none;
+}

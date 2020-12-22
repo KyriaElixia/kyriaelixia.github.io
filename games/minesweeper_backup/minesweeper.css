@@ -1,0 +1,16 @@
+.playField {
+
+    padding: 0px;
+    background-color: rgb(189, 189, 189)
+}
+.playFieldDark {
+
+    padding: 0px;
+    background-color: #636363
+}
+.difficulty {
+
+    color: white;
+    /* background-image: url("sprites/tiles/tile.png");
+    background-repeat: no-repeat; */
+}

@@ -1,0 +1,378 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link href="http://elixia.spelar.se/main.css" rel="stylesheet" type="text/css" />
+    <link href="minesweeper.css" rel="stylesheet" type="text/css" />
+    <link href="overlay.css" rel="stylesheet" type="text/css" />
+    <link href="http://elixia.spelar.se/games/minesweeper/sprites/tiles/flag.png" rel="icon">
+    
+    <title>Elixia's Minesweeper</title>
+</head>
+
+<body style="font-family: potraFont;">
+    <div class="overlay" id="settings">
+        <!-- <a href="javascript:void(0)" class="closebtn" onclick="toggleSettings();">&times;</a> -->
+        <div class="overlay-content" align="center" style="font-family: potraFont;">
+                                                                                    
+            <table align="center" cellspacing="10" cellpadding="10" border="0">
+                <tr>
+                    <img id="closeSettingsButton" src="sprites/light_mode/buttons/close-settings.png" alt="" onclick="toggleSettings();" width="50" height="50" ondragstart="return false;" ondrop="return false;" title="Close settings">
+                </tr>
+                <tr>
+                    <td style="color:white; font-size: 40;">Tile size:</td>
+                    <td align="center">
+                        <img id="resize75" style="user-select: none;" src="sprites/light_mode/tiles/tile.png" ondragstart="return false;" ondrop="return false;" alt="size 75" width="75" height="75" onclick="size=75; createField(); resizeButtons();" title="Tile sides are 75px long">
+                        <img id="resize50" style="user-select: none;" src="sprites/light_mode/tiles/tile.png" ondragstart="return false;" ondrop="return false;" alt="size 50" width="50" height="50" onclick="size=50; createField(); resizeButtons();" title="Tile sides are 50px long">
+                        <img id="resize37.5" style="user-select: none;" src="sprites/light_mode/tiles/tile.png" ondragstart="return false;" ondrop="return false;" alt="size 37.5" width="37.5" height="37.5" onclick="size=37.5; createField(); resizeButtons();" title="Tile sides are 37.5px long">
+                        <img id="resize25" style="user-select: none;" src="sprites/light_mode/tiles/tile.png" ondragstart="return false;" ondrop="return false;" alt="size 25" width="25" height="25" onclick="size=25; createField(); resizeButtons();" title="Tile sides are 25px long">
+                        <img id="resize15" style="user-select: none;" src="sprites/light_mode/tiles/tile.png" ondragstart="return false;" ondrop="return false;" alt="size 15" width="15" height="15" onclick="size=15; createField(); resizeButtons();" title="Tile sides are 15px long">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table cellpadding="5">
+                            <tr>
+                                <td style="color:white; font-size: 40; text-align: left;" title="Select a difficulty">Difficulty:</td>
+                            </tr>
+                            <tr class="option" onclick="width=9;height=9;mines=10;difficulty='beginner';newGame();">
+                                <td title="Sets game difficulty to beginner (will restart game)">Beginner:</td>
+                            </tr>
+                            <tr class="option" onclick="width=16;height=16;mines=40;difficulty='intermediate';newGame();">
+                                <td title="Sets game difficulty to intermediate (will restart game)">Intermediate:</td>
+                            </tr>
+                            <tr class="option" onclick="width=30;height=16;mines=99;difficulty='expert';newGame();">
+                                <td>Expert:</td>
+                            </tr>
+                            <tr class="option" onclick="customFieldSize(); newGame();" title="Sets game difficulty to custom (will restart game)">
+                                <td title="Sets game difficulty to custom (will restart game)">Custom:</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table cellpadding="5" align="center">                            
+                            <tr>                                                                    
+                                <td title="Columns"><img id="widthIcon" src="sprites/light_mode/buttons/width-arrows.png" alt="" width="50" height="50"></td>
+                                <td style="color:white; font-size: 40; text-align: center;">&times;</td>   
+                                <td title="Rows"><img id="heightIcon" src="sprites/light_mode/buttons/height-arrows.png" alt="" width="50" height="50"></td>
+                                <td style="opacity:0;">hi</td>
+                                <td title="Mines"><img id="bombIcon" src="sprites/light_mode/tiles/bomb.png" alt="" width="50" height="50"></td>
+                            </tr>                            
+                            <tr class="option2" onclick="width=9;height=9;mines=10; difficulty='beginner'; newGame();" title="Sets game difficulty to beginner (will restart game)">                                                                
+                                <td>9</td>
+                                <td>&times;</td>
+                                <td>9</td>
+                                <td style="opacity:0;">hi</td>
+                                <td>10</td>                            
+                            </tr>
+                            <tr class="option2" onclick="width=16;height=16;mines=40; difficulty='intermediate'; newGame();" title="Sets game difficulty to intermediate (will restart game)">                                                                
+                                <td>16</td>
+                                <td>&times;</td>
+                                <td>16</td>
+                                <td style="opacity:0;">hi</td>
+                                <td>40</td>
+                            </tr>
+                            <tr class="option2" onclick="width=30;height=16;mines=99; difficulty='expert'; newGame();" title="Sets game difficulty to expert (will restart game)">                                                                
+                                <td>30</td>
+                                <td>&times;</td>
+                                <td>16</td>
+                                <td style="opacity:0;">hi</td>
+                                <td>99</td>
+                            </tr>
+                            <tr class="option2"  title="Enter size and mines for custom game"> <!-- onclick="width=width;height=height;mines=mines;newGame();"-->                                                                  
+                                <form id="customField">
+                                    <td><input type="text" name="customWidth" placeholder="Cols" value="" size="5"></td>
+                                    <td>&times;</td>
+                                    <td><input type="text" name="customHeight" placeholder="Rows" value="" size="5"></td>
+                                    <td style="opacity:0;">hi</td>
+                                    <td><input type="text" name="customMines" placeholder="Mines" value="" size="5"></td>
+                                </form>
+                            </tr>                                                        
+                        </table>                                                                       
+                    </td>                                        
+                </tr>
+                <tr>
+                    <td style="color:white; font-size: 40; text-align: left;">Extras:</td>
+                    <td colspan="1">
+                        <table align="center">
+                            <form id="extraSettings">
+                                <tr title="Toggles the use of '?' tiles">
+                                    <td><input type="checkbox" name="questionmarks" onclick="toggleExtra(1);"></td>
+                                    <td style="color:white; font-size: 30; text-align: left;">Use <img id="maybeIcon" src="sprites/light_mode/tiles/maybe.png" width="25" height="25"> tiles</td>
+                                </tr>
+                                <tr title="Warns if you have placed too many flags around a tile">
+                                    <td><input type="checkbox" name="showErrors" onclick="toggleExtra(2);"></td>
+                                    <td style="color:white; font-size: 30; text-align: left;">Warn if excessive flags</td>
+                                </tr>
+                                <tr title="Toggles the visability of the retry button">
+                                    <td><input type="checkbox" name="retry" onclick="toggleExtra(3);"></td>
+                                    <td style="color:white; font-size: 30; text-align: left;">Retry button <img id="retryIcon" src="sprites/light_mode/buttons/retry.png" width="25" height="25"></td>
+                                </tr>
+                                <tr title="Displays your best completion times for each difficulty">
+                                    <td><input type="checkbox" name="bestTimes" onclick="toggleExtra(4);"></td>
+                                    <td style="color:white; font-size: 30; text-align: left;">Show best times</td>
+                                </tr>
+                                <tr title="Displays your overall statistics">
+                                    <td><input type="checkbox" name="stats" onclick="toggleExtra(5);"></td>
+                                    <td style="color:white; font-size: 30; text-align: left;">Show statistics</td>
+                                </tr>
+                            </form>
+                        </table>
+                    </td>
+                </tr>
+            </table>                                                                                           
+        </div>
+    </div>
+
+    <img id="cookieButton" style="user-select: none;" src="sprites/light_mode/buttons/cookie.png" onclick="showCookies();" alt="cookies" width="50" height="50" ondragstart="return false;" ondrop="return false;" title="Info about cookies">
+    <img id="controllsButton" style="user-select: none;" src="sprites/light_mode/buttons/controlls.png" onclick="showControlls();" alt="controlls" width="50" height="50" ondragstart="return false;" ondrop="return false;" title="How to play and controlls">
+    <img id="settingsButton" style="user-select: none;" src="sprites/light_mode/buttons/settings.png" onclick="toggleSettings()" alt="settings" width="50" height="50" ondragstart="return false;" ondrop="return false;" title="Open settings">
+    <img id="popupButton" style="user-select: none;" src="sprites/light_mode/buttons/popup.png" href="http://elixia.spelar.se/games/minesweeper" onclick="javascript:void window.open('http://elixia.spelar.se/games/minesweeper','1539021673468','width=700,height=700,toolbar=0,menubar=0,location=0,status=0,scrollbars=0,resizable=1,left=0,top=0');return false;" alt="popup" width="50" height="50" ondragstart="return false;" ondrop="return false;" title="Open game in popup window">
+    <img id="retryButton" src="sprites/light_mode/buttons/retry.png" onclick="retry();" alt="retryButton" style="display:none; user-select: none;" width="50" height="50" ondragstart="return false;" ondrop="return false;" title="Retry current game">
+    <img id="modeButton" src="sprites/light_mode/buttons/mode.png" onclick="toggleDarkMode();" alt="mdoeButton" style="user-select: none;" width="50" height="50" ondragstart="return false;" ondrop="return false;" title="Switch between light & dark mode">
+
+    <div id="fieldHolder" align="center" style="display:block;">
+        
+        <table cellspacing="0" id="field">
+            
+        </table>
+    </div>
+
+    <table id="bestTimesHolder" style="display:none;" align="center" border="0" cellspacing="10" cellpadding="5" onclick="alert('Retrying does not count towards a new best time')">
+        <tr>
+            <td colspan="3" style="font-size: 25; text-align: center;"><strong>Best times</strong></td>
+        </tr>        
+        <tr>
+            <td title="Your best time completing beginner difficulty">
+                <table cellspacing="0" align="center">
+                    <tr>
+                        <td class="playField"><img id="divB1" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitB1" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divB2" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitB2" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divB3" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitB3" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divB4" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                    </tr>
+                </table>
+            </td>            
+            <td title="Your best time completing intermediate difficulty">
+                <table cellspacing="0" align="center">
+                    <tr>
+                        <td class="playField"><img id="divI1" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitI1" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divI2" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitI2" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divI3" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitI3" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divI4" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                    </tr>
+                </table>
+            </td>            
+            <td title="Your best time completing expert difficulty">
+                <table cellspacing="0" align="center">
+                    <tr>
+                        <td class="playField"><img id="divE1" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitE1" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divE2" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitE2" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divE3" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="digitE3" style="user-select: none;" src="sprites/light_mode/digits/blank-digit.png" height="46" width="19" ondragstart="return false;" ondrop="return false;"></td>
+                        <td class="playField"><img id="divE4" style="user-select: none;" src="sprites/light_mode/digits/digit-divider.png" height="46" width="6" ondragstart="return false;" ondrop="return false;"></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th>Beginner</th>
+            <th>Intermediate</th>
+            <th>Expert</th>
+        </tr>
+    </table>
+    
+    <br>
+
+    <table id="statsHolder" style="display:none; text-align: center; background-color: rgb(220, 220, 220)" align="center" border="0" cellspacing="10" cellpadding="5" onclick="alert('A game is counted as a loss only if the game is longer than 10 seconds (to prevent losses due to bad luck in game opening)')">
+        <tr>
+            <th></th>
+            <th>Overall</th>
+            <th>Beginner</th>
+            <th>Intermediate</th>
+            <th>Expert</th>
+            <th>Custom</th>
+        </tr>
+        <tr>
+            <th>Games played</th>
+            <td id="statGP_O"></td>
+            <td id="statGP_B"></td>
+            <td id="statGP_I"></td>
+            <td id="statGP_E"></td>
+            <td id="statGP_C"></td>
+        </tr>
+        <tr>
+            <th>Games won</th>
+            <td id="statGW_O"></td>
+            <td id="statGW_B"></td>
+            <td id="statGW_I"></td>
+            <td id="statGW_E"></td>
+            <td id="statGW_C"></td>
+        </tr>
+        <tr>
+            <th>Games lost</th>
+            <td id="statGL_O"></td>
+            <td id="statGL_B"></td>
+            <td id="statGL_I"></td>
+            <td id="statGL_E"></td>
+            <td id="statGL_C"></td>
+        </tr>
+        <tr>
+            <th>Average game time</th>
+            <td id="statAGT_O"></td>
+            <td id="statAGT_B"></td>
+            <td id="statAGT_I"></td>
+            <td id="statAGT_E"></td>
+            <td id="statAGT_C"></td>
+        </tr>
+        <tr>
+            <th>Average win time</th>
+            <td id="statAWT_O"></td>
+            <td id="statAWT_B"></td>
+            <td id="statAWT_I"></td>
+            <td id="statAWT_E"></td>
+            <td id="statAWT_C"></td>
+        </tr>
+        <tr>
+            <th>Average loss time</th>
+            <td id="statALT_O"></td>
+            <td id="statALT_B"></td>
+            <td id="statALT_I"></td>
+            <td id="statALT_E"></td>
+            <td id="statALT_C"></td>
+        </tr>
+    </table>
+
+    <table style="display:none;">
+        <tr>
+            <td>
+
+                <img src="sprites/light_mode/tiles/tile.png" alt="tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/open-tile.png" alt="open-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/flag.png" alt="flag" width="25" height="25">
+                <img src="sprites/light_mode/tiles/maybe.png" alt="maybe" width="25" height="25">                            
+
+                <img src="sprites/light_mode/tiles/bomb.png" alt="bomb" width="25" height="25">
+                <img src="sprites/light_mode/tiles/not-bomb.png" alt="not-bomb" width="25" height="25">
+                <img src="sprites/light_mode/tiles/exploded-bomb.png" alt="exploded-bomb" width="25" height="25">
+
+                <br>
+
+                <img src="sprites/light_mode/tiles/1-tile.png" alt="1-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/2-tile.png" alt="2-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/3-tile.png" alt="3-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/4-tile.png" alt="4-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/5-tile.png" alt="5-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/6-tile.png" alt="6-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/7-tile.png" alt="7-tile" width="25" height="25">
+                <img src="sprites/light_mode/tiles/8-tile.png" alt="8-tile" width="25" height="25">
+
+                <br>
+
+                <img src="sprites/light_mode/tiles/error-1.png" alt="error-1" width="25" height="25">
+                <img src="sprites/light_mode/tiles/error-2.png" alt="error-2" width="25" height="25">
+                <img src="sprites/light_mode/tiles/error-3.png" alt="error-3" width="25" height="25">
+                <img src="sprites/light_mode/tiles/error-4.png" alt="error-4" width="25" height="25">
+                <img src="sprites/light_mode/tiles/error-5.png" alt="error-5" width="25" height="25">
+                <img src="sprites/light_mode/tiles/error-6.png" alt="error-6" width="25" height="25">
+                <img src="sprites/light_mode/tiles/error-7.png" alt="error-7" width="25" height="25">
+                <img src="sprites/light_mode/tiles/error-8.png" alt="error-8" width="25" height="25">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="sprites/light_mode/buttons/cool.png" width="50" height="50">
+                <img src="sprites/light_mode/buttons/dead.png" width="50" height="50">
+                <img src="sprites/light_mode/buttons/kiss.png" width="50" height="50">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="sprites/light_mode/digits/0-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/1-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/2-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/3-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/4-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/5-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/6-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/7-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/8-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/9-digit.png" width="19" height="46">
+                <img src="sprites/light_mode/digits/digit-negative.png" width="19" height="46">
+            </td>
+        </tr>
+    </table>
+
+    <table style="display:none;">
+        <tr>
+            <td>
+
+                <img src="sprites/dark_mode/tiles/tile.png" alt="tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/open-tile.png" alt="open-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/flag.png" alt="flag" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/maybe.png" alt="maybe" width="25" height="25">                            
+
+                <img src="sprites/dark_mode/tiles/bomb.png" alt="bomb" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/not-bomb.png" alt="not-bomb" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/exploded-bomb.png" alt="exploded-bomb" width="25" height="25">
+
+                <br>
+
+                <img src="sprites/dark_mode/tiles/1-tile.png" alt="1-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/2-tile.png" alt="2-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/3-tile.png" alt="3-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/4-tile.png" alt="4-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/5-tile.png" alt="5-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/6-tile.png" alt="6-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/7-tile.png" alt="7-tile" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/8-tile.png" alt="8-tile" width="25" height="25">
+
+                <br>
+
+                <img src="sprites/dark_mode/tiles/error-1.png" alt="error-1" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/error-2.png" alt="error-2" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/error-3.png" alt="error-3" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/error-4.png" alt="error-4" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/error-5.png" alt="error-5" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/error-6.png" alt="error-6" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/error-7.png" alt="error-7" width="25" height="25">
+                <img src="sprites/dark_mode/tiles/error-8.png" alt="error-8" width="25" height="25">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="sprites/dark_mode/buttons/cool.png" width="50" height="50">
+                <img src="sprites/dark_mode/buttons/dead.png" width="50" height="50">
+                <img src="sprites/dark_mode/buttons/kiss.png" width="50" height="50">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="sprites/dark_mode/digits/0-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/1-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/2-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/3-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/4-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/5-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/6-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/7-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/8-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/9-digit.png" width="19" height="46">
+                <img src="sprites/dark_mode/digits/digit-negative.png" width="19" height="46">
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>
+<script src="http://elixia.spelar.se/libraries/cookies.js"></script>
+<script type="text/javascript" src="minesweeper.js"></script>
