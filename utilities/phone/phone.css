@@ -1,0 +1,54 @@
+.why {
+
+    position: fixed;
+    left: 0;
+    top: 0;
+    color: black;
+}
+
+
+/* method 1 */
+.button_1 {
+
+    border-radius: 4px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border: 2px solid rgb(233, 233, 233);
+    background-color: white;
+    font-size: 15px;
+    opacity: 0.8;
+    -webkit-transition-duration: 0.4s;
+    /* Safari */
+    transition-duration: 0.4s;
+    
+}
+.button_1:hover {
+    
+    background-color: rgb(233, 233, 233); 
+}
+
+/* method 3 */
+
+.sidebar {
+
+    overflow: auto;
+    position: fixed;    
+    width: 100px;
+    height: 100%;
+    background-color: #1a1a1a;
+    top: 0px;
+    right: 0px;
+}
+
+
+/* method 4 */
+
+.box {
+
+    width: 30px;
+    height: 40px;
+    font-size: 25;
+    text-align: center;
+}

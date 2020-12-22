@@ -1,0 +1,112 @@
+<head>
+    <link rel="stylesheet" href="https://kyriaelixia.github.com/server/main.css">
+    <title>Elixia's radix converter</title>
+
+    <style>        
+        body {
+            --fontsize: 15  ;
+            font-size: var(--fontsize);
+        }
+        td {
+            font-size: var(--fontsize);
+        }
+        button {
+
+            border-radius: 8px;
+            background-color: rgb(200, 200, 200);
+            padding: 10px;
+            border: none;
+            font-size: var(--fontsize);
+
+            -webkit-transition-duration: 0.4s;
+            /* Safari */
+            transition-duration: 0.4s;
+        }
+        button:hover {
+
+            
+            background-color: rgb(170, 170, 170);
+        }
+
+        textarea {
+
+            font-size: var(--fontsize);
+            border: none;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 25px;
+            background: #d3d3d3;
+            outline: none;
+            border: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 5px;
+            height: 25px;
+            border: none;
+            background: gray;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 5px;
+            height: 25px;
+            border: none;
+            background: gray;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<script src="https://kyriaelixia.github.com/server/libraries/radix.js"></script>
+<script src="radix.js"></script>
+
+<!-- <p style="font-size: 50px;">In the JS console</p> -->
+<input type="range" name="size" id="size" min="15" max="40" step="0.5" class="slider" style="width: 600;">  
+<br>
+<br>
+<br>
+<br> 
+<table align="center" style="text-align: center;" border="0px">
+    <tr>
+        <td>From Base</td>
+        <td colspan="2" rowspan="2">
+            <button onclick="switchBase();">Switch</button>
+        </td>
+        <td>To Base</td>
+    </tr>
+    <tr>
+        <td id="fromBaseText">10</td>
+        <td id="toBaseText">10</td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="range" name="fromBase" id="fromBase" value="10" min="2" max="36" step="1" class="slider">
+        </td>
+        
+        <td colspan="2">
+            <input type="range" name="toBase" id="toBase" value="10" min="2" max="36" step="1" class="slider">
+        </td>
+    </tr>
+    <tr>
+        
+    </tr>
+    <tr>
+        <td colspan="2">
+            <textarea name="" id="fromValue" cols="30" rows="10" placeholder="Convert this number"></textarea>
+        </td>
+        <td colspan="2">
+            <textarea name="" id="toValue" cols="30" rows="10" placeholder="Converted number" readonly></textarea>
+        </td>
+    </tr>
+</table>
+
+<!-- <p style="font-size: 50px;">radix.convert(value,from_base,to_base);</p> -->

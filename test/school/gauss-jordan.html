@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <title>Elixia's Gauss-Jordan Eleminering</title>
+        <meta charset="utf-8" />
+        <link href="http://elixia.spelar.se/main.css" rel="stylesheet" type="text/css" />
+        <style>
+            input {
+
+                font-size: 18;
+            }
+            #theRealTable {
+
+                font-size: 72;
+            }
+            #meddelande {
+
+                font-size: 28;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <table class="standard" align="center">
+            <tr>
+                <td>
+                    <h1>Gauss-Jordan eliminering av Elixia</h1>
+                </td>
+            </tr>
+            <tr id="firstSettings" style="display:block;">
+                <td>
+                    <form id="sizeForm">
+                        <input type="number" id="matrixSize" value="" placeholder="Matris storlek" size="10">
+                        
+                    </form>                    
+                </td>
+                <td>
+                    <button onclick="createMatrix();">Skapa Matris Inmatning</button>
+                </td>
+            </tr>
+            <tr>
+                <form id="tableMatrix">
+                    <td id="tableHolder" style="display:block;">
+                    
+                    </td>
+                </form>  
+            </tr>
+            <tr id="skapaMatris" style="display:none;">
+                <td><button onclick="addToMatrix();">Skapa Matris</button></td>
+            </tr>
+            <tr>
+                <form id="settings">
+                    <td id="settingsHolder" style="display:none;">
+                        <input type="number" id="matrixMultiplier" value="" placeholder="Multipel" size="10">
+                        <input type="checkbox" id="switch">Byt plats
+                    </td>
+                </form>
+            </tr>
+            <tr>
+                <td id="meddelande"></td>
+            </tr>            
+        </table>
+        <br>
+        <table align="center" class="standard">
+            <tr>
+                <td id="history"></td>
+            </tr>
+        </table>
+        <script src="http://elixia.spelar.se/school/gauss-jordan.js"></script>
+    </body>
+</html>

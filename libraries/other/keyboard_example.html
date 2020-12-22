@@ -1,0 +1,43 @@
+<script src="keyboard.js"></script>
+<script>
+// EXAMPLE PLAYER  
+
+totalPlayers = 2;
+
+controlsP1 = {
+
+    "up": "move('up',player1)",
+    "down": "move('down',player1)",
+    "left": "move('left',player1)",
+    "right": "move('right',player1)"
+};
+
+controlsP2 = {
+
+    "w": "move('up',player2)",
+    "s": "move('down',player2)",
+    "a": "move('left',player2)",
+    "d": "move('right',player2)"
+};
+
+controls = [controlsP1,controlsP2];
+
+inputListener = function() {
+
+    for (p = 0; p < totalPlayers; p++) {
+
+        for (c in controls[p]) {
+                        
+            if (keyboard[c]) {
+                
+                console.log("execute funtion:",controls[p][c]);
+            }
+        }
+    }
+}
+
+
+// EXAMPLE OVER
+
+
+</script>

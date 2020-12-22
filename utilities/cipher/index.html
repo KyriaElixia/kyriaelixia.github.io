@@ -1,0 +1,292 @@
+<head>
+    <meta charset="utf-8">
+    <link href="https://kyriaelixia.github.com/server/main.css" rel="stylesheet" type="text/css">
+    <link href="" rel="icon">
+    
+    <title>Elixia's encrypter/decrypter</title>
+
+    <style>
+        textarea { resize: both; max-width: 1000px; min-width: 500px; max-height: 600px; min-height: 100px;}
+    </style>
+</head>
+<body>
+    
+    <input style="font-size:20px;" type="text" id="key" value="abcdefghijklmnopqrstuvwxyzåäö12345678901!,." placeholder="key" maxlength="100" size="50"> 
+    <button onclick="getNewKey();">new key</button>
+    <button onclick="toggleHideKey();" id="keyHider">hide Key</button>
+    <br>
+    <br>
+
+    <textarea rows="6" cols="50" style="font-size:20px; display:;" id="encrypt" placeholder="Text to encrypt…"></textarea>
+    <textarea rows="6" cols="50" style="font-size:20px; display: none;" id="decrypt" placeholder="Text to decrypt…"></textarea>
+    <br>
+    <!-- <button onclick="textPaste();">Paste clipboard</button>
+    <br> -->
+    <br>
+    <textarea rows="6" cols="50" style="font-size:20px; display:;" id="encrypted" placeholder="Encrypted text…" readonly></textarea>
+    <textarea rows="6" cols="50" style="font-size:20px; display: none;" id="decrypted" placeholder="Decrypted text…" readonly></textarea>
+    <br>
+    <button onclick="switchButton();" id="switch">encrypt mode</button>
+    <button onclick="textCopy();">copy result to clipboard</button>
+</body>
+<script>
+
+    encryptMode = true;
+    keyIn = document.getElementById("key");
+    encIn = document.getElementById("encrypt");
+    encOut = document.getElementById("encrypted");
+    decIn = document.getElementById("decrypt");
+    decOut = document.getElementById("decrypted");
+
+    key = keyIn.value;
+    keyHidden = false;
+
+    encInLog = encIn.value;
+    decInLog = decIn.value;
+
+    width = 0;
+    height = 0;
+    keyTable = 0;
+
+    letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9","0"];
+
+    switchButton = function() {
+        
+        if (encryptMode == true) {
+
+            encryptMode = false;
+
+            document.getElementById("encrypt").style.display = "none";
+            document.getElementById("encrypted").style.display = "none";
+
+            document.getElementById("decrypt").style.display = "";
+            document.getElementById("decrypted").style.display = "";
+
+            document.getElementById("switch").innerHTML = "decrypt mode";
+        }
+        else {
+
+            encryptMode = true;
+
+            document.getElementById("encrypt").style.display = "";
+            document.getElementById("encrypted").style.display = "";
+
+            document.getElementById("decrypt").style.display = "none";
+            document.getElementById("decrypted").style.display = "none";
+
+            document.getElementById("switch").innerHTML = "encrypt mode";
+        }
+    }
+
+    toggleHideKey = function() {
+
+        if (keyHidden == false) {
+
+            keyIn.style.display = "none";
+            document.getElementById("keyHider").innerHTML = "show key";
+            keyHidden = true;
+        }
+        else {
+
+            keyIn.style.display = "";
+            document.getElementById("keyHider").innerHTML = "hide key";
+            keyHidden = false;            
+        }
+    } 
+
+    newKeyTable = function() { 
+
+        oldKey = keyIn.value;
+        newKey = "";
+
+        for (k = 0; k < oldKey.length; k++) {
+
+            if ((new RegExp(oldKey.charAt(k))).test(newKey) == false) {
+                
+                newKey += oldKey.charAt(k);
+            }
+        }
+        keyIn.value = newKey.toLowerCase();
+        
+        width = Math.floor(Math.sqrt(keyIn.value.length));
+        height = Math.ceil(keyIn.value.length/width);        
+
+        keyTable = new Array(width);
+        for (i = 0; i < width; i++) {
+            keyTable[i] = new Array(height);
+        }
+
+        for (b = 0; b < height; b++) {
+            for (a = 0; a < width; a++) {
+
+                keyTable[a][b] = key.charAt(a+width*b);                
+            }
+        }
+        encOut.innerHTML = encrypt(encIn.value);
+        decOut.innerHTML = decrypt(decIn.value);      
+    }
+
+    getNewKey = function() {
+
+        oldKey = keyIn.value.split("");
+
+        newKey = [];
+        
+        while (oldKey.length > 0) {
+
+            randomIndex = Math.floor(Math.random() * oldKey.length);
+
+            newKey.push(oldKey[randomIndex]);
+
+            oldKey.splice(randomIndex,1);                        
+        }
+
+        keyIn.value = newKey.join("").toString();
+    }
+
+    encrypt = function(input) {
+
+        output = "";
+
+        for (c = 0; c < input.length; c++) {
+            for (b = 0; b < height; b++) {
+                for (a = 0; a < width; a++) {
+
+                    if (input.charAt(c) == " ") {
+                        
+                        a = width;
+                        b = height;
+                        output += " ";
+                    }
+                    else if (input.charAt(c) == keyTable[a][b]) {
+
+                        output += letters[b]+letters[a];
+                        a = width;
+                        b = height;
+                    }                                   
+                }
+            }
+        }
+        return output;
+    }
+
+    decrypt = function(input) {
+
+        output = "";
+
+        for (c = 0; c < input.length; c+=2) {
+            
+            notSpace = true;
+            save = "";
+
+            for (b = 0; b < height; b++) {
+                for (a = 0; a < width; a++) {
+
+                    if (input.charAt(c) == " ") {
+                        
+                        notSpace = false;
+                        
+                        output += " ";
+                        c--;
+                        
+                        a = width;
+                        b = height;
+                    }
+                    else if (letters[b] == input.charAt(c)) {
+                        
+                        save = b;
+                        a = width;
+                        b = height;
+                    }                                   
+                }
+            }
+            if (notSpace == true) {
+
+                for (b = 0; b < height; b++) {
+                    for (a = 0; a < width; a++) {
+
+                        if (letters[a] == input.charAt(c+1)) {
+                            
+                            output += keyTable[a][save];
+                            a = width;
+                            b = height;
+                        }                                   
+                    }
+                }
+            }
+        }
+        return output;
+    }
+
+    textCopy = function() {
+
+        if (encryptMode == true) {
+
+            
+            encOut.select();
+            document.execCommand("copy");            
+        }
+        else {
+            
+            decOut.select();
+            document.execCommand("copy");            
+        }
+    }
+
+    textPaste = function() {
+
+        if (encryptMode == true) {
+            
+            encIn.focus();
+            encIn.select();
+            document.execCommand("paste");            
+        }
+        else {
+
+            decIn.focus();
+            decIn.select();
+            document.execCommand("paste");            
+        } 
+    }
+
+    updater = function() {
+
+        if (keyIn.value != key) {
+
+            key = keyIn.value.toLowerCase();            
+
+            newKeyTable();
+        }
+
+        key = keyIn.value;
+         
+        if (encIn.value != encInLog) {
+            
+            encIn.value = encIn.value.toLowerCase();
+            encInLog = encIn.value;
+
+            if ((new RegExp(encIn.value.charAt(encIn.value.length-1))).test(keyIn.value) == false && encIn.value.charAt(encIn.value.length-1) != " ") {
+
+                keyIn.value += encIn.value.charAt(encIn.value.length-1);
+            }
+
+            encOut.innerHTML = encrypt(encIn.value);
+        }
+        if (decIn.value != decInLog) {
+
+            decIn.value = decIn.value.toUpperCase();
+            decInLog = decIn.value;
+
+            if ((new RegExp(decIn.value.charAt(decIn.value.length-1))).test(keyIn.value) == false && decIn.value.charAt(decIn.value.length-1) != " ") {
+
+                keyIn.value += decIn.value.charAt(decIn.value.length-1).toLowerCase();
+            }
+
+            decOut.innerHTML = decrypt(decIn.value);
+        }
+    }
+
+    updateClock = setInterval(updater,1000/60); // 60 á second
+    newKeyTable();
+
+</script>

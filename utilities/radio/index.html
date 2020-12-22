@@ -1,0 +1,40 @@
+<head>
+    <title>GTA SA Radio</title>
+    <meta charset="utf-8" />
+    <link href="https://kyriaelixia.github.com/server/main.css" rel="stylesheet" type="text/css" />     
+</head>
+<body>
+    <h1 align="center">San Andreas Radio</h1>
+    <table align="center">
+        <tr>
+            <td>
+                <img src="K-DST/thumbnail.png" alt="K-DST" width="200" height="200" onclick="play('K-DST')">
+            </td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <h3 align="center">Now playing</h3>
+    <h1 align="center" id="playing"></h1>
+    <h3 align="center" id="station"></h3>
+    <table align="center">
+        <tr>
+            <td id="now"></td>
+            <td width="400" style="background-color:lightgrey">
+                <div id="bar" style="width: 0px; height: 20px;; background-color: red;"></div>
+            </td>
+            <td id="end"></td>
+        </tr>
+    </table>
+    <input type="range" id="volume" max="1" min="0" step="0.01" value="0.5">
+    <br>
+    <div id="queue" align="center">
+        <table id="queueContainer"></table>
+    </div>
+</body>
+<!-- controls -->
+<audio autoplay="autoplay" id="player"> 
+    <source src="" type="audio/mpeg">    
+  </audio>
+<script src="radio.js">
+</script>

@@ -1,0 +1,98 @@
+
+
+<head>
+    <link rel="stylesheet" href="phone.css">
+    <title>Enter your phone number</title>
+</head>
+
+<script src="phone.js"></script>
+
+<div id="mainNumber" style="display: none; font-size: 25; margin-top: 10%;" align="center">
+    <span>Your phone number is</span>
+    <span><strong id="selectedNumber"></strong></span>
+</div>
+
+<div class="why"><a href="why.html">Why?</a></div>
+
+<div id="method1" style="display: none; margin-top: 10%; font-family: Arial, Helvetica, sans-serif;" align="center">
+    <table border="0">
+        <tr>
+            <td>
+                <span>Is this your phone number?</span>
+                <span><strong id="number1">[number generated here]</strong></span>
+                <br>
+                <br>        
+                <button class="button_1" onclick="method.yes()" >Yes</button>
+                <button class="button_1" onclick="method.no()">No</button>   
+            </td>
+        </tr>     
+    </table>
+</div>  
+
+<div id="method2" style="display: none; margin-top: 10%;" align="center">    
+    <table border="0">
+        <tr>
+            <td colspan="5"><strong style="font-size: 20px;">Please enter your phone number:</strong></td>
+        </tr>
+        <tr>
+            <td colspan="5"><br></td>
+        </tr>
+        <tr>
+            <td id="number2">073-660 12 37</td>
+            <td style="padding: 0%;"><button style="padding: 5%" onclick="method.add();">+</button></td>
+            <td><button style="padding: 5%;" onclick="method.submit();">Submit</button></td>
+            <td><button style="padding: 5%;" onclick="method.reset();">Reset</button></td>
+            <td style="width: 15%;"></td>
+        </tr>
+    </table>
+</div>
+
+<div id="method3" style="display: none; font-family: Arial, Helvetica, sans-serif; margin-top: 10%;" onclick="method.click();">
+    <div align="center" style="font-size: 34px;" ><strong>Our form is very sophisticated.</strong></div>
+    <br>
+    <div align="center" style="font-size: 25px;" ><strong>Please draw your phone number, thanks.</strong></div>
+    <br>
+    <table border="0" align="center">
+        <tr id="draw"></tr>
+    </table>
+    <br>
+    <div align="center"><span >Your phone number is</span></div>
+    <br>
+    <div align="center" style="font-size: 48px;"><strong id="number3">___-___ __ __</strong></div>
+    <div  class="sidebar" style="color: white;" align="center">
+        <table style="color: white;" id="sidebar">
+            <tr>
+                <td style="height: 15px;"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="method4" style="display: none; margin-top: 10%;" align="center">
+    
+    <table cellspacing="0" border="0">
+        <tr>
+            <td colspan="12"><strong>Please enter your phone number:</strong></td>
+        </tr>
+        <tr><td colspan="12" style="height: 10px;"></td></tr>
+        <tr>
+            <td><input type="text" id="box4_0" class="box" readonly></td>
+            <td><input type="text" id="box4_1" class="box" readonly></td>
+            <td><input type="text" id="box4_2" class="box" readonly></td>
+            <td>-</td>
+            <td><input type="text" id="box4_3" class="box" readonly></td>
+            <td><input type="text" id="box4_4" class="box" readonly></td>
+            <td><input type="text" id="box4_5" class="box" readonly></td>
+            <td>-</td>
+            <td><input type="text" id="box4_6" class="box" readonly></td>
+            <td><input type="text" id="box4_7" class="box" readonly></td>
+            <td><input type="text" id="box4_8" class="box" readonly></td>
+            <td><input type="text" id="box4_9" class="box" readonly></td>
+        </tr>
+        <tr><td colspan="12" style="height: 10px;"></td></tr>
+        <tr>
+            <td colspan="6"><button onclick="method.restart();" style="width: 100%; height: 30px;">Restart</button></td>
+            <td colspan="6"><button onclick="method.set();" style="width: 100%; height: 30px;">Set</button></td>
+        </tr>
+    </table>
+</div>
