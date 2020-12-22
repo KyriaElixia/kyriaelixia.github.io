@@ -1,0 +1,183 @@
+<head>
+    <title>Elixia's Cuboid</title>
+    <link href="https://kyriaelixia.github.com/server/main.css" rel="stylesheet" type="text/css">
+    <style>
+        button {
+
+            /* font-family: "Roboto", monospace; */
+            background-color: rgb(200, 200, 200);
+            border-radius: 5px;
+            border: none;
+            padding: 6px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            /* font-size: 16px; */
+            margin: 4px 2px;
+            cursor: pointer;
+
+            -webkit-transition-duration: 0.4s; /* Safari */
+            transition-duration: 0.4s;
+        }
+        button:hover {
+
+            background-color: gray;
+        }
+        body {
+            margin: 0px;
+        }
+    </style>
+</head>
+
+<script src="https://kyriaelixia.github.com/server/libraries/radix.js"></script>
+<script src="https://kyriaelixia.github.com/server/libraries/keyboard.js"></script>
+<script src="https://kyriaelixia.github.com/server/libraries/cookies.js"></script>
+<script src="levels.js"></script>
+<script src="cuboid.js"></script>
+<body onmousedown="mouseDown=true;" onmouseup="mouseDown=false;" oncontextmenu="return false;">
+    
+    <table>
+        <tr>
+            <td><button id="gameButton" onclick="start('game');" style="font-size: 72px; padding: 25px; border-radius: 20px;">Start game</button></td>
+            <td><button id="editorButton" onclick="start('editor')" style="font-size: 72px; padding: 25px; border-radius: 20px;">Start editor</button></td>
+            <td><button id="toggleButton" onclick="toggleMode();" style="display: none;">Go to</button></td>
+            <td><button id="playTestButton" onclick="playTest();" style="display: none;">Play-test level</button></td>
+            <td style="color: rgb(235, 235, 235);">--</td>
+            <td id="moves" style="display: none;"></td>
+            <td style="color: rgb(235, 235, 235);">--</td>            
+            <td id="author"></td>
+            <td style="color: rgb(235, 235, 235);">--</td>
+            <td><button id="backwardButton" onclick="levelSelect('backward')" style="display: none;">Last level</button></td>
+            <td><button id="forwardButton" onclick="levelSelect('forward')" style="display: none;">Next level</button></td>
+            <td style="color: rgb(235, 235, 235);">--</td>
+            <td id="highscoreHolder" style="display: none;">Highscore: 0</td>
+            <td><button id="helpButton" style="display: none;" onclick="toggleHelp();">Show help</button></td>          
+        </tr>
+    </table>
+
+    <form id="editorForm" style="user-select: none; display: none" ondragstart="return false" onsubmit="return false">
+        <table id="editorSelector">
+        
+            <tr><td style="vertical-align: middle;">
+                <input type="radio" name="editorForm" id="blankForm">
+                <label for="blankForm"><img src="sprites/grid.png" width="40" draggable="false" style="vertical-align: middle;"> Blank tile</label>
+            </td></tr>
+            <tr><td style="vertical-align: middle;">
+                <input type="radio" name="editorForm" id="tileForm">
+                <label for="tileForm"><img src="sprites/tile.png" width="40" draggable="false" style="vertical-align: middle;"> Normal tile</label>
+            </td></tr>
+            <tr><td>
+                <input type="radio" name="editorForm" id="unstableForm">
+                <label for="unstableForm"><img src="sprites/unstable.png" width="40" draggable="false" style="vertical-align: middle;"> Unstable tile</label>
+            </td></tr>
+            
+            <tr><td>
+                <input type="radio" name="editorForm" id="doorClosedForm">
+                <label for="doorClosedForm"><img src="sprites/door_closed.png" width="40" draggable="false" style="vertical-align: middle;"> Closed trapdoor</label>
+            </td></tr>
+            <tr><td>
+                <input type="radio" name="editorForm" id="doorOpenForm">
+                <label for="doorOpenForm"><img src="sprites/door_open.png" width="40" draggable="false" style="vertical-align: middle;"> Open trapdoor</label>
+            </td></tr>
+            
+            <tr><td>
+                <input type="radio" name="editorForm" id="lightForm">
+                <label for="lightForm"><img src="sprites/light.png" width="40" draggable="false" style="vertical-align: middle;"> Lightweighted button</label>
+            </td></tr>
+            <tr><td>
+                <input type="radio" name="editorForm" id="heavyForm">
+                <label for="heavyForm"><img src="sprites/heavy.png" width="40" draggable="false" style="vertical-align: middle;"> Heavyweighted button</label>
+            </td></tr>
+
+            <tr><td>
+                <input type="radio" name="editorForm" id="startForm">
+                <label for="startForm"><img src="sprites/start.png" width="40" draggable="false" style="vertical-align: middle;"> Start tile</label>
+            </td></tr>
+            <tr><td>
+                <input type="radio" name="editorForm" id="endForm">
+                <label for="endForm"><img src="sprites/end.png" width="40" draggable="false" style="vertical-align: middle;"> End tile</label>
+            </td></tr>
+
+            <tr><td><img src="sprites/blank.png" width="20" draggable="false" style="vertical-align: middle;"></td></tr>
+
+            <tr><td>
+                <input type="radio" name="editorForm" id="xLinkForm">
+                <label for="xLinkForm"><img src="sprites/x-link.png" width="20" draggable="false" style="vertical-align: middle;"> X-Link</label>
+            </td></tr>
+            <tr><td>
+                <input type="radio" name="editorForm" id="yLinkForm">
+                <label for="yLinkForm"><img src="sprites/y-link.png" width="20" draggable="false" style="vertical-align: middle;"> Y-Link</label>
+            </td></tr>
+            <tr><td>
+                <input type="radio" name="editorForm" id="zLinkForm">
+                <label for="zLinkForm"><img src="sprites/z-link.png" width="20" draggable="false" style="vertical-align: middle;"> Z-Link</label>
+            </td></tr>
+            <tr><td>
+                <input type="radio" name="editorForm" id="sLinkForm">
+                <label for="sLinkForm"><img src="sprites/s-link.png" width="20" draggable="false" style="vertical-align: middle;"> Single use</label>
+            </td></tr>
+
+            <tr><td><img src="sprites/blank.png" width="20" draggable="false" style="vertical-align: middle;"></td></tr>
+
+            <tr><td><table>
+                <tr><td colspan="2" align="center"><button style="width: 50px;" onclick="moveGrid('up')">Up</button></td>
+                    <td rowspan="3"><button style="width: 85px;" onclick="rotateGrid('clockwise');">Dextral</button>
+                    <br>
+                    <button style="width: 85px;" onclick="rotateGrid('counterclockwise');">Sinistral</button></td>
+                </tr>
+                <tr><td align="right"><button style="width: 50px;" onclick="moveGrid('left')">Left</button></td><td align="left"><button style="width: 50px;" onclick="moveGrid('right')">Right</button></td></tr>
+                <tr><td colspan="2" align="center"><button style="width: 50px;" onclick="moveGrid('down')">Down</button></td></tr>
+            </table></td></tr>
+
+            <tr><td><img src="sprites/blank.png" width="20" draggable="false" style="vertical-align: middle;"></td></tr>
+            <tr><td></td></tr>
+            <tr><td>Use 1-9 & X,Y,Z,S to quick select</td></tr>
+
+        </table>
+        <table id="levelDock">   
+            <tr><td> </td></tr>         
+            <tr>
+                <td style="font-size: 15px;">Level export/import | Complete Play-test to export level</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td rowspan="2" colspan="1">
+                    <textarea name="textbox" id="levelCode" cols="162" rows="5" style="font-size: 8px; font-family: potraFont; resize: none; border: 0px; " maxlength="800"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button id="exportButton" onclick="exportMap()" style="display: none;">Export level</button>
+                    <button id="importButton" style="width: 150px;" onclick="loadMap('textbox')">Import level</button>
+                    <br><button id="copyButton" onmouseout="this.innerHTML='Copy level code';" style="width: 150px;" onclick="copyMap();">Copy level code</button>
+                </td>                                                
+            </tr>                    
+            <tr><td colspan="2" style="font-size: 15px;"><br>Paste area</td></tr>
+            <tr>
+                <td colspan="2">
+                    <textarea onchange="savePaste();" onkeyup="savePaste();" name="textbox" id="pasteArea" cols="107" rows="20" style="font-size: 12px; font-family: potraFont; resize: none; border: 0px; " maxlength="800"></textarea>
+                </td>
+            </tr>
+    </table>
+    </form>
+    <table id="help" style="display: none;">
+        
+        <tr><td><img src="sprites/standing.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>You, the player (standing up)</td></tr>
+        <tr><td><img src="sprites/tile.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Normal tile</td></tr>
+        <tr><td><img src="sprites/unstable.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Unstable tile, standing up on this tile causes you to fall</td></tr>
+        <tr><td><img src="sprites/door_closed.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Closed door, can be opened by buttons</td></tr>
+        <tr><td><img src="sprites/door_open.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Open door, albe to be walked on if closed</td></tr>
+        <tr><td><img src="sprites/light.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Lightweighted button, opens and closes doors if stood or laid on</td></tr>
+        <tr><td><img src="sprites/heavy.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Heavyweighted button, can only be activated if standing up on</td></tr>
+        <tr><td><img src="sprites/start.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Starting tile</td></tr>
+        <tr><td><img src="sprites/end.png" width="40" draggable="false" style="vertical-align: middle; user-select: none;"></td><td>Level end tile</td></tr>
+    </table>
+<!-- 
+    <p style="position: absolute; left: 44px; top: 24px; width: 0px; height: 0px; user-select: none; pointer-events: none; color: black;">X</p>
+    <p style="position: absolute; left: 66px; top: 24px; width: 0px; height: 0px; user-select: none; pointer-events: none; color: black;">Y</p>
+    <p style="position: absolute; left: 44px; top: 44px; width: 0px; height: 0px; user-select: none; pointer-events: none; color: black;">Z</p>
+    <p style="position: absolute; left: 66px; top: 44px; width: 0px; height: 0px; user-select: none; pointer-events: none; color: black;">S</p>
+    
+    <p style="position: absolute; left: 44px; top: 24px; width: 0px; height: 0px; user-select: none; pointer-events: none; color: black;">X</p>
+ -->
+</body>

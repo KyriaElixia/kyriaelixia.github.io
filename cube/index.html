@@ -1,0 +1,2997 @@
+<head>
+    <meta charset="utf-8" />
+    <title>Benzky's Cube</title>
+</head>
+<script src="http://spelprogrammering.nu/simple.js">
+
+    SizeX = 30;
+    SizeY = 30;
+    x = 0 - SizeX;
+    y = totalHeight/2+100 - SizeY/2;
+    dx = 10;
+    dy = 0;
+    colour = "magenta"
+    cooldown = 120;
+
+    AllySize = 15;
+
+    preloadSound("https://kyriaelixia.github.com/server/games/sounds/Death.mp3");
+
+    Spread = 999;
+
+    r = 80;
+
+    ShotFrequency = 10;
+    ShotFrequencyCap = 3;
+    AttackPower = 1;
+    AttackPowerCap = 2;
+    SpecialAttackMoveCooldown = 0;
+    SpecialMoveTimer = 0;
+    SpecialShotCount = 4;       //Ger Tre skott
+    SpecialShotCountCap = 7;    // Maxar på 6
+
+    PlayerBulletSpeed = 10;
+    EnemyBulletSpeed = 7/1080*totalHeight;
+    EnemyShotFrequency = 90;
+
+    bColour = mixColor(255,0,0);
+    ebColour = "orange";
+
+    pressBG = false;
+    whatBG = 0;
+    BackgroundColourChoices = [ "Tomato", "Lime", "Yellow", "Cyan", "#007fff", "Purple", "Green", "Indigo", "LightBlue"];
+    BackgroundColour = randomAlternative(BackgroundColourChoices);
+    BackgroundColourDeFacto = BackgroundColour;
+
+    Pause = true;
+    PauseCD = false;
+    EnemyInv = false;
+
+    Score = 0;
+
+    eCD = 0;
+
+    tempB = 0;
+    tempP = 0;
+
+    w = 1/120;
+
+    ClickCD = false;
+
+    playerSpeed = 2.5;
+
+    liv = 4;
+
+    Invincibility = false;
+
+    Uncontrollable = true;
+
+    updatesPerSecond = 90;
+
+    LeftieModo = false;
+
+    LevelTimer = 0;
+    Chapter = 0;
+
+    timer = 0;
+    AllySpinTimer = 0;
+    AllyCap = 4;
+
+    GameOver = false;
+
+    EnemyHP = 20;
+    Phase = 0;
+    FinalBossStart = false;
+    eSizeX = 40;
+    eSizeY = 40;
+
+    SongList = ["Blitzkreig Driver", "Blues Drive Monster", "NOMA - Brain Power", "Despacito", "EfterTextMusik", "DJ Yoshitaka - Evans", "Flower But Better", "Flower", "God Knows I'm Accidentally In Love", "Hangar", "Hare la Yukai", "Irony Desho Desho", "It's Gonna Be Super Special, Right", "Kuusou Rumba Rap", "Numb", "Ocean Man", "Reunite Your World", "Ringo Mogire Beam", "Shuric Scan", "Smoooch", "Suneel's Bouken Desho Desho Acapella over the Instrumental of the song so it sounds unedited but is actually edited", "Theory of Eternity", "Through the Driver and Flames", "Through the Fire and Flames", "Top Gear", "Yare Yare Yukai", "You're a big guy, right, right"];
+    SpelarJustNu = 0;
+
+    InvincibilityFramesTimer = 0;
+
+    MenyFlag = true;
+    EfterTexterFlag = false;
+    TeacherModeFlag = false;
+    ExplosionFlag = true;
+    PauseFlag = false;
+
+    CoolVar = "Press for something cute";
+
+    DeathExplosion = new Array(0);
+    BackgroundExplosion = new Array(0);
+    press = false;
+
+    function start(){
+
+        document.getElementById("The music").volume = 0.69
+
+        scale((totalWidth/1366),(totalHeight/768));
+
+        PlayMusic("Hangar");
+
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/Death.mp3");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/pang0.mp3");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/pang1.mp3");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/pang2.mp3");
+
+        pBullet = [];
+
+        eBullet = [];
+
+        fiende = [];
+
+        Loot = [];
+
+        Allies = [];
+
+        openFullscreen();
+        
+    }
+    function openFullscreen() {
+
+        elem = document.getElementById("canvas");
+
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        }
+        else if (elem.mozRequestFullScreen) { /* Firefox */
+            elem.mozRequestFullScreen();
+        }
+        else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+            elem.webkitRequestFullscreen();
+        }
+        else if (elem.msRequestFullscreen) { /* IE/Edge */
+            elem.msRequestFullscreen();
+        }
+    }
+
+    function update(){
+
+        if(MenyFlag == true){
+
+            Meny();
+
+        }
+
+        else{
+
+            if(Pause == false){
+
+                if(GameOver == false){
+
+                        clearScreen();
+
+                        Background();
+
+                        for (i = 0; i < BackgroundExplosion.length; i++) {
+
+                            BackgroundExplosion[i].colorSwitch();
+
+                            BackgroundExplosion[i].update(i);
+
+                        }
+
+                        for (i = 0; i < DeathExplosion.length; i++) {
+
+                            DeathExplosion[i].colorSwitch();
+
+                            DeathExplosion[i].update(i);
+
+                        }
+
+                        for(i = 0; i < Loot.length; i++){
+
+                            Loot[i].update(i);
+
+                        }
+
+                        for(i = 0; i < pBullet.length; i++){
+
+                            tempP = pBullet.length;
+
+                            pBullet[i].update(i);
+
+                            if(tempP > pBullet.length){
+
+                                i -= tempP - pBullet.length;
+
+                            }
+
+                        }
+
+                        CanEnemiesFeelPain();
+
+                        for(i = 0; i < eBullet.length; i++){
+
+                            tempB = eBullet.length;
+
+                            eBullet[i].update(i);
+
+                            if(tempB > eBullet.length){
+
+                                i -= tempB - eBullet.length;
+
+                            }
+
+                        }
+
+                        Ouch();
+
+                        playerUpdate();
+
+                        if(keyboard.shift){
+
+                            hitboxUpdate();
+
+                        }
+
+                        for(i = 0; i < fiende.length; i++){
+
+                            fiende[i].update(i);
+
+                        }
+
+                        if(EfterTexterFlag == false){
+
+                            if(eCD > 290){
+
+                                if(FinalBossStart == false){
+
+                                    Level1();
+
+                                }
+
+                                else{
+
+                                    FinalBoss();
+                                }
+
+
+                            }
+
+                            else{
+
+                                eCD++;
+
+                            }
+
+                        }
+
+                        else{
+
+                            EfterTexter();
+
+                        }
+
+                        UI();
+
+                        cooldown++;
+
+                        if(SpecialAttackMoveCooldown > 0){
+
+                            SpecialAttackMoveCooldown--;
+
+                        }
+                    }
+                    
+                CoolVar = "Press for something cute";
+
+            }
+            
+            else if(Pause == true){
+
+                PauseMeny();
+
+            }
+
+        }
+
+        if(mouse.left != true && ClickCD == true){
+
+            ClickCD = false;
+
+        }
+
+    }
+
+    function SongDurationShower(Xpos, Ypos, Xsize, Ysize, BarColour, PleaseNoScale){
+
+        this.PleaseNoScale = PleaseNoScale
+
+        if(this.PleaseNoScale == true){
+
+            this.x = Xpos;
+            this.y = Ypos;
+            this.Xsize = Xsize;
+            this.Ysize = Ysize;
+
+        }
+
+        else{
+
+            this.x = Xpos/1366*totalWidth;
+            this.y = Ypos/768*totalHeight;
+            this.Xsize = Xsize/1366*totalWidth;
+            this.Ysize = Ysize/768*totalHeight;
+
+        }
+
+        this.BarColour = BarColour;
+
+        this.update = function(){
+
+            rectangle(this.x - 3, this.y - 3, this.Xsize + 6, this.Ysize + 6, "Black");
+            rectangle(this.x, this.y, this.Xsize, this.Ysize, "White");
+            rectangle(this.x, this.y, this.Xsize * document.getElementById("The music").currentTime/document.getElementById("The music").duration, this.Ysize, "Cyan");
+
+        }
+
+        this.ButtWhatIfIClickedIt = function(){
+
+            if(this.PleaseNoScale == true){
+
+                if(mouse.x/totalWidth*1366 > this.x && mouse.x/totalWidth*1366 < this.x + this.Xsize && mouse.y/totalHeight*768 > this.y && mouse.y/totalHeight*768 < this.y + this.Ysize){
+                    
+                    return true;
+
+                }
+
+            }
+
+            else if(mouse.x > this.x && mouse.x < this.x + this.Xsize && mouse.y > this.y && mouse.y < this.y + this.Ysize){
+                
+                return true;
+
+            }
+
+        }
+
+    }
+
+    function JustSliding(ButtX, ButtY, ButtSizeX, ButtSizeY, SliderSize, Color, NumberOStops, SlidinVar, PleaseNoScale){
+
+        this.PleaseNoScale = PleaseNoScale;
+
+        if(this.PleaseNoScale == true){
+
+            this.x = ButtX;
+            this.y = ButtY;
+            this.SizeX = ButtSizeX;
+            this.SizeY = ButtSizeY;
+            this.SliderSize = SliderSize;
+
+        }
+
+        else{
+
+            this.x = ButtX/1366*totalWidth;
+            this.y = ButtY/768*totalHeight;
+            this.SizeX = ButtSizeX/1366*totalWidth;
+            this.SizeY = ButtSizeY/768*totalHeight;
+            this.SliderSize = SliderSize/1366*totalWidth;
+
+        }
+
+        this.Colour = Color;
+        this.TextSize = this.SizeY/3
+        this.NumberOStops = NumberOStops;
+        this.StopNumber = SlidinVar;
+
+
+        this.update = function(ButtText){
+
+            rectangle(this.x - 3, this.y - 3, this.SizeX + 6, this.SizeY + 6, "Black");
+            rectangle(this.x, this.y, this.SizeX, this.SizeY, this.Colour);
+            rectangle(this.x + this.StopNumber*this.SizeX/(this.NumberOStops-1) - this.StopNumber*(this.SliderSize+6)/(this.NumberOStops-1),this.y, this.SliderSize + 6, this.SizeY, "Dimgray");
+            rectangle(this.x + 3 + this.StopNumber*this.SizeX/(this.NumberOStops-1)- this.StopNumber*(this.SliderSize+6)/(this.NumberOStops-1),this.y, this.SliderSize, this.SizeY, "Darkgray");
+            text(this.x + 20, this.y + this.TextSize/4 + this.SizeY/2, this.TextSize, ButtText, "Black");
+
+        }
+
+        this.ButtWhatIfIClickedIt = function(){
+
+            if(this.PleaseNoScale == true){
+
+                if(Math.round((mouse.x/totalWidth*1366 + (this.SliderSize+6)*this.StopNumber/(this.NumberOStops-1) - (this.SliderSize+3)/2 - this.x)/(this.SizeX/(this.NumberOStops-1))) >= 0 && Math.round((mouse.x/totalWidth*1366 + (this.SliderSize+6)*this.StopNumber/(this.NumberOStops-1) - (this.SliderSize+3)/2 - this.x)/(this.SizeX/(this.NumberOStops-1))) < this.NumberOStops){
+                    
+                    this.StopNumber = Math.round((mouse.x/totalWidth*1366 + (this.SliderSize+6)*this.StopNumber/(this.NumberOStops-1) - (this.SliderSize+3)/2 - this.x)/(this.SizeX/(this.NumberOStops-1)));
+                    return this.StopNumber;
+
+                }
+
+            }
+
+            else{
+
+                if( Math.round((mouse.x + (this.SliderSize+6)*this.StopNumber/(this.NumberOStops-1) - (this.SliderSize+3)/2 - this.x)/(this.SizeX/(this.NumberOStops-1))) >= 0 && Math.round((mouse.x + (this.SliderSize+6)*this.StopNumber/(this.NumberOStops-1) - (this.SliderSize+3)/2 - this.x)/(this.SizeX/(this.NumberOStops-1))) < this.NumberOStops){
+                    
+                    this.StopNumber = Math.round((mouse.x + (this.SliderSize+6)*this.StopNumber/(this.NumberOStops-1) - (this.SliderSize+3)/2 - this.x)/(this.SizeX/(this.NumberOStops-1)));
+                    return this.StopNumber;
+
+                }
+
+            }
+
+            return this.StopNumber;
+
+        }
+
+    }
+
+    function Meny(){
+
+        picture(0,0,"https://kyriaelixia.github.com/server/games/cube/sprites/preview.png");
+
+        if(LevelTimer >= 295 && keyboard.ctrl == false){
+
+            PressThis = new Knapp(1366/2 - 125, 768/2 - 25, 250, 50, "White", "White", true);
+            PressThis.update("Tryck på mig ;)", true);
+
+            if(mouse.left == true && ClickCD == false){
+
+                if(PressThis.ButtWhatIfIClickedIt() == true){
+
+                    MenyFlag = false;
+                    scale(1366/totalWidth,768/totalHeight);
+                    LevelTimer = 0;
+
+                }
+
+                ClickCD = true;
+
+            }
+        }
+
+        else{
+
+            LevelTimer++;
+
+        }
+
+
+    }
+
+    function Knapp(ButtX, ButtY, ButtSizeX, ButtSizeY, Color, ToggledColor, PleaseNoScale){
+
+        this.PleaseNoScale = PleaseNoScale;
+
+        if(this.PleaseNoScale == true){
+
+            this.x = ButtX;
+            this.y = ButtY;
+            this.SizeX = ButtSizeX;
+            this.SizeY = ButtSizeY;
+
+        }
+
+        else{
+
+            this.x = ButtX/1366*totalWidth;
+            this.y = ButtY/768*totalHeight;
+            this.SizeX = ButtSizeX/1366*totalWidth;
+            this.SizeY = ButtSizeY/768*totalHeight;
+
+        }
+
+        this.Colour = Color;
+        this.ToggledColor = ToggledColor;
+        this.ActualColour = this.Coluor;
+        this.TextSize = this.SizeY/3
+
+        this.update = function(ButtText, flag){
+
+            if(flag == true){
+
+                this.ActualColour = this.Colour;
+
+            }
+
+            else{
+
+                this.ActualColour = this.ToggledColor;
+
+            }
+
+            rectangle(this.x - 3, this.y - 3, this.SizeX + 6, this.SizeY + 6, "Black");
+            rectangle(this.x, this.y, this.SizeX, this.SizeY, this.ActualColour);
+            text(this.x + 20, this.y + this.TextSize/4 + this.SizeY/2, this.TextSize, ButtText, "Black");
+
+        }
+
+        this.ButtWhatIfIClickedIt = function(){
+
+            if(this.PleaseNoScale == true){
+
+                if(mouse.x/totalWidth*1366 > this.x && mouse.x/totalWidth*1366 < this.x + this.SizeX && mouse.y/totalHeight*768 > this.y && mouse.y/totalHeight*768 < this.y + this.SizeY){
+                    
+                    return true;
+
+                }
+
+            }
+
+            else if(mouse.x > this.x && mouse.x < this.x + this.SizeX && mouse.y > this.y && mouse.y < this.y + this.SizeY){
+                
+                return true;
+
+            }
+
+        }
+
+    }
+
+    function EfterTexter(){
+
+        if(LevelTimer == 3){
+
+            PlayMusic("EfterTextMusik");
+
+        }
+
+        circle(totalWidth/2, totalHeight/2 + 100, totalWidth, "White");
+
+        LevelTimer++;
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 200 - LevelTimer/2, 32/1920*totalWidth, "Skapat av", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 250 - LevelTimer/2, 32/1920*totalWidth, "Alex Benny Tobias Elias Norlin", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 400 - LevelTimer/2, 32/1920*totalWidth, "Till minne av", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 450 - LevelTimer/2, 32/1920*totalWidth, "Mogge Gaming", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 600 - LevelTimer/2, 32/1920*totalWidth, "Kan inte fatta att", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 650 - LevelTimer/2, 32/1920*totalWidth, "alla dog i nya Avengers Infinity War", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 800 - LevelTimer/2, 32/1920*totalWidth, "Konstdirektör", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 850 - LevelTimer/2, 32/1920*totalWidth, "Alex Benny Tobias Elias Norlin", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1000 - LevelTimer/2, 32/1920*totalWidth, "Programmerare", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1050 - LevelTimer/2, 32/1920*totalWidth, "Alex Benny Tobias Elias Norlin", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1200 - LevelTimer/2, 32/1920*totalWidth, "Speltestare", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1250 - LevelTimer/2, 32/1920*totalWidth, "Alex Benny Tobias Elias Norlin", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1300 - LevelTimer/2, 32/1920*totalWidth, "Kristian Jandric", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1450 - LevelTimer/2, 32/1920*totalWidth, "Kostym designer", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1500 - LevelTimer/2, 32/1920*totalWidth, "Alex Benny Tobias Elias Norlin", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1650 - LevelTimer/2, 32/1920*totalWidth, "Grabb som skötte ljudet", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1700 - LevelTimer/2, 32/1920*totalWidth, "Alex Benny Tobias Elias Norlin", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1850 - LevelTimer/2, 32/1920*totalWidth, "Alex Norlin", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 1900 - LevelTimer/2, 32/1920*totalWidth, "Kristian Jandric", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2050 - LevelTimer/2, 32/1920*totalWidth, "Stor Kille", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2100 - LevelTimer/2, 32/1920*totalWidth, "Alex Benny Tobias Elias Norlin", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2250 - LevelTimer/2, 32/1920*totalWidth, "Min Torsdags Middag", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2300 - LevelTimer/2, 32/1920*totalWidth, "Tomat soppa", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2450 - LevelTimer/2, 32/1920*totalWidth, "Mina idioter till katter", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2500 - LevelTimer/2, 32/1920*totalWidth, "Rally", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2550 - LevelTimer/2, 32/1920*totalWidth, "Sally", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2700 - LevelTimer/2, 32/1920*totalWidth, "Spela ett bättre spel", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 2850 - LevelTimer/2, 32/1920*totalWidth, "H", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3000 - LevelTimer/2, 32/1920*totalWidth, "Huvudkaraktär", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3050 - LevelTimer/2, 32/1920*totalWidth, "Cube Guy", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3200 - LevelTimer/2, 32/1920*totalWidth, "Motståndare", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3250 - LevelTimer/2, 32/1920*totalWidth, "Musse", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3400 - LevelTimer/2, 32/1920*totalWidth, "Shoutout till", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3450 - LevelTimer/2, 32/1920*totalWidth, "Alla mina fan", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3600 - LevelTimer/2, 32/1920*totalWidth, "Ett speciellt tack till", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3650 - LevelTimer/2, 32/1920*totalWidth, "Morgan", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3800 - LevelTimer/2, 32/1920*totalWidth, "CGI artist", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 3850 - LevelTimer/2, 32/1920*totalWidth, "Fortfarande Alex", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4000 - LevelTimer/2, 32/1920*totalWidth, "Musik", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4050 - LevelTimer/2, 32/1920*totalWidth, "Inte jag i alla fall", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4200 - LevelTimer/2, 32/1920*totalWidth, "Eftertexts artist", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4250 - LevelTimer/2, 32/1920*totalWidth, "Alex", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4400 - LevelTimer/2, 32/1920*totalWidth, "Väghinder", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4450 - LevelTimer/2, 32/1920*totalWidth, "Stockholms stad", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4600 - LevelTimer/2, 32/1920*totalWidth, "Kolla på Röda hämnden", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4650 - LevelTimer/2, 32/1920*totalWidth, "tack", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4800 - LevelTimer/2, 32/1920*totalWidth, "Kom ihåg att skriva", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 4850 - LevelTimer/2, 32/1920*totalWidth, "något här", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5000 - LevelTimer/2, 32/1920*totalWidth, "Sötnos", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5050 - LevelTimer/2, 32/1920*totalWidth, "Den som spelar just nu", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5200 - LevelTimer/2, 32/1920*totalWidth, "Grattis på Musses", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5250 - LevelTimer/2, 32/1920*totalWidth, "Födelsedag", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5400 - LevelTimer/2, 32/1920*totalWidth, "En stor applåd", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5450 - LevelTimer/2, 32/1920*totalWidth, "för musse", "Black");
+
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5600 - LevelTimer/2, 32/1920*totalWidth, "Stavkontrol", "Black");
+        text((totalWidth/2 - 350)/1920*totalWidth, totalHeight + 5650 - LevelTimer/2, 32/1920*totalWidth, "alex Norlin", "Black");
+
+        if(LevelTimer >= 6700*2){
+
+            text((totalWidth/2 - 400)/1920*totalWidth, totalHeight/2 + 100, 144, "You Win", "Black");
+
+        }
+
+    }
+
+    function Level1(){
+    
+        if(Chapter == 0){
+
+            if(LevelTimer == 200){
+
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*3+200, 1, 2, 1, 2, 30, 1, "0", 1)); 
+
+            }
+
+            if(LevelTimer == 600){
+
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*4+200, 0.5, 2, 1, 1, 30, 1, "0", 1)); 
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*2+200, 0.5, 2, 1, 1, 30, 1, "0", 1));     
+
+            }
+
+        }
+
+        else if(Chapter == 1){
+
+            if(LevelTimer % 30 == 0 && LevelTimer <= 180 && LevelTimer >= 120){
+
+                fiende.push(new Baddie2(1400/1920*totalWidth, 0, 0.25, 2, 1, 1, 10, 0.8, "S", 2,));
+
+            }
+
+            else if(LevelTimer % 30 == 0 && LevelTimer >= 270 && LevelTimer <= 340){
+
+                fiende.push(new Baddie2(1200/1920*totalWidth, 0, 0.25, 2, 1, 1, 10, 0.8, "P", 1,));
+
+            }
+
+            else if(LevelTimer == 700){
+
+                fiende.push(new Baddie1(3, ((totalHeight-200)/6)+200, 0.25, 2, 1, 1, 0, 1, "+", 1));
+                fiende.push(new Baddie1(3, ((totalHeight-200)/6)*5+200, 0.25, 2, 1, 1, 0, 1, "+", 1));
+
+            }
+
+            else if(LevelTimer == 750){
+
+                fiende.push(new Baddie1(4, ((totalHeight-200)/6)*2+200, 0.25, 2, 1, 1, 0, 1, "A", 1));
+                fiende.push(new Baddie1(4, ((totalHeight-200)/6)*4+200, 0.25, 2, 1, 1, 0, 1, "A", 1));
+
+            }
+
+            else if(LevelTimer == 800){
+
+            fiende.push(new Baddie1(5, ((totalHeight-200)/6)*3+200, 0.25, 2, 1, 1, 0, 1, "Random", 1));
+
+            }
+
+        }
+
+        else if(Chapter == 2){
+
+            if(LevelTimer == 200){
+
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*3+200, 1, 1, 1, 1, 30, 1, "0", 1));
+
+            }
+
+            if(LevelTimer == 600){
+
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*4+200, 0.5, 1, 1, 1, 30, 1, "0", 1)); 
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*2+200, 0.5, 1, 1, 1, 30, 1, "0", 1));    
+
+            }
+
+        }
+        
+        else if(Chapter == 3){
+
+            if(LevelTimer == 1){
+
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*5+200, 0.5, 1, 1, 2, 30, 0.5, "S", 1)); 
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*1+200, 0.5, 1, 1, 2, 30, 0.5, "S", 1)); 
+
+            }
+
+            if(LevelTimer == 50){
+
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*4+200, 0.5, 1, 1, 2, 30, 0.3, "P", 1)); 
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*2+200, 0.5, 1, 1, 2, 30, 0.3, "P", 1)); 
+
+            }
+
+            if(LevelTimer == 100){
+
+                fiende.push(new Baddie1(2, ((totalHeight-200)/6)*3+200, 0.5, 2, 2, 2, 30, 0.7, "Random", 1));
+
+            }
+
+        }
+
+        else if(Chapter == 4){
+
+            FinalBossStart = true;
+            LevelTimer = 0;
+
+        }
+
+        LevelTimer++;
+
+        if(LevelTimer >= 1000 && fiende.length == 0){
+
+            Chapter++;
+            LevelTimer = 0;
+
+        }
+    }
+
+    function FinalBoss(){
+
+        if(Phase == 0){
+
+            EnemyInv = true;
+            BossPreFight(LevelTimer);
+
+            if(LevelTimer == 400){
+
+                Phase = 1;
+                LevelTimer = 0;
+
+            }
+
+        }
+        else if(Phase == 1){
+
+            BossPreFight(LevelTimer);
+
+        }
+
+        else if(Phase == 2){
+
+            EnemyInv = false;
+
+            if(LevelTimer % 10 == 0){
+
+                if(LevelTimer >= 2*totalHeight - 400){
+
+                    LevelTimer = 0;
+
+                }
+
+                if(LevelTimer < totalHeight - 200){
+
+                    eBullet.push(new BulletBoi(totalWidth + 300, 200 + (LevelTimer % (totalHeight - 200))/2 - 50, 1, 2, 5, 1, 200 - (SizeX-5) + (LevelTimer % (totalHeight - 200))/2 - 50, true ));
+                    eBullet.push(new BulletBoi(totalWidth + 300, totalHeight - (LevelTimer % (totalHeight - 200))/2 + 50, 1, 2, 5, 1, totalHeight - (SizeX-5) - (LevelTimer % (totalHeight - 200))/2 + 50, true ));            
+                
+                }
+
+                else if(LevelTimer >= totalHeight - 200){
+
+                    eBullet.push(new BulletBoi(totalWidth + 300, 200 + (totalHeight - 201)/2 - 50 - (LevelTimer % (totalHeight - 200))/2 , 1, 2, 5, 1, 200 - (SizeX-5) + (totalHeight - 201)/2 - 50 - (LevelTimer % (totalHeight - 200))/2, true  ));
+                    eBullet.push(new BulletBoi(totalWidth + 300, totalHeight - (totalHeight - 201)/2 + 50 + (LevelTimer % (totalHeight - 200))/2 , 1, 2, 5, 1, totalHeight - (SizeX-5) - (totalHeight - 201)/2 + 50 + (LevelTimer % (totalHeight - 200))/2, true ));   
+                
+                }
+                
+                LevelTimer+=9;
+
+            }
+
+        }
+
+        else if(Phase == 3){
+
+            if(LevelTimer % 10 == 0){
+
+                if(LevelTimer >= 2*totalHeight - 400){
+
+                    LevelTimer = 0;
+
+                }
+
+                if(LevelTimer % ceil((2*totalHeight - 400)/20) == 0){
+
+                    eBullet.push(new BulletBoi(totalWidth - 100, totalHeight/2+100, 1, 1.5, 2, x, y));
+
+                }
+
+                if(LevelTimer < totalHeight - 200){
+
+                    eBullet.push(new BulletBoi(totalWidth + 300, 200 + (LevelTimer % (totalHeight - 200))/2 - 50, 1, 2, 5, 1, 200 - (SizeX-5) + (LevelTimer % (totalHeight - 200))/2 - 50, true ));
+                    eBullet.push(new BulletBoi(totalWidth + 300, totalHeight - (LevelTimer % (totalHeight - 200))/2 + 50, 1, 2, 5, 1, totalHeight - (SizeX-5) - (LevelTimer % (totalHeight - 200))/2 + 50, true ));            
+                
+                }
+
+                else if(LevelTimer >= totalHeight - 200){
+
+                    eBullet.push(new BulletBoi(totalWidth + 300, 200 + (totalHeight - 201)/2 - 50 - (LevelTimer % (totalHeight - 200))/2 , 1, 2, 5, 1, 200 - (SizeX-5) + (totalHeight - 201)/2 - 50 - (LevelTimer % (totalHeight - 200))/2, true ));
+                    eBullet.push(new BulletBoi(totalWidth + 300, totalHeight - (totalHeight - 201)/2 + 50 + (LevelTimer % (totalHeight - 200))/2 , 1, 2, 5, 1, totalHeight - (SizeX-5) - (totalHeight - 201)/2 + 50 + (LevelTimer % (totalHeight - 200))/2, true ));   
+                
+                }
+
+                LevelTimer+=9;
+
+            }
+
+        }
+
+        else if(Phase == 4){
+
+            if(EnemyInv == false){
+
+                LevelTimer = 0;
+
+            }
+
+            EnemyInv = true;
+
+            if(LevelTimer == 300){
+
+                Phase++;
+                LevelTimer = 0;
+
+            }
+
+        }
+
+        else if(Phase == 5){
+
+            if(LevelTimer == 100){
+
+                EnemyInv = false;
+
+            }
+
+            if(LevelTimer % 2 == 0){
+
+                eBullet.push(new BulletBoi(totalWidth + 100, 200, 1, 2, 6, 0, 200 - (SizeX-5), true));
+                eBullet.push(new BulletBoi(totalWidth + 100, totalHeight, 1, 2, 6, 0, totalHeight - (SizeX-5), true));
+
+            }
+
+            if(LevelTimer % 5 == 0 ){
+
+                a = random(1000)/1000 + 0.4;
+                b = (2 - a*a)+0.7;
+
+                eBullet.push(new BulletBoi(totalWidth + 50, random(totalHeight - 300) + 250, 2, a, b, 0,0));
+
+            }
+
+        }
+
+        else if(Phase == 6){
+
+            if(EnemyInv == false){
+
+                LevelTimer = 0;
+
+            }
+
+            EnemyInv = true;
+
+            if(LevelTimer == 300){
+
+                LevelTimer = 0;
+                Phase++;
+
+            }
+
+        }
+
+        else if(Phase == 7){
+
+            if(LevelTimer == 1){
+
+                eBullet.push(new BulletBoi(totalWidth/2, -300, 4, 25/768*totalHeight-2, 0.3/totalHeight*1080, 0, 1, true));
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight + 500, 5, 25/768*totalHeight-2, 0.3/totalHeight*1080, 0, 1, true));
+                eBullet.push(new BulletBoi(-500, totalHeight/2 + 100, 3, 25/768*totalHeight-2, 0.5/totalHeight*1080, totalWidth, 1, true));
+                eBullet.push(new BulletBoi(totalWidth + 500, totalHeight/2 + 100, 2, 25/768*totalHeight-2, 0.5/totalHeight*1080, 0, 1, true));
+            
+            }
+
+            if(LevelTimer/768*totalHeight >= 451/768*totalHeight){
+
+                eBullet.splice(0, eBullet.length);
+
+                eBullet.push(new BulletBoi(totalWidth/2, -300+3*0.3*450, 1, 25/768*totalHeight-2, 0, 0, 1, true));
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight + 500-3*0.3*450, 1, 25/768*totalHeight-2, 0, 0, 1, true));
+                eBullet.push(new BulletBoi(-500+3*0.5*450, totalHeight/2 + 100, 1, 25/768*totalHeight-2, 0, totalWidth, 1, true));
+                eBullet.push(new BulletBoi(totalWidth + 500-3*0.5*450, totalHeight/2 + 100, 1, 25/768*totalHeight-2, 0, 0, 1, true));
+
+                Phase++;
+                LevelTimer = 0;
+
+            }
+
+        }
+
+        else if(Phase == 8){
+
+            if(LevelTimer % 2 == 0){
+
+                r1 = 500;
+
+                w1 = (LevelTimer*2 + (floor(LevelTimer/120)))%120/120;
+                v1 = 2*pi*w1;        
+                x1 = totalWidth/2 + r1 * cos(v1);
+                y1 = 180 + r1 * sin(v1);
+                y2 = totalHeight + 20 + r1 * sin(v1);
+
+                eBullet.push(new BulletBoi(totalWidth/2, 185, 1, 1, 0.7, x1, y1));
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight + 15, 1, 1, 0.7, x1, y2));
+
+            }
+
+            if(LevelTimer == 100){
+
+                EnemyInv = false;
+
+            }
+
+        }
+
+        else if(Phase == 9){
+
+            if(EnemyInv == false){
+
+                LevelTimer = 0;
+                eBullet.splice(0, 4,new BulletBoi(totalWidth/2, -300+3*0.3*450, 5, 25/768*totalHeight-2, 0.3, 0, 1, true),new BulletBoi(totalWidth/2, totalHeight + 500-3*0.3*450, 4, 25/768*totalHeight-2, 0.3, 0, 1, true) ,new BulletBoi(-500+3*0.5*450, totalHeight/2 + 100, 2, 25/768*totalHeight-2, 0.5, totalWidth, 1, true) ,new BulletBoi(totalWidth + 500-3*0.5*450, totalHeight/2 + 100, 3, 25/768*totalHeight-2, 0.5, 0, 1, true));
+
+            }
+
+            EnemyInv = true;
+
+            if(LevelTimer == 500){
+
+                LevelTimer = 0;
+                Phase++;
+
+            }
+
+        }
+
+        else if(Phase == 10){
+
+            eBullet.splice(0,eBullet.length);
+
+            if(LevelTimer >= 200){
+
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight/2+100, 1, 2.5, 0, 0, 1, true));
+                eBullet.splice(0,eBullet.length);
+                Phase++;
+                EnemyInv = false;
+                LevelTimer = 0;
+
+            }
+
+            else if(LevelTimer >= 1){
+
+                eBullet.push(new BulletBoi(totalWidth/2*pow(0.95,LevelTimer)+totalWidth/2, totalHeight/2+100, 1, 2.5, 0, 0, 1, true));
+            
+            }
+
+        }
+
+        else if(Phase == 11){
+
+            if(LevelTimer == 1){
+                
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight/2+100, 1, 2.5, 0, 0, 1, true));
+            }
+
+            if(LevelTimer % 3 == 0){
+
+                r1 = 500;
+
+                w1 = floor(LevelTimer)%120/120;
+                v1 = 2*pi*(random(100)/100);        
+                x1 = totalWidth/2 + r1 * cos(v1);
+                y1 = totalHeight/2 + 100 + r1 * sin(v1);
+
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight/2 + 100, 1, abs(sin(w1*2*pi))+0.5, 0.7, x1, y1));
+
+            }
+
+        }
+
+        else if(Phase == 12){
+            
+            if(LevelTimer % 3 == 0){
+
+                r1 = 500;
+
+                w1 = floor(LevelTimer)%120/120;
+                v1 = 2*pi*(random(100)/100);        
+                x1 = totalWidth/2 + r1 * cos(v1);
+                y1 = totalHeight/2 + 100 + r1 * sin(v1);
+
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight/2 + 100, 1, abs(sin(w1*2*pi))+0.5, 0.7, x1, y1));
+
+            }
+
+            if(LevelTimer % 2 == 0){
+
+                r1 = sqrt(pow(totalWidth,2)+pow(totalHeight,2))/2;
+
+                w1 = (LevelTimer + floor(LevelTimer/120))%600/600;
+                v1 = 2*pi*w1;        
+                x1 = totalWidth/2 + r1 * cos(v1);
+                y1 = totalHeight/2 + 100 + r1 * sin(v1);
+
+                eBullet.push(new BulletBoi(x1, y1, 6, 1, 0.7, totalWidth/2, totalHeight/2+100));
+
+            }
+
+        }
+
+        else if(Phase == 13){
+
+            if(LevelTimer % 3 == 0){
+
+                r1 = 500;
+
+                w1 = floor(LevelTimer)%120/120;
+                v1 = 2*pi*(random(100)/100);        
+                x1 = totalWidth/2 + r1 * cos(v1);
+                y1 = totalHeight/2 + 100 + r1 * sin(v1);
+
+                eBullet.push(new BulletBoi(totalWidth/2, totalHeight/2 + 100, 1, abs(sin(w1*2*pi))+0.5, 0.7, x1, y1));
+
+            }
+
+            if(LevelTimer % 2 == 0){
+
+                r1 = sqrt(pow(totalWidth,2)+pow(totalHeight,2))/2;
+
+                w1 = (LevelTimer + floor(LevelTimer/120))%600/600;
+                v1 = 2*pi*w1;        
+                x1 = totalWidth/2 + r1 * cos(v1);
+                y1 = totalHeight/2 + 100 + r1 * sin(v1);
+
+                eBullet.push(new BulletBoi(x1, y1, 6, 1, 0.7, totalWidth/2, totalHeight/2+100));
+
+            }
+
+            if(LevelTimer % 200 == 0){
+
+                eBullet.push(new BulletBoi(totalWidth-10, totalHeight/2 + 100, 1, 2, 2, x, y));
+
+            }
+
+        }
+
+        else if(Phase == 14){
+
+            if(EnemyInv == false){
+
+                LevelTimer = 0;
+                EnemyInv = true;
+
+            }
+
+            BossDeath(LevelTimer);
+
+        }
+
+        else if(Phase == 15){
+
+            EfterTexter();
+            eBullet.splice(0,eBullet.length);
+
+        }
+
+        LevelTimer++;
+
+    }
+
+    function BossPreFight(Timer){
+    
+        if(Timer % 5 == 0 && Phase == 0 && Timer <= 200){
+
+            eBullet.push(new BulletBoi(totalWidth + 300, totalHeight/2 + 100, 2, 20/768*totalHeight-2, 10, 1, 1, true));
+
+        }
+
+        else if(Phase == 1){
+
+            if(LevelTimer == 1){
+
+                fiende.push(new BossGuy());
+
+            }
+
+            else if(LevelTimer == 300){
+
+                LevelTimer = 0;
+                Phase = 2;
+
+            }
+
+        }
+
+    }
+
+    function BossGuy(){
+
+        this.SizeX = 500;
+        this.SizeY = totalHeight - 300;
+        this.x = totalWidth + 10;
+        this.HPMax = 100;
+        this.HP = this.HPMax
+        this.y = 250;
+        this.dx = -10;
+        this.id = 3;
+
+        this.update = function(){
+
+            if(this.HP <= 0){
+
+                Phase++;
+                this.HP = this.HPMax;
+                Score+=1000;
+
+            }
+
+            if(EnemyInv == true){
+
+                this.HP = this.HPMax;
+
+            }
+
+            rectangle(this.x-6, this.y-6, this.SizeX+12, this.SizeY+12, "black");
+            rectangle(this.x, this.y, this.SizeX, this.SizeY, "magenta");
+
+            if(Phase < 14){
+
+                rectangle(30, totalHeight - 30, totalWidth - 60, 20, "black");
+                rectangle(35, totalHeight - 25, totalWidth - 70, 10, "red");
+                rectangle(35, totalHeight - 25, (totalWidth - 70) * this.HP/this.HPMax, 10, "lime");
+
+            }
+
+            text(this.x + 50, this.y+this.SizeY/2, 100, ":^)", "black");
+
+            if(abs(this.dx) < 0.01){
+
+                this.dx = 0;
+
+            }
+
+            else{
+
+                this.dx*=0.97;
+
+            }
+
+            this.x += this.dx;
+
+        }
+
+    }
+
+    function BossDeath(timer){
+
+        PlayMusic("Mutedlol");
+
+        if(timer % 24 == 0){
+
+            playSound("https://kyriaelixia.github.com/server/games/sounds/pang"+random(3)+".mp3", 0.1);
+
+        }
+
+        circle(random(fiende[0].SizeX)+ fiende[0].x,random(fiende[0].SizeY)+fiende[0].y,57,"White");
+
+        circle(totalWidth+10,totalHeight/2 + 100,2*pow(1.005,timer)+10,"White");
+
+        if(timer >= 1500){
+
+            fiende.splice(0,fiende.length);
+            Phase++;
+            LevelTimer = 0;
+
+        }
+
+    }
+
+    function BroShips(id){
+
+        this.ShipN = id;
+        this.r = r;
+        this.w = AllySpinTimer/120/Allies.length;
+        this.v = 2*pi*this.w + 2*pi*this.ShipN/Allies.length;        
+        this.x = x+SizeX/2 + this.r * cos(this.v);
+        this.y = y+SizeY/2 + this.r * sin(this.v);
+
+        this.update = function (){
+
+            this.w = AllySpinTimer/120/Allies.length;
+            this.v = 2*pi*this.w + 2*pi*this.ShipN/Allies.length; 
+            this.x = x+SizeX/2 + this.r * cos(this.v);
+            this.y = y+SizeY/2 + this.r * sin(this.v);
+
+            rectangle(this.x-AllySize/2-3, this.y-AllySize/2-3, AllySize+6, AllySize+6, "black");
+
+            rectangle(this.x-AllySize/2, this.y-AllySize/2, AllySize, AllySize, colour);
+
+        }
+
+    }
+
+    function Background(){
+
+        fill(BackgroundColourDeFacto);
+
+    }
+
+    function UI(){
+
+        rectangle(0, 0, totalWidth, 200, "pink");
+
+        rectangle(0, 190, totalWidth, 10, "black");
+
+        rectangle(210, 0, 10, 200, "black");
+
+        rectangle(500, 0, 10, 200, "black");
+
+        text(50, 60, 30, "LIFE", "black");
+
+        text(300, 60, 30, "SCORE", "black");
+
+        text(550, 60, 30, "POWER", "black");
+
+        text(590, 120, 30, floor(AttackPower*100), "black");
+
+        text(745, 60, 30, "ATTACK SPEED", "black");
+
+        text(850, 120, 30, floor((11-ShotFrequency)*2), "black");
+
+        //text(1250, 60, 30, "SPECIAL MOVE", "black");
+
+        //text(1350, 120, 30, SpecialAttackMoveCooldown, "black");
+
+        text(350 - 12.5*floor(Math.log10(Score + 1)), 120, 30, Score, "black");
+
+        circle(120, 120, 40, "black");
+
+        arc(120, 120, 17.5, 90*liv, 35, "red");
+        
+        rectangle(118, 80, 4, 80, "black");
+
+        rectangle(80, 118, 80, 4, "black");
+
+    }
+
+    function PauseMeny(){
+
+        rectangle( totalWidth/2 - (totalWidth/2 - 50/1920*totalWidth), totalHeight/2 - (totalHeight/2 - 50/1080*totalHeight) , totalWidth - 100/1920*totalWidth, totalHeight - 100/1080*totalHeight, "Black");
+        rectangle( totalWidth/2 - (totalWidth/2 - 100/1920*totalWidth), totalHeight/2 - (totalHeight/2 - 100/1080*totalHeight) , totalWidth - 200/1920*totalWidth, totalHeight - 200/1080*totalHeight, "White");
+
+        text(totalWidth/2 - 150/1920*totalWidth, 200/1080*totalHeight, 72/1080*totalHeight, "PAUSE", "black");
+
+        text(totalWidth/2 + 380/1920*totalWidth, 200/1080*totalHeight, 32/1080*totalHeight, "Kontroller", "black");
+
+        if(LeftieModo == false){
+
+            text(totalWidth/2 + 220/1920*totalWidth, 300/1080*totalHeight, 32/1080*totalHeight, "Z - Skjut", "black");
+            text(totalWidth/2 + 220/1920*totalWidth, 340/1080*totalHeight, 32/1080*totalHeight, "X - Skjut fast bättre", "black");
+            text(totalWidth/2 + 220/1920*totalWidth, 380/1080*totalHeight, 32/1080*totalHeight, "Piltangenter - rörelse", "black");
+
+        }
+
+        else{
+
+            text(totalWidth/2 + 220/1920*totalWidth, 300/1080*totalHeight, 32/1080*totalHeight, "K - Skjut", "black");
+            text(totalWidth/2 + 220/1920*totalWidth, 340/1080*totalHeight, 32/1080*totalHeight, "L - Skjut fast bättre", "black");
+            text(totalWidth/2 + 220/1920*totalWidth, 380/1080*totalHeight, 32/1080*totalHeight, "WASD - rörelse", "black");
+
+        }
+
+        text(totalWidth/2 + 220/1920*totalWidth, 420/1080*totalHeight, 32/1080*totalHeight, "P - pausa", "black");
+        text(totalWidth/2 + 220/1920*totalWidth, 460/1080*totalHeight, 32/1080*totalHeight, "Shift - Saktna ned", "black");
+
+        LeftieKnapp = new Knapp(200, 200, 200, 50, "Lime", "Red", false);
+        LeftieKnapp.update("I leik WASD", LeftieModo);   
+
+        TeacherMode = new Knapp(200, 300, 200, 50, "Lime", "Red", false);
+        TeacherMode.update("Lärar läge", TeacherModeFlag);
+
+        MorganMode = new Knapp(200, 400, 200, 50, "Red", "Lime", false);
+        MorganMode.update("Morgan läge", ExplosionFlag);
+
+        RandomSong = new Knapp(450, 200, 100, 250, "Cyan", "Cyan", false);
+        RandomSong.update("?", true);
+
+        CoolLookinSquare = new Knapp(530, 575, 520, 75, "White", "White", false);
+        CoolLookinSquare.update(CoolVar, true);
+
+        PauseTheSong = new Knapp(200, 600, 300, 50, "DarkGray", "White", false);
+        PauseTheSong.update("Pause the Song", PauseFlag);
+
+        SongSelect = new JustSliding(200, 500, 600, 50, 20, "White", SongList.length, SpelarJustNu, false);
+        SongSelect.update(SongList[SpelarJustNu]);
+
+        Volume = new JustSliding(200, 563, 300, 20, 3, "White", 101, document.getElementById("The music").volume*100, false);
+        Volume.update("Volume: " + Math.round(document.getElementById("The music").volume*100) + "%");
+
+        MusicBar = new SongDurationShower(200, 550, 600, 10, "Cyan");
+        MusicBar.update();
+
+        if(mouse.left){
+
+            if(mouse.x > SongSelect.x && mouse.x < SongSelect.x + SongSelect.SizeX && mouse.y >= SongSelect.y && mouse.y <= SongSelect.y + SongSelect.SizeY){
+                
+                SpelarJustNu = SongSelect.ButtWhatIfIClickedIt();
+                PlayMusic(SongList[SpelarJustNu]);
+
+            }
+
+            if(mouse.x > Volume.x && mouse.x < Volume.x + Volume.SizeX - Volume.SliderSize/2 - 2 && mouse.y >= Volume.y && mouse.y <= Volume.y + Volume.SizeY){
+                
+                document.getElementById("The music").volume = Volume.ButtWhatIfIClickedIt()/100;
+
+            }
+
+            if(MusicBar.ButtWhatIfIClickedIt() == true && document.getElementById("The music").duration > 0){
+                
+                document.getElementById("The music").currentTime = document.getElementById("The music").duration*(mouse.x - (MusicBar.x))/MusicBar.Xsize;
+            
+            }
+
+        }
+
+        if(mouse.left && ClickCD == false){
+
+            if(LeftieKnapp.ButtWhatIfIClickedIt() == true){
+
+                if(LeftieModo == true){
+
+                    LeftieModo = false;
+
+                }
+
+                else{
+
+                    LeftieModo = true;
+
+                }
+
+            }
+
+            else if(TeacherMode.ButtWhatIfIClickedIt() == true){
+
+                if(TeacherModeFlag == true){
+
+                    TeacherModeFlag = false;
+
+                }
+
+                else{
+
+                    TeacherModeFlag = true;
+
+                }
+
+            }
+
+            else if(MorganMode.ButtWhatIfIClickedIt() == true){
+
+                if(ExplosionFlag == true){
+
+                    ExplosionFlag = false;
+
+                }
+
+                else{
+
+                    ExplosionFlag = true;
+
+                }
+
+            }
+
+            else if(PauseTheSong.ButtWhatIfIClickedIt() == true){
+
+                if(PauseFlag == true){
+
+                    PauseFlag = false;
+                    document.getElementById("The music").play();
+
+                }
+
+                else{
+
+                    PauseFlag = true;
+                    document.getElementById("The music").pause();
+
+                }
+
+            }
+
+            else if(RandomSong.ButtWhatIfIClickedIt() == true){
+
+                while(true){
+
+                    if(random(SongList.length)!=SpelarJustNu){
+
+                        SpelarJustNu = random(SongList.length);
+                        break;
+
+                    }
+
+                }
+
+                PlayMusic(SongList[SpelarJustNu]);
+
+            }
+
+            else if(CoolLookinSquare.ButtWhatIfIClickedIt() == true){
+
+                CoolVar = "You";
+
+            }
+
+            ClickCD = true;
+
+        }
+
+        if(keyboard.p && PauseCD == false){
+
+            Pause = false;
+            PauseCD = true;
+
+        }
+
+        else if (keyboard.p != true && PauseCD == true){
+
+            PauseCD = false;
+
+        }
+
+    }
+
+    function YouSuck(){
+
+        text(600/1920*totalWidth, 300, 100/1920*totalWidth, "Game Over", "black");
+
+        PlayMusic("Mute");
+
+        GameOver = true;
+
+    }
+
+    function hitboxUpdate(){
+
+        rectangle(x+SizeX/2-SizeX/6, y+SizeY/2-SizeY/6, SizeX/3, SizeY/3, "black");
+
+    }
+
+    function Death(){
+
+        liv--;
+        
+        while(BackgroundColour == BackgroundColourDeFacto){
+
+            BackgroundColour = randomAlternative(BackgroundColourChoices);
+
+        }
+
+        playSound("https://kyriaelixia.github.com/server/games/sounds/Death.mp3",1);
+
+        temp = floor(Allies.length/2)
+
+        for(i = 0; i < 4; i++){
+
+            Allies.splice(0,1);
+
+        }
+
+        DeathExplosion.push(new Animation("explosion"));
+
+        if(liv <= 0){
+
+            YouSuck();
+
+        }
+
+        else{
+
+            Invincibility = true;
+
+            InvincibilityFramesTimer = 420;
+
+            Uncontrollable = true;
+
+            x = -4*SizeX;
+            y = totalHeight/2+100- SizeY/2;
+
+            dx = 0;
+            dy = 0;
+
+        }
+
+        for(i = 0; i < temp; i++){
+
+            Allies.push(new BroShips(Allies.length));
+
+        }
+
+    }
+
+    function Unhurtable(){
+
+        if(Invincibility == true){
+
+            InvincibilityFramesTimer--;
+
+        }
+
+        if(InvincibilityFramesTimer == 0){
+
+            Invincibility = false;
+        
+        }
+
+    }
+
+    function Ouch(){
+
+        Unhurtable();
+        
+        for(i = 0; i < eBullet.length; i++){
+
+            if(x + SizeX/2 - 1 > eBullet[i].x && x + SizeX/2 - 1 < eBullet[i].x + eBullet[i].SizeX || x + 1 + SizeX/2 > eBullet[i].x && x + 1 + SizeX/2 < eBullet[i].x + eBullet[i].SizeX){
+                
+                if(y + SizeY/2 - 1 > eBullet[i].y && y + SizeY/2 - 1 < eBullet[i].y + eBullet[i].SizeY || y + 1 + SizeY/2 > eBullet[i].y && y + 1 + SizeY/2 < eBullet[i].y + eBullet[i].SizeY){
+                    
+                    if(eBullet[i].Piercing != true){
+
+                        eBullet.splice(i,1);
+
+                    }
+
+                    if(Invincibility == false && TeacherModeFlag == false){
+
+                        Death();
+
+                        if(liv <= 0){
+
+                            break;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    function LootBoxesAttackSpeed(enemyX, enemyY){
+
+        this.x = enemyX;
+        this.y = enemyY;
+        this.dx = 0;
+        this.dy = 0;
+
+        this.update = function(i){
+
+            rectangle(this.x-2,this.y-2,29,29,"White");
+            rectangle(this.x,this.y,25,25,"Blue");
+            text(this.x+2.5,this.y + 23,25,"S","White");
+
+            if(this.dx > -3){
+
+                this.dx-=0.015;
+
+            }
+
+            this.x += this.dx;
+            this.y += this.dy;
+
+            if(distance(Loot[i].x + 25/2, Loot[i].y + 25/2, x+SizeX/2, y+SizeY/2) < eSizeY/2 + 25/2){
+
+                Loot.splice(i,1);
+                Score+=500;
+
+                if(ShotFrequency > ShotFrequencyCap){
+
+                    ShotFrequency-=0.5;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    function LootBoxesAllies(enemyX, enemyY){
+
+        this.x = enemyX;
+        this.y = enemyY;
+        this.dx = 0;
+        this.dy = 0;
+
+        this.update = function(i){
+
+            rectangle(this.x-2,this.y-2,29,29,"White");
+            rectangle(this.x,this.y,25,25,"Magenta");
+            text(this.x+2.5,this.y + 23,25,"A","White");
+
+            if(this.dx > -3){
+
+                this.dx-=0.015;
+
+            }
+
+            this.x += this.dx;
+            this.y += this.dy;
+
+            if(distance(Loot[i].x + 25/2, Loot[i].y + 25/2, x+SizeX/2, y+SizeY/2) < eSizeY/2 + 25/2){
+
+                if(Allies.length < AllyCap){
+
+                    Allies.push(new BroShips(Allies.length));
+
+                }
+
+                Loot.splice(i,1);
+                Score+=500;
+
+            }
+
+        }
+
+    }
+
+    function LootBoxesAttackPower(enemyX, enemyY){
+
+        this.x = enemyX;
+        this.y = enemyY;
+        this.dx = 0;
+        this.dy = 0;
+
+        this.update = function(i){
+
+            rectangle(this.x-2,this.y-2,29,29,"White");
+            rectangle(this.x,this.y,25,25,"Red");
+            text(this.x,this.y + 24,30,"P","White");
+
+            if(this.dx > -3){
+
+                this.dx-=0.015;
+
+            }
+
+            this.x += this.dx;
+            this.y += this.dy;
+
+            if(distance(Loot[i].x + 25/2, Loot[i].y + 25/2, x+SizeX/2, y+SizeY/2) < eSizeY/2 + 25/2){
+
+                Loot.splice(i,1);
+                Score+=500;
+
+                if(AttackPower < AttackPowerCap){
+
+                    AttackPower+=0.05;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    function LootBoxesSpecialShotCap(enemyX, enemyY){
+
+        this.x = enemyX;
+        this.y = enemyY;
+        this.dx = 0;
+        this.dy = 0;
+
+        this.update = function(i){
+
+            rectangle(this.x-2,this.y-2,29,29,"White");
+            rectangle(this.x,this.y,25,25,"Lime");
+            text(this.x,this.y + 24,30,"+","White");
+
+            if(this.dx > -3){
+
+                this.dx-=0.015;
+
+            }
+
+            this.x += this.dx;
+            this.y += this.dy;
+
+            if(distance(Loot[i].x + 25/2, Loot[i].y + 25/2, x+SizeX/2, y+SizeY/2) < eSizeY/2 + 25/2){
+
+                Loot.splice(i,1);
+                Score+=500;
+
+                if(SpecialShotCount < SpecialShotCountCap){
+
+                    SpecialShotCount++;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    function Shooty(id, ShooterX, ShooterY, Flip, Special1, Special2){
+
+        this.id = id;
+        this.colour = bColour;
+
+        this.x = ShooterX;
+        this.y = ShooterY;
+
+        if(this.id == -1 && Flip > 0){
+
+            this.SpecialShotCount = Special2;
+
+            this.r = r;
+
+            this.x = ShooterX - SizeX/2 + SizeX/4;
+            this.y = ShooterY - SizeY/2 + SizeY/4;
+
+            this.w = Special1/249/(this.SpecialShotCount-1)*this.SpecialShotCount;
+            this.v = 2*pi*this.w + 2*pi*Flip/(this.SpecialShotCount-1);        
+            this.a = this.x + 100*this.r * cos(this.v);
+            this.b = this.y + 100*this.r * sin(this.v);
+
+            this.dy = (this.b - this.y)/(distance(this.a,this.b,this.x,this.y)) * PlayerBulletSpeed;
+            this.dx = (this.a - this.x)/(distance(this.a,this.b,this.x,this.y)) * PlayerBulletSpeed;
+
+        }
+
+        else{
+
+            this.dx = PlayerBulletSpeed;
+            this.dy = random(Spread)/1000-Spread/1000/2;
+
+        }
+
+        this.update = function(i) {
+
+            if(this.id == -1){
+
+                rectangle(this.x - 3, this.y - 3, SizeX/2 + 6, SizeY/2 + 6, "White");
+                rectangle(this.x, this.y, SizeX/2, SizeY/2, this.colour);
+
+            }
+
+            else{
+
+                rectangle(this.x - 2.5, this.y - 2.5, SizeX/3 + 5, SizeY/3 + 5, "White");
+                rectangle(this.x, this.y, SizeX/3, SizeY/3, this.colour);
+
+            }
+
+            if(this.id == -1 && Flip > 0){
+
+                this.x += this.dx/2;
+                this.y += this.dy/2;
+
+            }
+
+            else{
+
+                this.x += this.dx
+                this.y += this.dy
+
+            }
+
+            if(this.x > totalWidth || this.x + SizeX/2 + 10 < 0 || this.y > totalHeight || this.y + SizeY/2 + 10 < 0){
+
+                pBullet.splice(i,1);
+
+            }
+
+        }
+
+    }
+
+    function SpecialAttackMove(id){
+
+        this.x = x + SizeX/2;
+        this.y = y + SizeY/2;
+
+        this.SuicideTimer = 270;
+
+        this.id = id;
+
+        this.SpecialShotCount = SpecialShotCount;
+
+        this.r = SizeX;
+
+        this.colour = bColour;
+
+        this.dx = 2*PlayerBulletSpeed;
+        this.dy =  random(Spread)/1000-Spread/1000/2;
+
+        this.update = function(i) {
+
+
+            circle(this.x, this.y, this.r+6, "White");
+            circle(this.x, this.y, this.r, this.colour);
+
+            if(this.dx < 0.1){
+
+                this.dx = 0;
+                this.dy = 0;
+                this.SuicideTimer--;
+
+            }
+
+            else{
+
+                this.dx*=0.96;
+                this.dy*=0.099;
+
+            }
+
+            if(this.SuicideTimer <= 250 && this.SuicideTimer % floor((ShotFrequency/2) + 4) == 0){
+
+                for(e = 1; e < this.SpecialShotCount; e++){
+
+                    pBullet.push(new Shooty(-1, this.x, this.y, e, this.SuicideTimer, this.SpecialShotCount));
+
+                }
+
+            }
+
+            if(this.SuicideTimer < this.r){
+
+                this.r--;
+
+            }
+
+            else if(this.SuicideTimer > SizeX && this.SuicideTimer <= 250 && this.SuicideTimer % 20 <= 9){
+
+                this.r+=0.5;
+
+            }
+
+            else if(this.SuicideTimer > SizeX && this.SuicideTimer <= 250 && this.SuicideTimer % 20 >= 9){
+
+                this.r-=0.25;
+
+            }
+            
+            if(this.SuicideTimer <= 0){
+
+                pBullet.splice(i,1);
+
+            }
+
+            this.x += this.dx
+            this.y += this.dy
+
+            if(this.x - this.r - 6 > totalWidth){
+
+                pBullet.splice(i,1);
+
+            }
+
+        }
+
+    }
+
+    function Action(){
+
+        pBullet.push(new Shooty(-1, x + SizeX/2 - SizeX/4, y + SizeY/2 - SizeY/4, 0, 0, 0));
+
+        for(i = 0; i < Allies.length; i++){
+
+            pBullet.push(new Shooty(i, Allies[i].x - SizeX/6, Allies[i].y - SizeY/6, 0, 0, 0));
+
+        }
+
+    }
+
+    function CanEnemiesFeelPain(){
+
+        for(e = 0; e < fiende.length; e++){
+
+            for(i = 0; i < pBullet.length; i++){
+
+                if(fiende[e].id == 1){
+
+                    if(pBullet[i].id == -1){
+
+                        if(distance(pBullet[i].x + SizeX/4, pBullet[i].y + SizeY/4, fiende[e].x + eSizeX/2, fiende[e].y + eSizeY/2) < eSizeY/2 + SizeY/4){
+                            
+                            fiende[e].HP-=1*AttackPower;
+                            pBullet.splice(i,1);
+
+                            if(InvincibilityFramesTimer <= 200 && DeathExplosion.length == 0 && ExplosionFlag == true){
+
+                                BackgroundExplosion.push(new Animation("circlePop"));
+
+                            }
+
+                        }
+
+                    }
+
+                    else if(pBullet[i].id == 4){
+
+                        if(distance(pBullet[i].x, pBullet[i].y, fiende[e].x + eSizeX/2, fiende[e].y + eSizeY/2) < eSizeY/2 + pBullet[i].r+6){
+                            
+                            fiende[e].HP-=1*AttackPower/15;
+                            
+                        }
+                        
+                    }
+
+                    else if(distance(pBullet[i].x + SizeX/6, pBullet[i].y + SizeY/6, fiende[e].x + eSizeX/2, fiende[e].y + eSizeY/2) < eSizeY/2 + SizeY/6){
+                        
+                        fiende[e].HP-=1*AttackPower/2;
+                        pBullet.splice(i,1);
+
+                        if(InvincibilityFramesTimer <= 200 && DeathExplosion.length == 0 && ExplosionFlag == true){
+
+                            BackgroundExplosion.push(new Animation("circlePop"));
+
+                        }
+
+                    }
+
+                }
+
+                else if(fiende[e].id == 2){
+
+                    if(pBullet[i].id == -1){
+
+                        if(distance(pBullet[i].x + SizeX/4, pBullet[i].y + SizeY/4, fiende[e].x, fiende[e].y) < fiende[e].r + 3 + SizeY/4){
+                            
+                            fiende[e].HP-=1*AttackPower;
+                            pBullet.splice(i,1);
+
+                            if(InvincibilityFramesTimer <= 200 && DeathExplosion.length == 0 && ExplosionFlag == true){
+
+                                BackgroundExplosion.push(new Animation("circlePop"));
+
+                            }
+
+                        }
+
+                    }
+
+                    else if(pBullet[i].id == 4){
+
+                        if(distance(pBullet[i].x, pBullet[i].y, fiende[e].x, fiende[e].y) < fiende[e].r + 3 + pBullet[i].r + 6){
+
+                            fiende[e].HP-=1*AttackPower/30;
+
+                        }
+
+                    }
+
+                    else if(distance(pBullet[i].x + SizeX/6, pBullet[i].y + SizeY/6, fiende[e].x, fiende[e].y) < fiende[e].r + 3 + SizeY/6){
+                        
+                        fiende[e].HP-=1*AttackPower/2;
+                        pBullet.splice(i,1);
+
+                        if(InvincibilityFramesTimer <= 200 && DeathExplosion.length == 0 && ExplosionFlag == true){
+
+                            BackgroundExplosion.push(new Animation("circlePop"));
+
+                        }
+
+                    }
+
+                }
+
+                else if(fiende[e].id == 3){
+
+                    if(pBullet[i].id == -1){
+
+                        if(pBullet[i].x > fiende[e].x && pBullet[i].x < fiende[e].x + fiende[e].SizeX || pBullet[i].x + SizeX/2 > fiende[e].x && pBullet[i].x + SizeX/2 < fiende[e].x + fiende[e].SizeX){
+                            
+                            if(pBullet[i].y > fiende[e].y && pBullet[i].y < fiende[e].y + fiende[e].SizeY || pBullet[i].y + SizeY/2 > fiende[e].y && pBullet[i].y + SizeY/2 < fiende[e].y + fiende[e].SizeY){ 
+                                
+                                if(EnemyInv == false){
+
+                                    fiende[e].HP-=1*AttackPower;
+
+                                }
+
+                                pBullet.splice(i,1);
+
+                                if(InvincibilityFramesTimer <= 200 && DeathExplosion.length == 0 && ExplosionFlag == true){
+
+                                    BackgroundExplosion.push(new Animation("circlePop"));
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    else if(pBullet[i].id == 4){
+
+                        if(pBullet[i].x + pBullet[i].r > fiende[e].x && pBullet[i].x + pBullet[i].r < fiende[e].x + fiende[e].SizeX){
+                            
+                            if(pBullet[i].y + pBullet[i].r > fiende[e].y && pBullet[i].y + pBullet[i].r < fiende[e].y + fiende[e].SizeY){
+                                
+                                if(EnemyInv == false){
+
+                                    fiende[e].HP-=1*AttackPower*5;
+
+                                }
+
+                                pBullet.splice(i,1);
+
+                            }
+
+                        }
+                        
+                    }
+
+                    else if(pBullet[i].x > fiende[e].x && pBullet[i].x < fiende[e].x + fiende[e].SizeX || pBullet[i].x + SizeX/3 > fiende[e].x && pBullet[i].x + SizeX/3 < fiende[e].x + fiende[e].SizeX){
+                        
+                        if(pBullet[i].y > fiende[e].y && pBullet[i].y < fiende[e].y + fiende[e].SizeY || pBullet[i].y + SizeY/3 > fiende[e].y && pBullet[i].y + SizeY/3 < fiende[e].y + fiende[e].SizeY){ 
+                            
+                            if(EnemyInv == false){
+
+                                fiende[e].HP-=1*AttackPower/2;
+
+                            }
+
+                            pBullet.splice(i,1);
+
+                            
+                            if(InvincibilityFramesTimer <= 200 && DeathExplosion.length == 0 && ExplosionFlag == true){
+
+                                BackgroundExplosion.push(new Animation("circlePop"));
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+         }
+
+    }
+
+    function BulletBoi(enemyX, enemyY, BulletID, SizeMulti, SpeedMulti, AimingX, AimingY, Piercing){
+
+        this.SizeMulti = SizeMulti;
+        this.SizeX = (SizeX-5)*this.SizeMulti;
+        this.SizeY = (SizeY-5)*this.SizeMulti;
+        this.BulletID = BulletID;
+        this.Piercing = Piercing;
+        this.enemyX = enemyX;
+        this.enemyY = enemyY;
+        this.AimingX = AimingX;
+        this.AimingY = AimingY;
+        this.x = enemyX - this.SizeX/2;
+        this.y = enemyY - this.SizeY/2;
+        this.dy = ((this.AimingY - this.y)/(distance(this.AimingX,this.AimingY,this.x,this.y)) * EnemyBulletSpeed/2)*SpeedMulti;
+        this.dx = ((this.AimingX - this.x)/(distance(this.AimingX,this.AimingY,this.x,this.y)) * EnemyBulletSpeed/2)*SpeedMulti;
+
+        if(this.BulletID == 2){
+
+            this.dy = 0*SpeedMulti;
+            this.dx = -EnemyBulletSpeed/7*3*SpeedMulti;            
+
+        }
+
+        else if(this.BulletID == 3){
+        
+            this.dy = 0*SpeedMulti;
+            this.dx = EnemyBulletSpeed/7*3*SpeedMulti;
+
+        }
+
+        else if(this.BulletID == 4){
+            
+            this.dy = EnemyBulletSpeed/7*3*SpeedMulti;
+            this.dx = 0*SpeedMulti;
+
+        }
+
+        else if(this.BulletID == 5){
+            
+            this.dy = -EnemyBulletSpeed/7*3*SpeedMulti;
+            this.dx = 0*SpeedMulti;
+
+        }
+
+        this.update = function(i) {
+
+            rectangle(this.x - 3*this.SizeMulti, this.y - 3*this.SizeMulti, this.SizeX + 6*this.SizeMulti, this.SizeY + 6*this.SizeMulti, "white");
+            rectangle(this.x, this.y, this.SizeX, this.SizeY, ebColour);
+
+            if(this.BulletID == 2){
+
+                if(this.x + this.SizeX + 6*this.SizeMulti < 0 || this.y + this.SizeY + 6*this.SizeMulti < 0 || this.y - 6*this.SizeMulti > totalHeight){
+                    
+                    eBullet.splice(i,1);
+
+                }
+            
+            }
+
+            else if(this.BulletID == 3){
+                
+                if(this.x - 6*this.SizeMulti > totalWidth || this.y + this.SizeY + 6*this.SizeMulti < 0 || this.y - 6*this.SizeMulti > totalHeight){
+                    
+                    eBullet.splice(i,1);
+
+                }
+            
+            }
+
+            else if(this.BulletID == 4){
+                
+                if(this.x + this.SizeX + 6*this.SizeMulti < 0 || this.x - 6*this.SizeMulti > totalWidth || this.y - 6*this.SizeMulti > totalHeight){
+                    
+                    eBullet.splice(i,1);
+
+                }
+
+            }
+
+            else if(this.BulletID == 5){
+                
+                if(this.x + this.SizeX + 6*this.SizeMulti < 0 || this.x - 6*this.SizeMulti > totalWidth || this.y + this.SizeY + 6*this.SizeMulti < 0){
+                    eBullet.splice(i,1);
+
+                }
+
+            }
+
+            else if(this.BulletID == 6){
+                
+                if(this.x < totalWidth/2 + this.SizeX/2 && this.x > totalWidth/2 - this.SizeX/2 && this.y < totalHeight/2 + 100 + this.SizeY/2 && this.y > totalHeight/2 + 100 - this.SizeY/2){
+                    
+                    eBullet.splice(i,1);
+
+                }
+
+            }
+
+            else if(this.x + this.SizeX + 6*this.SizeMulti < 0 || this.x - 6*this.SizeMulti > totalWidth + 300 || this.y + this.SizeY + 6*this.SizeMulti < 0 || this.y - 6*this.SizeMulti > totalHeight + 300){
+                
+                eBullet.splice(i,1);
+
+            }
+
+            this.x += this.dx;
+            this.y += this.dy;
+
+        }
+
+    }
+
+    function Baddie1(enemyX, enemyY, HPMultiplier, BulletShotType, SizeMulti, SpeedMulti, InitialShotDelay, ShotFrequencyMultiplier, Drop, type){
+
+        this.id = 1;
+        this.SizeMulti = SizeMulti;
+        this.SpeedMulti = SpeedMulti;
+
+        this.x = totalWidth;
+        this.y = enemyY;
+        this.dx = -2*enemyX;
+        this.dy = 0;
+
+        this.BulletShotType = BulletShotType;
+        this.EnemyShotFrequency = EnemyShotFrequency*ShotFrequencyMultiplier; 
+        this.timer = InitialShotDelay;
+        this.HP = EnemyHP*HPMultiplier;
+
+        if(Drop == "Random"){
+
+            this.LootChance = random(1000);
+
+        }
+
+        this.update = function(i){
+
+            if(this.HP <= 0){
+
+                fiende.splice(i,1);
+                Score += 100;
+
+                if(Drop == "P"){
+
+                    Loot.push(new LootBoxesAttackPower(this.x, this.y));
+
+                }
+
+                else if(Drop == "A"){
+
+                    Loot.push(new LootBoxesAllies(this.x, this.y));
+
+                }
+
+                else if(Drop == "+"){
+
+                    Loot.push(new LootBoxesSpecialShotCap(this.x, this.y));
+
+                }
+
+                else if(Drop == "S"){
+
+                    Loot.push(new LootBoxesAttackSpeed(this.x, this.y));
+
+                }
+
+                else if(Drop == "Random"){
+
+                    if(this.LootChance>=990){
+
+                        Loot.push(new LootBoxesAllies(this.x, this.y));
+
+                    }
+
+                    else if(this.LootChance>=980 && SpecialShotCount){
+
+                        Loot.push(new LootBoxesSpecialShotCap(this.x, this.y));
+
+                    }
+
+                    else if(this.LootChance>=940 && AttackPower){
+
+                        Loot.push(new LootBoxesAttackPower(this.x, this.y));
+
+                    }
+
+                    else if(this.LootChance>=910 && ShotFrequency){
+
+                        Loot.push(new LootBoxesAttackSpeed(this.x, this.y));
+
+                    }
+
+                }
+
+            }
+
+            rectangle(this.x-3, this.y-3, eSizeX+6, eSizeY+6, "Black");
+            rectangle(this.x, this.y, eSizeX, eSizeY, "Brown");
+
+            rectangle(this.x+eSizeX/2-(eSizeX-6)/2,this.y+eSizeY/2-eSizeX/8-1,eSizeX-6,eSizeX/4,"black");
+            rectangle(this.x+2+eSizeX/2-(eSizeX-6)/2,this.y+eSizeY/2-eSizeX/8+1,(eSizeX)-10,(eSizeX/4)-4,"red");
+
+            if(this.HP > 0){
+
+                rectangle(this.x+2+eSizeX/2-(eSizeX-6)/2,this.y+eSizeY/2-eSizeX/8+1,((eSizeX)-10)*(this.HP/(EnemyHP*HPMultiplier)),(eSizeX/4)-4,"Lime");
+            
+            }
+
+            this.x += this.dx
+            this.y += this.dy
+
+            if(abs(this.dx) < 0.01){
+
+                this.dx = 0;
+
+            }
+
+            else{
+
+                this.dx*=0.97;
+
+            }
+
+            this.timer++;
+
+            if(this.timer == this.EnemyShotFrequency && Uncontrollable == false){
+
+                eBullet.push(new BulletBoi(this.x + eSizeX/2, this.y + eSizeY/2, this.BulletShotType, this.SizeMulti, this.SpeedMulti, x, y));
+
+                this.timer = 0;
+                
+            }
+
+            else if(this.timer >= this.EnemyShotFrequency){
+
+                this.timer = 0;
+
+            }
+
+        }
+
+    }
+
+    function Baddie2(enemyX, enemyY, HPMultiplier, BulletShotType, SizeMulti, SpeedMulti, InitialShotDelay, ShotFrequencyMultiplier, Drop, type){
+
+        this.id = 2;
+        this.SizeMulti = SizeMulti;
+        this.SpeedMulti = SpeedMulti;
+
+        this.BulletShotType = BulletShotType;
+        this.type = type;
+
+        this.r = eSizeX/2+4;
+        this.EnemyShotFrequency = EnemyShotFrequency*ShotFrequencyMultiplier; 
+        this.timer = InitialShotDelay;
+        this.HP = EnemyHP*HPMultiplier;
+
+        if(Drop == "Random"){
+
+            this.LootChance = random(1000);
+
+        }
+
+        if(type == 1){
+
+            this.x = enemyX;
+            this.y = totalHeight + this.r + 6;
+            this.dx = 0;
+            this.dy = -2;
+
+        }
+
+        else if(type == 2){
+
+            this.x = enemyX;
+            this.y = 200 - (this.r + 6);
+            this.dx = 0;
+            this.dy = 2;
+
+        }
+
+        this.update = function(i){
+
+            if(this.HP <= 0){
+
+                fiende.splice(i,1);
+                Score += 100;
+
+                if(Drop == "P"){
+
+                    Loot.push(new LootBoxesAttackPower(this.x, this.y));
+
+                }
+
+                else if(Drop == "A"){
+
+                    Loot.push(new LootBoxesAllies(this.x, this.y));
+
+                }
+
+                else if(Drop == "+"){
+
+                    Loot.push(new LootBoxesSpecialShotCap(this.x, this.y));
+
+                }
+
+                else if(Drop == "S"){
+
+                    Loot.push(new LootBoxesAttackSpeed(this.x, this.y));
+
+                }
+
+                else if(Drop == "Random"){
+
+                    if(this.LootChance>=990){
+
+                        Loot.push(new LootBoxesAllies(this.x, this.y));
+
+                    }
+
+                    else if(this.LootChance>=980 && SpecialShotCount){
+
+                        Loot.push(new LootBoxesSpecialShotCap(this.x, this.y));
+
+                    }
+
+                    else if(this.LootChance>=940 && AttackPower){
+
+                        Loot.push(new LootBoxesAttackPower(this.x, this.y));
+
+                    }
+
+                    else if(this.LootChance>=910 && ShotFrequency){
+
+                        Loot.push(new LootBoxesAttackSpeed(this.x, this.y));
+
+                    }
+
+                }
+
+            }
+
+            circle(this.x, this.y, this.r + 3, "Black");
+            circle(this.x, this.y, this.r, "Yellow");
+
+            rectangle(this.x-(eSizeX-6)/2,this.y-eSizeX/8-1,eSizeX-6,eSizeX/4,"black");
+            rectangle(this.x+2-(eSizeX-6)/2,this.y-eSizeX/8+1,(eSizeX)-10,(eSizeX/4)-4,"red");
+
+            if(this.HP > 0){
+
+                rectangle(this.x+2-(eSizeX-6)/2,this.y-eSizeX/8+1,((eSizeX)-10)*(this.HP/(EnemyHP*HPMultiplier)),(eSizeX/4)-4,"Lime");
+            
+            }
+
+            this.x += this.dx
+            this.y += this.dy
+
+            if(abs(this.dx) < 0.01){
+
+                this.dx = 0;
+
+            }
+
+            else{
+
+                this.dx*=0.97;
+
+            }
+
+            if(this.y + this.r + 7 -200 < 0 || this.y - this.r - 7 > totalHeight){
+
+                fiende.splice(i,1);
+
+            }
+
+            this.timer++;
+
+            if(this.timer == this.EnemyShotFrequency && Uncontrollable == false){
+
+                eBullet.push(new BulletBoi(this.x, this.y, this.BulletShotType, this.SizeMulti, this.SpeedMulti, x, y));
+
+                this.timer = 0;
+                
+            }
+
+            else if(this.timer >= this.EnemyShotFrequency){
+
+                this.timer = 0;
+
+            }
+
+        }
+
+    }
+
+    function Controls(){
+
+        if(LeftieModo == false){
+
+            if(keyboard.x && SpecialAttackMoveCooldown == 0){
+
+                pBullet.push(new SpecialAttackMove(4));
+                SpecialAttackMoveCooldown = 90*15;
+
+            }
+
+            if(keyboard.z && cooldown >= ShotFrequency){
+
+                Action();
+                cooldown = 0;
+
+            }
+
+            if(keyboard.shift){
+
+                playerSpeed = 1.5;
+                Spread = 69;
+
+            }
+
+            else{
+
+                playerSpeed = 5;
+                Spread = 999;
+
+            }
+            
+            if(keyboard.up){
+
+                dy = playerSpeed * -1;
+
+            }
+    
+            if(keyboard.down){
+
+                dy = playerSpeed * 1;
+
+            }
+
+            if(keyboard.down == false && keyboard.up == false){
+
+                dy = 0;
+
+            }
+
+            if(keyboard.left){
+
+                dx = playerSpeed * -1;
+
+            }
+
+            if(keyboard.right){
+
+                dx = playerSpeed * 1;
+
+            }
+
+            if(keyboard.right == false && keyboard.left == false){
+
+                dx = 0;
+
+            }
+
+        }
+
+        else{
+
+            if(keyboard.l && SpecialAttackMoveCooldown == 0){
+
+                pBullet.push(new SpecialAttackMove(4));
+                SpecialAttackMoveCooldown = 90*15;
+
+            }
+
+
+            if(keyboard.k && cooldown >= ShotFrequency){
+
+                Action();
+                cooldown = 0;
+
+            }
+
+            if(keyboard.shift){
+
+                playerSpeed = 1.5;
+                Spread = 69;
+
+            }
+
+            else{
+
+                playerSpeed = 5;
+                Spread = 999;
+
+            }
+
+            if(keyboard.w){
+
+                dy = playerSpeed * -1;
+
+            }
+    
+            if(keyboard.s){
+
+                dy = playerSpeed * 1;
+
+            }
+
+            if(keyboard.s == false && keyboard.w == false){
+
+                dy = 0;
+
+            }
+
+            if(keyboard.a){
+
+                dx = playerSpeed * -1;
+
+            }
+
+            if(keyboard.d){
+
+                dx = playerSpeed * 1;
+
+            }
+
+            if(keyboard.a == false && keyboard.d == false){
+
+                dx = 0;
+
+            }
+
+        }
+        
+        if(keyboard.p && PauseCD == false){
+
+            Pause = true;
+            PauseCD = true;
+
+        }
+
+        else if (keyboard.p != true && PauseCD == true){
+
+            PauseCD = false;
+
+        }
+        
+        if (keyboard.shift && keyboard.enter) {
+
+            if (pressBG == false) {
+
+                BackgroundColourDeFacto = BackgroundColourChoices[whatBG];
+                
+                whatBG++;
+                if (whatBG == BackgroundColourChoices.length) {
+                    whatBG = 0;
+                }
+            }
+            pressBG = true;
+        }
+        else {
+            pressBG = false;
+        }
+    }
+
+    function Animation(type){
+
+        if(type == "explosion"){
+
+            this.x = x + SizeX/2;
+            this.y = y + SizeY/2;
+
+        }
+
+        else{
+
+            this.x = random(totalWidth);
+            this.y = random(totalHeight-200)+200;
+
+        }
+
+        this.size = 1;
+
+        this.colorDir = random(6);
+        this.cR = 0;
+        this.cG = 0;
+        this.cB = 0;
+
+        this.type = type;
+
+        this.bigger = true;
+
+        this.exploWidth = 100;
+
+        if(this.colorDir == 0){
+
+            this.cB = 255;
+            this.cR = random(255);
+
+        }
+
+        else if(this.colorDir == 1){
+
+            this.cR = 255;
+            this.cG = random(255);
+
+        }
+
+        else if(this.colorDir == 2){
+
+            this.cG = 255;
+            this.cB = random(255);
+
+        }
+
+        else if(this.colorDir == 3){
+
+            this.cG = 255;
+            this.cR = random(255)+1;
+
+        }
+
+        else if(this.colorDir == 4){
+
+            this.cB = 255;
+            this.cG = random(255)+1;
+
+        }
+
+        else if(this.colorDir == 5){
+
+            this.cR = 255;
+            this.cB = random(255)+1;
+
+        }
+
+        this.update = function(id){
+
+            if (this.type == "circlePop"){
+
+                BackgroundExplosion[id].circlePop(id);
+
+            }
+
+            else if (this.type == "explosion"){
+
+                DeathExplosion[id].explosion(id);
+
+            }
+
+        }
+
+        this.colorSwitch = function(){
+
+            if(this.colorDir == 0){
+
+                this.cR++;
+
+                if(this.cR == 255){
+
+                    this.colorDir = 5;
+
+                }
+
+            }
+
+            else if(this.colorDir == 3){
+
+                this.cR--;
+
+                if(this.cR == 0){
+
+                    this.colorDir = 2;
+
+                }
+
+            }
+
+            else if(this.colorDir == 1){
+
+                this.cG++;
+
+                if(this.cG == 255){
+
+                    this.colorDir = 3;
+
+                }
+
+            }
+
+            else if(this.colorDir == 4){
+
+                this.cG--;
+
+                if(this.cG == 0){
+
+                    this.colorDir = 0;
+
+                }
+
+            }
+
+            else if(this.colorDir == 2){
+
+                this.cB++;
+
+                if(this.cB == 255){
+
+                    this.colorDir = 4;
+
+                }
+
+            }
+
+            else if(this.colorDir == 5){
+
+                this.cB--;
+
+                if(this.cB == 0){
+
+                    this.colorDir = 1;
+
+                }
+
+            }
+            
+        }
+
+        this.circlePop = function(id){
+
+            if(this.bigger == true){
+
+                this.size++;
+
+                if(this.size == 100){
+
+                    this.bigger = false;
+
+                }
+
+            }
+
+            else{
+
+                this.size--;
+
+                if(this.size == 0){
+
+                    BackgroundExplosion.splice(id,1);
+
+                }
+
+            }
+
+        circle(this.x,this.y,this.size,mixColor(this.cR,this.cG,this.cB));
+
+        }
+
+        this.explosion = function(id){
+
+            this.size += 10;
+
+            if(this.size < sqrt(pow(totalWidth,2)+pow(totalHeight,2))){
+
+                circle(this.x,this.y,this.size,mixColor(this.cR,this.cG,this.cB));
+
+            }
+
+            if(this.size > this.exploWidth){
+
+                circle(this.x,this.y,this.size-this.exploWidth, BackgroundColour);
+
+            }
+
+            if(this.size > sqrt(pow(1920,2)+pow(1080,2))+this.exploWidth){
+
+                BackgroundColourDeFacto = BackgroundColour
+                DeathExplosion.splice(id,1);
+
+            }
+            
+        }
+
+    }
+
+    function PlayerSlidinIn(){
+
+        if(InvincibilityFramesTimer == 360){
+
+            dx = 20;
+            dy = 0;
+
+        }
+
+        if(dx < 0.1 && InvincibilityFramesTimer <= 360){
+
+            dx = 0;
+            Uncontrollable = false;
+
+        }
+
+        else{
+
+            dx*=0.95;
+
+        }
+
+    }
+
+    function playerUpdate(){
+
+        if(Uncontrollable == true){
+
+            x += dx;
+            y += dy;
+
+        }
+
+        else{
+
+            if(x + dx > 0 && x + dx + SizeX < totalWidth){
+
+                x += dx;
+
+            }
+
+            else if(x > 0 && x + SizeX < totalWidth){
+
+                x += dx/3;
+
+            }
+
+            if(y + dy > 200 && y + dy + SizeY < totalHeight){
+
+                y += dy;
+
+            }
+
+            else if(y > 200 && y + SizeY < totalHeight){
+
+                y += dy/3;
+
+            }
+
+        }
+
+        if(InvincibilityFramesTimer % 20 == 0){
+
+            colour = "Magenta";
+
+        }
+
+        else if(InvincibilityFramesTimer % 10 == 0){
+
+            colour = "Yellow";
+
+        }
+        
+        if(TeacherModeFlag == true){
+
+            colour = "White";
+
+        }
+
+        rectangle(x - 3, y - 3, SizeX + 6, SizeY + 6, "black");
+        rectangle(x, y, SizeX, SizeY, colour);
+
+        for(i = 0; i < Allies.length; i++){
+
+            Allies[i].update();
+            AllySpinTimer++;
+
+            if(AllySpinTimer == 120){
+
+                AllySpinTimer = 0;
+
+            }
+
+        }
+
+        if(Uncontrollable == false){
+
+            Controls();
+
+        }
+
+        else{
+
+            PlayerSlidinIn();
+
+        }
+
+    }
+
+    function PlayMusic(Song){
+
+        document.getElementById('The music').src = "https://kyriaelixia.github.com/server/games/music/" + Song + ".mp3";
+
+    }
+
+    console.log("switchBackground() , Allies.push(new BroShips(Allies.length));");
+    function switchBackground() {
+
+        BackgroundColour = randomAlternative(BackgroundColourChoices);
+        DeathExplosion.push(new Animation("explosion"));
+    }
+
+</script>
+
+<audio id = "The music" autoplay="autoplay" loop="true">
+
+    <source src = "https://kyriaelixia.github.com/server/games/music/Hangar.mp3" />     
+
+</audio>
