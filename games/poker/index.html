@@ -1,0 +1,134 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link href="https://kyriaelixia.github.com/server/main.css" rel="stylesheet" type="text/css" />
+        <!--<link href="https://kyriaelixia.github.com/server/games/poker/poker.css" rel="stylesheet" type="text/css" />-->
+        <link href="poker.css" rel="stylesheet" type="text/css" />
+        <title>Elixia's poker money manager</title>
+    </head>
+    <body>
+        <table align="center" border="0" cellspacing="15">
+            <tr>
+                <td class="standard" rowspan="2">
+                    <table style="font-size:72;" cellspacing="40" border="0">
+                        <tr id="settingsHolder" style="display:table-row;">
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td>Big blind</td>
+                                        <td>Small blind</td>
+                                        <td>Money preset</td>
+                                    </tr>
+                                    <tr>
+                                        <form id="settings">
+                                            <td>
+                                                <input type="number" id="bigBlind" placeholder="Big blind">
+                                            </td>
+                                            <td>
+                                                <input type="number" id="smallBlind" placeholder="Small blind">
+                                            </td>
+                                            <td>
+                                                <input type="number" id="moneyPreset" placeholder="Start money">
+                                            </td>
+                                        </form>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <form id="playerForm">                    
+                                <td id="playerListHolder">                        
+                                    <table id="playerList" border="0" cellpadding="10">
+                                            <tr>
+                                                <td align="center">Name</td>
+                                                <td align="center">Money</td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                    </table>
+                                </td>
+                            </form>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button onclick="addNewPlayer();" id="newPlayerButton" style="display: ;">Add new player</button><button onclick="toggleWinner();" id="toggleWinner" style="display:none;">Select winner</button><button onclick="toggleSettings();" id="toggleSettingsButton">Start</button>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td class="standard" id="potHolder" style="display:none;">
+                    <p class="describe">The pot</p>
+                    <br>
+                    <table>
+                        <tr>
+                            <td id="thePot">0</td>
+                            <td><img id="coin" src="https://kyriaelixia.github.com/server/games/poker/sprites/coin.png" width="60" height="60"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>            
+            <tr>
+                <td class="standard" style="padding: 20; display: none" id="betHolder" align="center">
+                    <table align="center">
+                        <tr class="describe">
+                            <td colspan="6">Bet</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button onclick="addToPot(0);" class="moneyButton"><table><tr><td>Call</td><td></td></tr></table></button>
+                            </td>
+                            <td>
+                                <button onclick="addToPot(10);" class="moneyButton"><table><tr><td>10</td><td><img src="https://kyriaelixia.github.com/server/games/poker/sprites/coin.png" width="15" height="15"></td></tr></table></button>
+                            </td>
+                            <td>
+                                <button onclick="addToPot(50);" class="moneyButton"><table><tr><td>50</td><td><img src="https://kyriaelixia.github.com/server/games/poker/sprites/coin.png" width="15" height="15"></td></tr></table></button>
+                            </td>
+                            <td>
+                                <button onclick="addToPot(100);" class="moneyButton"><table><tr><td>100</td><td><img src="https://kyriaelixia.github.com/server/games/poker/sprites/coin.png" width="15" height="15"></td></tr></table></button>
+                            </td>                           
+                            <td>
+                                <button onclick="addToPot(250);" class="moneyButton"><table><tr><td>250</td><td><img src="https://kyriaelixia.github.com/server/games/poker/sprites/coin.png" width="15" height="15"></td></tr></table></button>
+                            </td>
+                            <td>
+                                <button onclick="addToPot(500);" class="moneyButton"><table><tr><td>500</td><td><img src="https://kyriaelixia.github.com/server/games/poker/sprites/coin.png" width="15" height="15"></td></tr></table></button>
+                            </td> 
+                        </tr>
+                        <tr>
+                            <td colspan="5">
+                                <form id="customBet">
+                                    <input type="range" min="10" max="1000" step="10" value="10" class="slider" id="customBetSlider" style="width:375px;">
+                                </form>
+                            </td>
+                            <td>
+                                <button onclick="addToPotCustom();" class="moneyButton">
+                                    <table>
+                                        <tr>
+                                            <td id="customBetButton">10</td>
+                                            <td>
+                                                <img src="https://kyriaelixia.github.com/server/games/poker/sprites/coin.png" width="15" height="15">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </button>
+                            </td>                            
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <tr class="standard">
+                <td colspan="2">            
+                    
+                    <table id="statsHolder" cellspacing="40"></table>
+                       
+                </td>
+            </tr>      
+
+        </table>
+
+        
+    </body>
+</html>
+<script src="creator.js"></script>
+<script src="poker.js"></script>
+<!--<script src="https://kyriaelixia.github.com/server/games/poker/poker.js"></script>

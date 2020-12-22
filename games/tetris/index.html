@@ -1,0 +1,3080 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Elixia's Tetris</title>
+</head>
+
+<body>
+    <script src="http://spelprogrammering.nu/simple.js">
+
+        // Variables
+
+        // Spelfält storleksvariabler
+        playfieldWidth = 10;
+        playfieldHeight = 24;
+        playfieldHidden = 4;
+
+        // Render
+        frameSize = 1;
+        centerOffset = 25;
+        nextPieceOffset = 7;
+
+        size = floor(totalHeight / 24);
+
+        if (size > 40) {
+            (size = 40);
+        }
+        if (totalHeight === 768) { // specifikt för fullskärm på skoldatorn
+            size = 30;
+        }
+
+        // System options
+        startScreen = true;
+        updatesPerSecond = 90;
+        gameTimer = 0;
+        clock = 0;
+        screenPause = false;
+        freeze = false;
+        pause = false;
+        needRestart = false;
+        press = false;
+        pausePress = false;
+        debugMode = false;
+        gameOver = false;
+        showControlls = false;
+        backdrop = false;
+
+        // Music & sound options
+        selectedSong = "No song selected";
+        musicIsPlaying = false;
+        musicVolume = 20;
+        soundVolume = 69;
+        musicControll = "pause";
+        playbackSpeed = 10;
+
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/click");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/smack");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/bonk");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/start");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/success");
+        preloadSound("https://kyriaelixia.github.com/server/games/sounds/failure");
+
+        // Gameplay options
+        samePieces = true;
+        piecePreviewAmount = 4;
+        canHold = true;
+        totalPlayers = 1;
+        startDifficulty = 1;
+        increaseDifficulty = true;
+        ghosts = true;
+        doCombo = true;
+        gameMode = "survival";
+        gameType = "lines";
+        raceLines = 25;
+        raceScore = 10000;
+        timeTrialTime = 300;
+        diffCheck = startDifficulty;
+        raceLinesDiff = raceLines;
+        raceScoreDiff = raceScore;
+        timeTrialTimeDiff = timeTrialTime;
+        amountButtonChanges = 8;
+        buttonChanges = new Array(amountButtonChanges);
+
+        // Pausescreen animation
+        startSequence = 0;
+        pauseAnimationObject = new Array(8);
+        pauseAnimationTime = new Array(8);
+        for (a = 0; a < 6; a++) {
+
+            pauseAnimationObject[a] = new piece(random(7) + 1, 0, 41, -5 + (-6 * a));
+            pauseAnimationTime[a] = updatesPerSecond;
+
+            for (r = 0; r < random(4); r++) {
+
+                pauseAnimationObject[a].pieceRotate(true);
+            }
+        }
+
+        // Spelarnas Variabler
+        player1 = new Array(0);
+        player2 = new Array(0);
+
+        inputPress1 = false;
+        inputPress2 = false;
+
+        score1 = 0;
+        score2 = 0;
+        lines1 = 0;
+        lines2 = 0;
+        combo1 = 0;
+        combo2 = 0;
+
+        level1 = startDifficulty;
+        level2 = startDifficulty;
+        nextLevel1 = 5 * level1;
+        nextLevel2 = 5 * level2;
+
+        fallSpeed1 = updatesPerSecond / level1;
+        fallSpeed2 = updatesPerSecond / level2;
+        fallSave1 = 0;
+        fallSave2 = 0;
+        fallCooldown1 = fallSpeed1;
+        fallCooldown2 = fallSpeed2;
+        speedFall1 = false;
+        speedFall2 = false;
+
+        animation1 = 0;
+        animation2 = 0;
+        textAnimate1 = new Array(0);
+        textAnimate2 = new Array(0);
+
+        holding1 = 0;
+        holding2 = 0;
+        switchHold1 = false;
+        switchHold2 = false;
+
+        nextPiece1 = new Array(0);
+        nextPiece2 = new Array(0);
+        showNextPiece1 = new Array(4);
+        showNextPiece2 = new Array(4);
+
+        layerQueue1 = new Array(0);
+        layerQueue2 = new Array(0);
+
+        doFullscreen = true;
+
+        // Playfield storage arrays
+        playfield = new Array(2); // Två spelare
+        for (p = 0; p < 2; p++) {
+
+            playfield[p] = new Array(playfieldWidth);
+
+            for (x = 0; x < playfieldWidth; x++) {
+
+                playfield[p][x] = new Array(playfieldHeight);
+
+                for (y = 0; y < playfieldHeight; y++) {
+
+                    playfield[p][x][y] = 0;
+                }
+            }
+        }
+
+        function start() {
+
+            if (doFullscreen == true) {
+                openFullscreen();
+                doFullscreen = false;
+            }
+            /*
+            Denna funktion används för att sätta och återställa värden beroende på de inställninagr som valts
+            Den flyttar t.ex origo beroende på antal spelare.
+            Ifall man byter antal speplare måste man starta om spelet och kalla på den här funktionen för att se till så att
+            onödiga saker räknas med eller att båda spelarna
+            */
+            save();
+            origoMove();
+
+            // Kollar ifall fönstret är tillräckligt stort och säger nej ifall det inte är det
+            /*
+            if(totalHeight< 600 || totalWidth < 1350){  
+                stopUpdate();
+                alert("The current browser window is too small for the game to be playable. Please make the viewport at least 1350x600 and refresh to be able to play. The game is optimized for 1920x1080.");
+            }
+            */
+            // Återställer spelplanerna
+            for (p = 0; p < totalPlayers; p++) {
+                for (x = 0; x < playfieldWidth; x++) {
+                    for (y = 0; y < playfieldHeight; y++) {
+
+                        playfield[p][x][y] = 0;
+                    }
+                }
+            }
+
+
+            // Återställer poäng för båda spelarna
+            score1 = 0;
+            score2 = 0;
+            lines1 = 0;
+            lines2 = 0;
+            if (doCombo === true) {
+
+                combo1 = 0;
+                combo2 = 0;
+            }
+            else {
+
+                combo1 = 1;
+                combo2 = 1;
+            }
+
+            // Återställer vad spelarna håller
+            holding1 = 0;
+            holding2 = 0;
+            switchHold1 = false;
+            switchHold2 = false;
+
+            // återställer svårighetsgraden 
+            level1 = startDifficulty;
+            level2 = startDifficulty;
+            nextLevel1 = 5 * level1;
+            nextLevel2 = 5 * level2;
+            diffCheck = startDifficulty;
+            raceLinesDiff = raceLines;
+            raceScoreDiff = raceScore;
+            timeTrialTimeDiff = timeTrialTime;
+
+            fallSpeed1 = updatesPerSecond / level1;
+            fallSpeed2 = updatesPerSecond / level2;
+
+
+            // återställer några generella saker som tid.
+            showControlls = false;
+            gameTimer = updatesPerSecond;
+            clock = 0;
+
+            for (a = 0; a < amountButtonChanges; a++) {
+                buttonChanges[a] = 0;
+            }
+
+            // Inställingar
+
+            // Bestämmer ordningen och vilka bitar som kommer samt att de inte blir fler än två likadana bitar i rad
+            if (samePieces === true) {
+
+                nextPiece1 = new Array(0);
+                nextPiece2 = new Array(0);
+
+                for (i = 0; i < 1000; i++) {
+
+                    sameSame = random(7) + 1;
+
+                    while (i >= 2 && sameSame === nextPiece1[i - 1] && sameSame === nextPiece1[i - 2]) {
+
+                        sameSame = random(7) + 1;
+                    }
+
+                    nextPiece1.push(sameSame);
+                    nextPiece2.push(sameSame);
+                }
+            }
+            else {
+
+                nextPiece1 = new Array(0);
+                nextPiece2 = new Array(0);
+
+                for (i = 0; i < 1000; i++) {
+
+                    p1 = random(7) + 1;
+                    p2 = random(7) + 1;
+
+                    while (i >= 2 && p1 === nextPiece1[i - 1] && p1 === nextPiece1[i - 2]) {
+                        p1 = random(7) + 1;
+                    }
+                    while (i >= 2 && p2 === nextPiece2[i - 1] && p2 === nextPiece2[i - 2]) {
+                        p2 = random(7) + 1;
+                    }
+
+                    nextPiece1.push(p1);
+                    nextPiece2.push(p2);
+                }
+
+            }
+
+            // Återställer arrayen som sparar den fallande biten (objektet) 
+            player1 = new Array(0);
+            player2 = new Array(0);
+            player1.push(new piece(nextPiece1[0], 0, 0, 0));
+
+            if (totalPlayers === 2) {
+                player2.push(new piece(nextPiece2[0], 1, 0, 0));
+            }
+
+            // Sparar de kommande bitarna beroende på inställningarna
+            for (i = 0; i < piecePreviewAmount; i++) {
+
+                showNextPiece1[i] = new piece(nextPiece1[i + 1], 0, 13, 13 + (3 * (i + 4 - piecePreviewAmount)));
+
+                if (totalPlayers === 2) {
+                    showNextPiece2[i] = new piece(nextPiece2[i + 1], 1, 13, 13 + (3 * (i + 4 - piecePreviewAmount)));
+                }
+            }
+
+        }
+
+        function openFullscreen() {
+
+            elem = document.getElementById("canvas");
+
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            }
+            else if (elem.mozRequestFullScreen) { /* Firefox */
+                elem.mozRequestFullScreen();
+            }
+            else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                elem.webkitRequestFullscreen();
+            }
+            else if (elem.msRequestFullscreen) { /* IE/Edge */
+                elem.msRequestFullscreen();
+            }
+        }
+        
+        function update() {
+
+            clearScreen();
+            if (backdrop === true) {
+                background();
+            }
+
+            if (startSequence !== 0) {
+
+                // Döljer all informatione om bitarna och visar upp start/paus animationen
+
+                render(true);
+                scores();
+                startSequence.countdown();
+
+                if (textAnimate1.length > 0) {
+                    textAnimate1[0].update();
+                }
+                if (totalPlayers === 2 && textAnimate2.length > 0) {
+                    textAnimate2[0].update();
+                }
+                if (startSequence.time === 0) {
+                    startSequence = 0;
+                }
+
+            }
+            else if (pause === false && gameOver === false && startScreen === false) {
+
+                // Den huvudsakliga loopen som spelet kommer köras i.
+                render(false);
+                systemInput();
+
+                if (freeze === false) {
+                    input();
+                    timeElapse();
+                    playerOne();
+
+                    if (totalPlayers === 2) {
+
+                        playerTwo();
+                    }
+                }
+
+                for (p = 0; p < totalPlayers; p++) {
+                    rectangle(0 + (p * centerOffset * size), 0, playfieldWidth * size, playfieldHidden * size, "white");
+                }
+                scores();
+
+            }
+            else if (gameOver === true && pause === false && startScreen === false) {
+
+                // Loopen som körs ifall spelet är avslutat då någon vunnit eller förlorat
+
+                render(false);
+                systemInput();
+
+                player1[0].pieceRender();
+                if (totalPlayers === 2) {
+                    player2[0].pieceRender();
+                }
+
+                for (p = 0; p < totalPlayers; p++) {
+                    rectangle(0 + (p * centerOffset * size), 0, playfieldWidth * size, playfieldHidden * size, "white");
+                }
+                scores();
+                rectangle((playfieldWidth + nextPieceOffset + 1) * size, 4 * size, 6 * size, 2 * size, "black");
+                rectangle((playfieldWidth + nextPieceOffset + 1) * size + 2, 4 * size + 2, 6 * size - 4, 2 * size - 4, "violet");
+                text((playfieldWidth + nextPieceOffset + 1.3) * size, 5.2 * size, size / 1.5, "Game Over", "black");
+            }
+            else {
+
+                // Loopen som körs ifall spelet är pausat
+
+                systemInput();
+
+                if (keyboard.alt && backdrop === true) {
+                    //bara för att kunna se bakgrunden ifall man har den aktiverad
+                }
+                else {
+
+                    optionScreen();
+                }
+            }
+
+            if (debugMode === true && pause === false) {
+
+
+
+                debugging();
+                systemInput();
+            }
+        }
+
+        function origoMove() {
+
+            // Origo förflyttning beroende på antal spelare för att allt ska vara centrerat och fint utan att
+            // behöva ändra massa variabler som påverkar var man skriver ut saker
+
+            if (totalPlayers === 1) {
+                translate((totalWidth / 2) - (((playfieldWidth + nextPieceOffset) * size) / 2), (totalHeight / 2) - (((playfieldHeight + playfieldHidden) * size) / 2));
+            }
+            else {
+                translate((totalWidth / 2) - (((playfieldWidth + centerOffset + nextPieceOffset) * size) / 2), (totalHeight / 2) - (((playfieldHeight + playfieldHidden) * size) / 2));
+            }
+        }
+
+        function square(x, y, color, p, f) {
+
+            // En funktion som gör det lättare att skriva ut kvadrater i det rutnät som allt är placerat i
+
+            // jag menar jag skulle inte orkar skriva dedär varje gång
+
+            rectangle(x * size + (p * centerOffset * size) + f, y * size + f, size - (2 * f), size - (2 * f), color);
+        }
+
+        function debugging() {
+
+            //Denna användes för att göra det lättare för mig att se var jag gjort någonting fel men jag behöll den
+            //eftersom man vet aldrig när man får användning av den igen
+
+            rectangle(-50, 0, 100, 1, "black");
+            rectangle(0, -50, 1, 100, "black");
+            text(1 * size / 2, -1 * size / 2, size / 2, "Player1: " + player1.length + "   Player2: " + player2.length, "black");
+            text(1 * size / 2, (playfieldHeight + 2) * size, size / 2, "fallCooldown1: " + fallCooldown1 + "   fallCooldown2: " + fallCooldown2, "black");
+
+            for (p = 0; p < totalPlayers; p++) {
+                for (y = 0; y < playfieldHeight; y++) {
+                    for (x = 0; x < playfieldWidth; x++) {
+
+                        text(x * size + size / 8 + (p * centerOffset * size), y * size + size / 2, size / 6, x + "," + y + "," + playfield[p][x][y], "black");
+                    }
+                }
+            }
+        }
+
+        function optionScreen() {
+
+            //En riktigt lång funktion funktion som först skriver ut alla knappar och sen bestämmer vad som sker ifall man
+            //klickar på dem. Den är lång eftersom jag inte ville ha globala variabler och då måste alla skapade variabler vara i samma funktion.
+
+            // olika variabler som tillhör knapparna
+            rectangle(0 * size, 0 * size, 45 * size, 22 * size, "white");
+            rectangle(38 * size, 0 * size, 7 * size, 27 * size, "white");
+            pauseAnimation();
+            textSize = size / 2.5;
+            colA = 1;
+            colAwidth = 13;
+            colC = 16;
+
+            if (startScreen === true) {
+                restore();
+            }
+
+            // Music inställningar och knappar
+            showMusic = new musicBar(colC, 1, 20, 1, textSize, "red");
+            showMusic.update();
+
+            optionSong = new button(colC, 2.5, 16, 1, textSize, "pink", "pink", true, 0);
+            optionSong.buttonRender("Song: " + selectedSong);
+
+            optionCustomSong = new button(32.5, 2.5, 5, 1, textSize, "pink", "pink", 0, 0);
+            optionCustomSong.buttonRender("Custom song");
+
+            optionVolume = new slider(colC, 4, 10.5, 1, size / 2, textSize, "pink", "pink", "hotpink", 101, musicVolume, 0, 0);
+            optionVolume.sliderRender("Music volume: " + musicVolume + "%");
+
+            optionSoundVolume = new slider(colC + 11, 4, 10.5, 1, size / 2, textSize, "pink", "pink", "hotpink", 101, soundVolume, 0, 0);
+            optionSoundVolume.sliderRender("Sounds volume: " + soundVolume + "%");
+
+            optionPlaybackSpeed = new slider(colC, 5.5, 10.5, 1, size / 2, textSize, "pink", "pink", "hotpink", 51, playbackSpeed, 0, 0);
+            if (keyboard.ctrl) {
+
+                optionPlaybackSpeed.sliderRender("Playback speed: " + playbackSpeed / 10 + "x", 0);
+            }
+
+            optionMusicControll = new button(36.5, 1, 1, 1, textSize, "pink", "pink", musicControll, 0);
+            optionMusicControll.buttonRender("");
+            if (musicControll === "play") {
+
+                margin = optionMusicControll.storlekX * size / 5;
+                triangle(optionMusicControll.bx * size + margin, optionMusicControll.by * size + margin, (optionMusicControll.bx + optionMusicControll.storlekX) * size - margin, (optionMusicControll.by + optionMusicControll.storlekY / 2) * size, optionMusicControll.bx * size + margin, (optionMusicControll.by + optionMusicControll.storlekY) * size - margin, "black");
+            }
+            else {
+
+                margin = optionMusicControll.storlekX * size / 5;
+                rectangle(optionMusicControll.bx * size + margin, optionMusicControll.by * size + margin, optionMusicControll.storlekX * size / 5, optionMusicControll.storlekY * size - 2 * margin, "black");
+                rectangle((optionMusicControll.bx + optionMusicControll.storlekY) * size - margin - optionMusicControll.storlekX * size / 5, optionMusicControll.by * size + margin, optionMusicControll.storlekX * size / 5, optionMusicControll.storlekY * size - 2 * margin, "black");
+            }
+
+            // Spelinställningar och knappar        
+            optionPiecePreviewAmount = new slider(colA, 10, colAwidth, 1, size / 2, textSize, "red", "lime", "yellow", 5, piecePreviewAmount, 0, 0);
+            if (piecePreviewAmount !== 0) {
+                optionPiecePreviewAmount.sliderRender("Preview " + piecePreviewAmount + " pieces");
+            }
+            else {
+                optionPiecePreviewAmount.sliderRender("Preview pieces: false");
+            }
+
+            optionCanHold = new button(colA, 7, colAwidth, 1, textSize, "red", "lime", canHold, 0);
+            optionCanHold.buttonRender("Hold pieces: " + canHold);
+
+            optionPlayerAmount = new button(colA, 5.5, colAwidth, 1, textSize, "yellow", "yellow", totalPlayers, buttonChanges[1]);
+            optionPlayerAmount.buttonRender("Players: " + totalPlayers);
+
+            optionSamePieces = new button(colA, 8.5, colAwidth, 1, textSize, "red", "lime", samePieces, buttonChanges[0]);
+            optionSamePieces.buttonRender("Same pieces: " + samePieces);
+
+            optionDifficulty = new button(colA, 14.5, colAwidth, 1, textSize, "red", "lime", increaseDifficulty, buttonChanges[5]);
+            optionDifficulty.buttonRender("Increase Difficulty: " + increaseDifficulty);
+
+            optionStartDifficulty = new slider(colA, 16, colAwidth, 1, size / 2, textSize, "lime", "lime", "yellow", 10, startDifficulty, 1, buttonChanges[6]);
+            optionStartDifficulty.sliderRender("Starting level: " + startDifficulty);
+
+            optionGhosts = new button(colA, 11.5, colAwidth, 1, textSize, "red", "lime", ghosts, 0);
+            optionGhosts.buttonRender("Ghosts: " + ghosts);
+
+            optionCombo = new button(colA, 13, colAwidth, 1, textSize, "red", "lime", doCombo, buttonChanges[7]);
+            optionCombo.buttonRender("Combos: " + doCombo);
+
+            restartButton = new button(colA, 19, colAwidth, 1, textSize, "pink", "cyan", true, 0);
+            unpauseButton = new button(colA, 20.5, colAwidth, 1, textSize, "pink", "cyan", true, 0);
+
+            optionBackdrop = new button(colA + (colAwidth + 0.5) / 2, 17.5, (colAwidth - 0.5) / 2, 1, textSize, "pink", "yellow", true, 0);
+            colBwidth = colAwidth;
+            if (keyboard.ctrl) {
+                backdropText = "Show";
+                if (backdrop === true) {
+                    backdropText = "Hide";
+                }
+                optionBackdrop.buttonRender(backdropText + " background");
+                colBwidth = (colAwidth - 0.5) / 2;
+            }
+
+            controlls = new button(colA, 17.5, colBwidth, 1, textSize, "pink", "hotpink", true, 0);
+            controllText = "Show";
+            if (showControlls === true) {
+                controllText = "Hide";
+            }
+            controlls.buttonRender(controllText + " controlls");
+
+            optionSize = new button(0, 0, 1, 1, textSize / 2, "yellow", "yellow", size, 0);
+            if (keyboard.ctrl) {
+                optionSize.buttonRender(size);
+            }
+
+            optionGameMode = new button(colA, 1, colAwidth, 1, textSize, "yellow", "dodgerblue", true, buttonChanges[2]);
+            optionGameMode.buttonRender("Gamemode: " + gameMode);
+
+            optionGameType = new button(colA, 2.5, colAwidth, 1, textSize, "dodgerblue", "dodgerblue", true, buttonChanges[4]);
+            optionGameType.buttonRender("Gametype: " + gameType);
+
+            optionGameModeOptions = new button(colA, 4, colAwidth, 1, textSize, "yellow", "dodgerblue", true, buttonChanges[3]);
+            if (gameMode === "survival") {
+
+                optionGameModeOptions = new button(colA, 4, colAwidth, 1, textSize, "yellow", "dodgerblue", true, buttonChanges[3]);
+                optionGameModeOptions.buttonRender("Survive for as long as possible");
+            }
+            else if (gameMode === "race") {
+
+                if (gameType === "lines") {
+                    optionGameModeOptions = new slider(colA, 4, colAwidth, 1, size / 2, textSize, "dodgerblue", "dodgerblue", "cyan", 241, raceLines, 10, buttonChanges[3]);
+                    optionGameModeOptions.sliderRender("Reach " + raceLines + " lines as fast as possible");
+
+                    if (mouse.left && optionGameModeOptions.sliderClick() === true) {
+
+                        raceLines = optionGameModeOptions.sliderDrag();
+                    }
+                    if (raceLinesDiff !== raceLines) {
+                        buttonChanges[3] = 1;
+                    }
+                    else {
+                        buttonChanges[3] = 0;
+                    }
+                }
+                else {
+
+                    optionGameModeOptions = new slider(colA, 4, colAwidth, 1, size / 2, textSize, "dodgerblue", "dodgerblue", "cyan", 250, raceScore / 1000, 1, buttonChanges[3]);
+                    optionGameModeOptions.sliderRender("Reach " + raceScore + " score as fast as possible");
+
+
+                    if (mouse.left && optionGameModeOptions.sliderClick() === true) {
+
+                        raceScore = optionGameModeOptions.sliderDrag() * 1000;
+
+                    }
+                    if (raceScoreDiff !== raceScore) {
+                        buttonChanges[3] = 1;
+                    }
+                    else {
+                        buttonChanges[3] = 0;
+                    }
+                }
+            }
+            else {
+
+                optionGameModeOptions = new slider(colA, 4, colAwidth, 1, size / 2, textSize, "dodgerblue", "dodgerblue", "cyan", 30, timeTrialTime / 30, 1, buttonChanges[3]);
+
+                if (mouse.left && optionGameModeOptions.sliderClick() === true) {
+
+                    timeTrialTime = optionGameModeOptions.sliderDrag() * 30;
+                }
+
+                if (timeTrialTimeDiff !== timeTrialTime) {
+                    buttonChanges[3] = 1;
+                }
+                else {
+                    buttonChanges[3] = 0;
+                }
+
+                if (gameType === "lines") {
+                    optionGameModeOptions.sliderRender("Most lines reached after " + timeConverter(timeTrialTime));
+                }
+                else {
+                    optionGameModeOptions.sliderRender("Best score reached after " + timeConverter(timeTrialTime));
+                }
+            }
+
+
+            // Kollar ifall en av knapparna är ändrad och ifall omstart krävs samt ifall man e på startskärmen och eller pausskärmen
+            needRestart = false;
+            for (c = 0; c < amountButtonChanges; c++) {
+                if (buttonChanges[c] !== 0) {
+                    needRestart = true;
+                }
+            }
+
+            if (startScreen === true) {
+
+                text(colC * size, 13 * size, 2.4 * size, "KRIS TETRIS", "black");
+                restartButton.buttonRender("Start");
+            }
+            else {
+                text(colC * size + 0.2 * size, 13 * size, 2.4 * size, "   PAUSED", "black");
+                restartButton.buttonRender("Restart");
+                if (needRestart === true) {
+
+                    text(colA * size, 21 * size, size / 2, "Some changes that were made require a restart");
+                    text(colA * size, 21.7 * size, size / 2, "to take action (marked with orange square)");
+                }
+                else {
+                    unpauseButton.buttonRender("Unpause");
+                }
+            }
+
+            // visar kontrollerna ifall man vill att de ska synas
+            if (showControlls === true) {
+
+                rectangle(colC * size, (5.5 * size), (21.5 * size), (13 * size), "black");
+                rectangle((colC * size) + 2, (5.5 * size) + 2, (21.5 * size) - 4, (13 * size) - 4, "hotpink");
+
+                text((colC + 0.5) * size, 6.5 * size, size / 2, "Player 1 | Player 2 | Function          ", "black");
+                text((colC + 0.5) * size, 7.5 * size, size / 2, "A        | left     | Move to the left  ", "black");
+                text((colC + 0.5) * size, 8.5 * size, size / 2, "D        | right    | Move to the right ", "black");
+                text((colC + 0.5) * size, 9.5 * size, size / 2, "W        | up       | Rotate clockwise  ", "black");
+                text((colC + 0.5) * size, 10.5 * size, size / 2, "S        | down     | Speed up falling  ", "black");
+                text((colC + 0.5) * size, 11.5 * size, size / 2, "F        | shift    | Hold piece        ", "black");
+                text((colC + 0.5) * size, 12.4 * size, size / 2, "space    | enter    | Instant fall      ", "black");
+
+                text((colC + 0.5) * size, 14.5 * size, size / 2, "Press P to pause", "black");
+
+                text((colC + 0.5) * size, 17 * size, size / 2, "You can use both the arrow keys and WASD keys", "black");
+                text((colC + 0.5) * size, 18 * size, size / 2, "in singleplayer games", "black");
+            }
+
+
+            // Vad som skre ifall man klickar på en av knapparna eller om man drar en slider
+
+            //buttons
+            if (mouse.left) {
+
+                if (pausePress === false) {
+
+                    if (restartButton.buttonClick() === true) {
+
+                        soundPlay("click");
+                        pause = false;
+                        startScreen = false;
+                        gameOver = false;
+                        needRestart = false;
+                        fallCooldown1 = 0;
+                        fallCooldown2 = 0;
+                        start();
+                        startAnimation();
+                    }
+                    else if (unpauseButton.buttonClick() === true && startScreen === false && needRestart === false) {
+
+                        soundPlay("click");
+                        screenPause = true;
+                    }
+                    else if (optionSamePieces.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (samePieces === true) {
+                            samePieces = false;
+                        }
+                        else {
+                            samePieces = true;
+                        }
+                        if (startScreen === false) {
+                            if (buttonChanges[0] === 1) {
+                                buttonChanges[0] = 0;
+                            }
+                            else {
+                                buttonChanges[0] = 1;
+                            }
+                        }
+                    }
+                    else if (optionPlayerAmount.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (totalPlayers === 1) {
+                            totalPlayers++;
+                        }
+                        else {
+                            totalPlayers--;
+                        }
+                        if (startScreen === false) {
+                            if (buttonChanges[1] === 1) {
+                                buttonChanges[1] = 0;
+                            }
+                            else {
+                                buttonChanges[1] = 1;
+                            }
+                        }
+                    }
+                    else if (optionCanHold.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (canHold === true) {
+                            canHold = false;
+                        }
+                        else {
+                            canHold = true;
+                        }
+                    }
+                    else if (controlls.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (showControlls === true) {
+                            showControlls = false;
+                        }
+                        else {
+                            showControlls = true;
+                        }
+                    }
+                    else if (optionGameMode.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (gameMode === "survival") {
+                            gameMode = "race";
+                        }
+                        else if (gameMode === "race") {
+                            gameMode = "time trial";
+                        }
+                        else {
+                            gameMode = "survival";
+                        }
+
+                        if (startScreen === false) {
+                            if (buttonChanges[2] === 0) {
+                                buttonChanges[2] = 1;
+                            }
+                            else if (buttonChanges[2] === 1) {
+                                buttonChanges[2] = 2;
+                            }
+                            else {
+                                buttonChanges[2] = 0;
+                            }
+                        }
+                    }
+                    else if (optionGameType.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (gameType === "lines") {
+                            gameType = "score";
+                        }
+                        else {
+                            gameType = "lines";
+                        }
+
+                        if (startScreen === false && gameType !== "survival") {
+                            if (buttonChanges[4] === 0) {
+                                buttonChanges[4] = 1;
+                            }
+                            else {
+                                buttonChanges[4] = 0;
+                            }
+                        }
+                    }
+                    else if (optionSong.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (selectedSong === "Grubesic - Tetris remix") {
+                            selectedSong = "Grubesic - Tropical";
+                        }
+                        else if (selectedSong === "Grubesic - Tropical") {
+                            selectedSong = "TheFatRat - Mayday (instrumental)";
+
+                        }
+                        else if (selectedSong === "TheFatRat - Mayday (instrumental)") {
+                            selectedSong = "DJ Yoshitaka - Evans";
+                        }
+                        else if (selectedSong === "DJ Yoshitaka - Evans") {
+                            selectedSong = "NOMA - Brain Power";
+                        }
+                        else {
+                            selectedSong = "Grubesic - Tetris remix";
+                        }
+                        playMusic(selectedSong);
+                    }
+                    else if (optionMusicControll.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (musicControll === "pause") {
+                            document.getElementById('music').pause();
+                            musicControll = "play";
+                        }
+                        else {
+                            document.getElementById('music').play();
+                            musicControll = "pause";
+                        }
+                    }
+                    else if (optionDifficulty.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (increaseDifficulty === true) {
+                            increaseDifficulty = false;
+                        }
+                        else {
+                            increaseDifficulty = true;
+                        }
+                        if (startScreen === false) {
+                            if (buttonChanges[5] === 1) {
+                                buttonChanges[5] = 0;
+                            }
+                            else {
+                                buttonChanges[5] = 1;
+                            }
+                        }
+                    }
+                    else if (optionCustomSong.buttonClick() === true) {
+
+                        soundPlay("click");
+                        selectedSong = prompt("Enter the filename of the .mp3 file in the music folder you want to play (excluding .mp3)");
+                        selectedSong = selectedSong;
+                        playMusic(selectedSong);
+                        mouse.left = false; //<- fixade en bug som gjorde så att sliders ändrades otan att man klickade på dem.
+                    }
+                    else if (optionGhosts.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (ghosts === false) {
+                            ghosts = true;
+                        }
+                        else {
+                            ghosts = false;
+                        }
+                    }
+                    else if (optionCombo.buttonClick() === true) {
+
+                        soundPlay("click");
+                        if (doCombo === true) {
+                            doCombo = false;
+                        }
+                        else {
+                            doCombo = true;
+                        }
+
+                        if (startScreen === false) {
+                            if (buttonChanges[7] === 1) {
+                                buttonChanges[7] = 0;
+                            }
+                            else {
+                                buttonChanges[7] = 1;
+                            }
+                        }
+                    }
+                    else if (showMusic.musicBarClick() === true) {
+
+                        if (selectedSong !== "No song selected" && selectedSong !== null && document.getElementById("music").duration > 0) {
+                            soundPlay("click");
+                            document.getElementById("music").currentTime = ((mouse.x - showMusic.mx + 2) / showMusic.storlekX) * document.getElementById("music").duration;
+                        }
+                    }
+                    else if (optionBackdrop.buttonClick() === true && keyboard.ctrl) {
+
+                        soundPlay("click");
+
+                        if (backdrop === true) {
+                            backdrop = false;
+                        }
+                        else {
+                            backdrop = true;
+                        }
+                    }
+                    else if (optionSize.buttonClick() === true && showControlls === false && keyboard.ctrl) {
+
+                        size = parseInt(prompt("Enter gridsize:"));
+                        mouse.left = false;
+                        keyboard.ctrl = false;
+                    }
+                }
+                pausePress = true;
+            }
+            else {
+                pausePress = false;
+            }
+
+            //slider
+            if (mouse.left) {
+
+                if (optionPiecePreviewAmount.sliderClick() === true) {
+
+                    piecePreviewAmount = optionPiecePreviewAmount.sliderDrag();
+                    for (i = 0; i < piecePreviewAmount; i++) {
+
+                        showNextPiece1[i] = new piece(nextPiece1[i + 1], 0, 13, 13 + (3 * (i + 4 - piecePreviewAmount)));
+
+                        if (totalPlayers === 2) {
+                            showNextPiece2[i] = new piece(nextPiece2[i + 1], 1, 13, 13 + (3 * (i + 4 - piecePreviewAmount)));
+                        }
+                    }
+                }
+                else if (optionVolume.sliderClick() === true && showControlls === false) {
+
+                    musicVolume = optionVolume.sliderDrag();
+                    document.getElementById("music").volume = musicVolume / 100;
+                }
+                else if (optionSoundVolume.sliderClick() === true && showControlls === false) {
+
+                    soundVolume = optionSoundVolume.sliderDrag();
+                }
+                else if (optionStartDifficulty.sliderClick() === true) {
+
+                    startDifficulty = optionStartDifficulty.sliderDrag();
+                    if (diffCheck !== startDifficulty) {
+                        buttonChanges[6] = 1;
+                    }
+                    else {
+                        buttonChanges[6] = 0;
+                    }
+                }
+                else if (optionPlaybackSpeed.sliderClick() === true && showControlls === false && keyboard.ctrl) {
+
+                    playbackSpeed = optionPlaybackSpeed.sliderDrag();
+                    document.getElementById("music").playbackRate = playbackSpeed / 10;
+                }
+            }
+        }
+
+        function pauseAnimation() {
+
+            // Spelar upp pausanimationen 
+
+            for (i = 0; i < 6; i++) {
+
+                pauseAnimationObject[i].pieceRender();
+
+                if (pauseAnimationTime[i] <= 0) {
+
+                    if (pauseAnimationObject[i].centerY < totalHeight / size + 4) {
+
+                        pauseAnimationObject[i].pieceUpdate(0, false);
+                        pauseAnimationTime[i] = updatesPerSecond / startDifficulty;
+                    }
+                    else {
+
+                        pauseAnimationObject[i] = new piece(random(7) + 1, 0, 41, -6);
+
+                        for (r = 0; r < random(4); r++) {
+
+                            pauseAnimationObject[i].pieceRotate(true);
+                        }
+                    }
+                }
+                else {
+
+                    pauseAnimationTime[i]--;
+                }
+            }
+        }
+
+        function startAnimation() {
+
+            // Ställer de variabler som krävs för att visa pausanimationen
+
+            textAnimate1.splice(0, textAnimate1.length);
+            textAnimate1.push(new textAnimation(0, "3...", size, 1));
+            textAnimate1.push(new textAnimation(0, "2...", size, 1));
+            textAnimate1.push(new textAnimation(0, "1...", size, 1));
+            textAnimate1.push(new textAnimation(0, "play!", size, 1));
+
+            if (totalPlayers === 2) {
+                textAnimate2.splice(0, textAnimate1.length);
+                textAnimate2.push(new textAnimation(1, "3...", size, 1));
+                textAnimate2.push(new textAnimation(1, "2...", size, 1));
+                textAnimate2.push(new textAnimation(1, "1...", size, 1));
+                textAnimate2.push(new textAnimation(1, "play!", size, 1));
+            }
+            soundPlay("start");
+            startSequence = new timer(3);
+        }
+
+        function background() {
+
+            // Skriver ut en fin bakgrund. Används dock ej eftersom det kräver fler kalkylationer vilket hämmar spelets prestanda men kan antiveras genom spelets hemliga meny (ctrl på pausskärmen, sedan kan man trycka på alt för att se hela bakgrunden)
+            pic = new Array(21);
+
+            // I J L O T S Z
+            // 1 2 3 4 5 6 7
+
+            pic[0] = [1, 1, 1, 1, 5, 5, 5, 7, 7, 2, 2, 2];
+            pic[1] = [2, 2, 4, 4, 2, 5, 4, 4, 7, 7, 3, 2];
+            pic[2] = [2, 5, 4, 4, 2, 6, 4, 4, 3, 3, 3, 1];
+            pic[3] = [2, 5, 5, 2, 2, 6, 6, 7, 7, 3, 3, 1];
+            pic[4] = [1, 5, 1, 1, 1, 1, 6, 5, 7, 7, 3, 1];
+            pic[5] = [1, 7, 7, 5, 5, 5, 5, 5, 7, 7, 3, 1];
+            pic[6] = [1, 6, 7, 7, 5, 6, 6, 5, 1, 7, 7, 5];
+            pic[7] = [1, 6, 6, 2, 6, 6, 4, 4, 1, 6, 5, 5];
+            pic[8] = [4, 4, 6, 2, 2, 2, 4, 4, 1, 6, 6, 5];
+            pic[9] = [4, 4, 3, 4, 4, 6, 3, 3, 1, 5, 6, 2];
+            pic[10] = [3, 3, 3, 4, 4, 6, 6, 3, 5, 5, 5, 2];
+            pic[11] = [5, 7, 7, 5, 5, 5, 6, 3, 4, 4, 2, 2];
+            pic[12] = [5, 5, 7, 7, 5, 4, 4, 5, 4, 4, 3, 3];
+            pic[13] = [5, 6, 6, 3, 3, 4, 4, 5, 5, 6, 6, 3];
+            pic[14] = [6, 6, 4, 4, 3, 4, 4, 5, 6, 6, 5, 3];
+            pic[15] = [7, 7, 4, 4, 3, 4, 4, 2, 2, 2, 5, 5];
+            pic[16] = [5, 7, 7, 6, 6, 5, 5, 5, 5, 2, 5, 1];
+            pic[17] = [5, 5, 6, 6, 5, 5, 5, 5, 6, 6, 7, 1];
+            pic[18] = [5, 7, 7, 1, 1, 1, 1, 6, 6, 7, 7, 1];
+            pic[19] = [4, 4, 7, 7, 3, 2, 2, 2, 2, 7, 5, 1];
+            pic[20] = [4, 4, 3, 3, 3, 2, 2, 2, 2, 5, 5, 5];
+
+            for (yy = -2; yy < 3; yy++) {
+                for (xx = -2; xx < 3; xx++) {
+                    for (y = 11; y >= 0; y--) {
+                        for (x = 0; x < 21; x++) {
+
+                            if (pic[x][y] === 1) { // I
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "#00e5e5", 0, 0);
+                                square(x + xx * 21, (11 - y) + yy * 12, "cyan", 0, 2);
+                            }
+                            else if (pic[x][y] === 2) { // J
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "#0065cc", 0, 0);
+                                square(x + xx * 21, (11 - y) + yy * 12, "#007fff", 0, 2);
+                            }
+                            else if (pic[x][y] === 3) { // L
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "orange", 0, 0);
+                                square(x + xx * 21, (11 - y) + yy * 12, "#ffc04c", 0, 2);
+                            }
+                            else if (pic[x][y] === 4) { // O
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "#e5e500", 0, 0);
+                                square(x + xx * 21, (11 - y) + yy * 12, "yellow", 0, 2);
+                            }
+                            else if (pic[x][y] === 5) { // T
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "#7647a2", 0, 0);
+                                square(x + xx * 21, (11 - y) + yy * 12, "#916bb4", 0, 2);
+                            }
+                            else if (pic[x][y] === 6) { // S
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "#198c19", 0, 0);
+                                square(x + xx * 21, (11 - y) + yy * 12, "#4ca64c", 0, 2);
+                            }
+                            else if (pic[x][y] === 7) { // Z
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "#ff3030", 0, 0);
+                                square(x + xx * 21, (11 - y) + yy * 12, "#ff5959", 0, 2);
+                            }
+                            else {
+
+                                square(x + xx * 21, (11 - y) + yy * 12, "brown", 0, 0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function button(bx, by, storlekX, storlekY, textSize, colorFalse, colorTrue, status, requireRestart) {
+
+            // Detta knappobjekt är riktigt fint eftersom den håller koll på färger, utskrift, gör det lätt att lägga till text på knappen
+            // samt ifall håller koll på ifall man klickat på knappen
+
+            this.bx = bx;
+            this.by = by;
+            this.storlekX = storlekX;
+            this.storlekY = storlekY;
+            this.textSize = textSize;
+            this.colorFalse = colorFalse;
+            this.colorTrue = colorTrue;
+            this.color = 0;
+            this.status = status;
+            this.requireRestart = requireRestart;
+
+            this.buttonRender = function (buttonText) {
+
+                // skriver ut knappen
+                if (this.status === true) {
+                    this.color = this.colorTrue;
+                }
+                else {
+                    this.color = this.colorFalse;
+                }
+
+                rectangle(this.bx * size, this.by * size, this.storlekX * size, this.storlekY * size, "black");
+                rectangle(this.bx * size + 2, this.by * size + 2, this.storlekX * size - 4, this.storlekY * size - 4, this.color);
+                text(this.bx * size + 0.5 * size, this.by * size + this.storlekY * size - ((this.storlekY * size) - this.textSize) / 2, this.textSize, buttonText, "black");
+                if (this.requireRestart !== 0) {
+
+                    //rectangle((this.bx+this.storlekX)*size-1.25*size,this.by*size+0.25*size,size,size,"black")
+                    rectangle((this.bx + this.storlekX + 0.25) * size, this.by * size, this.storlekY * size, this.storlekY * size, "black");
+                    rectangle((this.bx + this.storlekX + 0.25) * size + 2, this.by * size + 2, this.storlekY * size - 4, this.storlekY * size - 4, "orange");
+                }
+            };
+
+            this.buttonClick = function () {
+
+                //avgör ifall man har musen ovanför knappen eller ej, vilket kan användas för att kolla om man klickar eller ej.
+
+                if (mouse.x < this.bx * size || mouse.x > (this.bx + this.storlekX) * size) {
+
+                    return false;
+                }
+                else if (mouse.y < this.by * size || mouse.y > (this.by + this.storlekY) * size) {
+
+                    return false;
+                }
+                else {
+
+                    return true;
+                }
+            };
+        }
+
+        function slider(sx, sy, storlekX, storlekY, buttonX, textSize, colorBackFalse, colorBackTrue, colorSlide, stops, status, offset, requireRestart) {
+
+            // slider objektet e som knappen fast mycket mer avancerad. Den är väldigt modulär då skalorna mellan olika saker lätt
+            // kan justeras samt.
+
+            this.sx = sx;
+            this.sy = sy;
+            this.storlekX = storlekX;
+            this.storlekY = storlekY;
+            this.textSize = textSize;
+            this.offset = offset;
+            this.colorBackTrue = colorBackTrue;
+            this.colorBackFalse = colorBackFalse;
+            this.colorBack = this.colorBackTrue;
+            this.colorSlide = colorSlide;
+            this.stops = stops;
+            this.selected = status - this.offset;
+            this.buttonX = buttonX;
+            this.requireRestart = requireRestart;
+
+
+            if (this.selected === 0) {
+                this.colorBack = this.colorBackFalse;
+            }
+
+            this.sliderRender = function (sliderText) {
+
+                // skriver ut slidern
+
+                rectangle(this.sx * size, this.sy * size, this.storlekX * size, this.storlekY * size, "black");
+                rectangle(this.sx * size + 2, this.sy * size + 2, this.storlekX * size - 4, this.storlekY * size - 4, this.colorBack);
+
+                if (debugMode === true) {
+
+                    rectangle(this.sx * size, (this.sy + this.storlekY / 2) * size - 4, this.storlekX * size, 8, "gray");
+
+                    for (i = 0; i < this.stops; i++) {
+
+                        rectangle(this.buttonX / 2 + this.sx * size - 2 + ((this.storlekX * size - this.buttonX) / (this.stops - 1)) * i, (this.sy + this.storlekY / 2) * size - 2, 4, 4, "white");
+                    }
+                }
+                rectangle(this.buttonX / 2 + this.sx * size + ((this.storlekX * size - this.buttonX) / (this.stops - 1)) * (this.selected) - this.buttonX / 2, this.sy * size + 2, this.buttonX, this.storlekY * size - 4, "dimgray");
+                rectangle(this.buttonX / 2 + this.sx * size + ((this.storlekX * size - this.buttonX) / (this.stops - 1)) * (this.selected) - this.buttonX / 2 + 2, this.sy * size + 2, this.buttonX - 4, this.storlekY * size - 4, this.colorSlide);
+
+                text(this.sx * size + 0.5 * size, this.sy * size + this.storlekY * size - ((this.storlekY * size) - this.textSize) / 2, this.textSize, sliderText, "black");
+
+                if (this.requireRestart !== 0 && startScreen === false) {
+
+                    rectangle((this.sx + this.storlekX + 0.25) * size, this.sy * size, this.storlekY * size, this.storlekY * size, "black");
+                    rectangle((this.sx + this.storlekX + 0.25) * size + 2, this.sy * size + 2, this.storlekY * size - 4, this.storlekY * size - 4, "orange");
+                }
+            };
+
+            this.sliderClick = function () {
+
+                //avgör ifall musen är på slidern
+
+                if (mouse.x < this.sx * size || mouse.x > (this.sx + this.storlekX) * size) {
+
+                    return false;
+                }
+                else if (mouse.y < this.sy * size || mouse.y > (this.sy + this.storlekY) * size) {
+
+                    return false;
+                }
+                else {
+
+                    return true;
+                }
+            };
+
+            this.sliderDrag = function () {
+
+                //förflyttar slidern till närmaste stop
+
+                position = this.offset + floor((mouse.x - this.buttonX / 2 - this.sx * size) / (((this.storlekX * size - this.buttonX) / (this.stops - 1))) + 0.5);
+
+                if (position !== this.selected + this.offset) {
+                    soundPlay("bonk");
+                }
+
+                if (position < 0 + this.offset) {
+                    position = 0 + this.offset;
+                }
+                else if (position >= this.stops + this.offset) {
+                    position = this.stops - 1 + this.offset;
+                }
+                return position;
+            };
+        }
+
+        function musicBar(mx, my, storlekX, storlekY, textSize, color) {
+
+            // En funktion som skapar en musikslider som fungerar lite som slidern ovanför fast förenklad eftersom metoden som
+            // sätter var man är i låten är ganska buggig och säger: >>> Failed to set the 'currentTime' property on 'HTMLMediaElement': The provided double value is non-finite. 
+
+            this.mx = mx * size;
+            this.my = my * size;
+            this.storlekX = storlekX * size;
+            this.storlekY = storlekY * size;
+            this.color = color;
+            this.textSize = textSize;
+
+            this.update = function () {
+
+                //skriver ut musikslidern
+
+                rectangle(this.mx, this.my, this.storlekX, this.storlekY, "black");
+                rectangle(this.mx + 2, this.my + 2, this.storlekX - 4, this.storlekY - 4, "white");
+                rectangle(this.mx + 2, this.my + 2, (this.storlekX - 4) * document.getElementById("music").currentTime / document.getElementById("music").duration, this.storlekY - 4, this.color);
+
+                if (document.getElementById("music").duration >= 0) {
+
+                    text(this.mx + 0.5 * size, this.my + this.storlekY - ((this.storlekY) - this.textSize) / 2, this.textSize, timeConverter(floor(document.getElementById("music").currentTime)), "black");
+                    text(text(this.mx + this.storlekX - timeConverter(floor(document.getElementById("music").duration)).length * size / 3 - 0.5 * size, this.my + this.storlekY - ((this.storlekY) - this.textSize) / 2, this.textSize, timeConverter(floor(document.getElementById("music").duration)), "black"));
+                }
+                else {
+
+                    text(this.mx + 0.5 * size, this.my + this.storlekY - ((this.storlekY) - this.textSize) / 2, this.textSize, "Select a song", "black");
+                }
+
+            };
+
+            this.musicBarClick = function () {
+
+                // ändrar var man är i låten beroende på var man klickar 
+
+                if (mouse.x >= this.mx + 2 && mouse.x <= this.mx + this.storlekX - 4 && mouse.y >= this.my + 2 && mouse.y <= this.my + this.storlekY - 4) {
+
+                    return true;
+                }
+            };
+        }
+
+        function playerOne() {
+
+            // sköter alla uppdateringar och linjeanimationer för spelare 1
+
+            for (i = 0; i < player1.length; i++) {
+
+                player1[i].pieceRender();
+            }
+
+            if (layerQueue1.length > 0) {
+
+                //spelar ut lageranimationen
+
+                if (animation1.time > 0) {
+                    if (animation1.time > (2 * animation1.originalTime) / 3 || animation1.time < animation1.originalTime / 3) {
+                        for (i = 0; i < layerQueue1.length; i++) {
+                            for (x = 0; x < playfieldWidth; x++) {
+
+                                square(x, layerQueue1[i], "violet", 0, -1);
+                            }
+                        }
+                    }
+                    animation1.countdown();
+                }
+                else {
+                    for (i = 0; i < layerQueue1.length; i++) {
+                        layerMove(0, layerQueue1[i]);
+                    }
+                    layerQueue1.splice(0, layerQueue1.length);
+                    animation1 = 0;
+                }
+            }
+            else if (fallCooldown1 <= 0) {
+
+                //det som bestämmer när biten ska förflyttas
+
+                for (i = 0; i < player1.length; i++) {
+
+                    if (fallSave1 !== 0) {
+                        score1++;
+                        if (gameMode !== "survival" && gameType === "score") {
+                            winCondition();
+                        }
+                    }
+                    player1[i].pieceUpdate(i, true);
+                }
+                fallCooldown1 = fallSpeed1;
+            }
+            else {
+                fallCooldown1--;
+            }
+
+            if (textAnimate1.length > 0) {
+                textAnimate1[0].update();
+            }
+        }
+
+        function playerTwo() {
+
+            // sköter alla uppdateringar och linjeanimationer för spelare 2
+
+            for (i = 0; i < player2.length; i++) {
+
+                player2[i].pieceRender();
+            }
+
+            if (layerQueue2.length > 0) {
+
+                //spelar ut lageranimationen
+
+                if (animation2.time > 0) {
+                    if (animation2.time > (2 * animation2.originalTime) / 3 || animation2.time < animation2.originalTime / 3) {
+                        for (i = 0; i < layerQueue2.length; i++) {
+                            for (x = 0; x < playfieldWidth; x++) {
+
+                                square(x, layerQueue2[i], "violet", 1, -1);
+                            }
+                        }
+                    }
+                    animation2.countdown();
+                }
+                else {
+                    for (i = 0; i < layerQueue2.length; i++) {
+                        layerMove(1, layerQueue2[i]);
+                    }
+                    layerQueue2.splice(0, layerQueue2.length);
+                    animation2 = 0;
+                }
+            }
+            else if (fallCooldown2 <= 0) {
+
+                //det som bestämmer när biten ska förflyttas
+
+                for (i = 0; i < player2.length; i++) {
+
+                    if (fallSave2 !== 0) {
+                        score2++;
+                    }
+                    player2[i].pieceUpdate(i, true);
+                }
+                fallCooldown2 = fallSpeed2;
+            }
+            else {
+                fallCooldown2--;
+            }
+
+            if (textAnimate2.length > 0) {
+                textAnimate2[0].update();
+            }
+        }
+
+        function input() {
+
+            //Alla knappinmatningar från spelarna kontrolleras här och bestämmer vad som ska ske
+
+            // Player1 input
+            if (keyboard.w) {
+                if (inputPress1 === false) {
+                    for (p = 0; p < player1.length; p++) {
+                        player1[p].pieceRotate(player1[p].rotationValidity());
+                    }
+                }
+                inputPress1 = true;
+            }
+            else if (keyboard.s || speedFall1 === true) {
+                if (inputPress1 === false) {
+                    fallSave1 = fallSpeed1;
+                    fallSpeed1 = updatesPerSecond / 10;
+                    fallCooldown1 = 0;
+                }
+                inputPress1 = true;
+            }
+            else if (keyboard.a) {
+                if (inputPress1 === false) {
+                    for (p = 0; p < player1.length; p++) {
+                        player1[p].pieceMove("left");
+                    }
+                }
+                inputPress1 = true;
+            }
+            else if (keyboard.d) {
+                if (inputPress1 === false) {
+                    for (p = 0; p < player1.length; p++) {
+                        player1[p].pieceMove("right");
+                    }
+                }
+                inputPress1 = true;
+            }
+            else if (keyboard.space) {
+                if (inputPress1 === false) {
+                    speedFall1 = true;
+                    fallSave1 = fallSpeed1;
+                    fallSpeed1 = 0;
+                    fallCooldown1 = 0;
+                }
+                inputPress1 = true;
+            }
+            else if (keyboard.f) {
+                if (inputPress1 === false && canHold === true) {
+
+                    if (switchHold1 === true) {
+
+                        textAnimate1.push(new textAnimation(0, "Can't swap twice", size, 1));
+                    }
+                    else if (holding1 === 0) {
+
+                        holding1 = new piece(player1[0].shape, 0, 13, 8);
+                        nextPiece1.splice(0, 1);
+                        player1.splice(0, 1);
+                        player1.push(new piece(nextPiece1[0], 0, 0, 0));
+                    }
+                    else {
+
+                        player1.push(new piece(holding1.shape, 0, 0, 0));
+                        holding1 = new piece(player1[0].shape, 0, 13, 8);
+                        player1.splice(0, 1);
+                    }
+                    switchHold1 = true;
+                }
+                inputPress1 = true;
+            }
+            else {
+                if (totalPlayers === 1 && (keyboard.up || keyboard.down || keyboard.left || keyboard.right)) {
+                    // villkoret är bara här för att jag ska kunna använda mig av elsen
+                }
+                else {
+                    inputPress1 = false;
+                    if (fallSave1 !== 0) {
+                        fallSpeed1 = fallSave1;
+                        fallSave1 = 0;
+                    }
+                }
+            }
+            if (totalPlayers === 1 && (keyboard.up || keyboard.down || keyboard.left || keyboard.right)) {
+
+                if (keyboard.up) {
+                    if (inputPress1 === false) {
+                        for (p = 0; p < player1.length; p++) {
+                            player1[p].pieceRotate(player1[p].rotationValidity());
+                        }
+                    }
+                    inputPress1 = true;
+                }
+                else if (keyboard.down) {
+                    if (inputPress1 === false) {
+                        fallSave1 = fallSpeed1;
+                        fallSpeed1 = updatesPerSecond / 10;
+                        fallCooldown1 = 0;
+                    }
+                    inputPress1 = true;
+                }
+                else if (keyboard.left) {
+                    if (inputPress1 === false) {
+                        for (p = 0; p < player1.length; p++) {
+                            player1[p].pieceMove("left");
+                        }
+                    }
+                    inputPress1 = true;
+                }
+                else if (keyboard.right) {
+                    if (inputPress1 === false) {
+                        for (p = 0; p < player1.length; p++) {
+                            player1[p].pieceMove("right");
+                        }
+                    }
+                    inputPress1 = true;
+                }
+                else {
+                    inputPress1 = false;
+                    if (fallSave1 !== 0) {
+                        fallSpeed1 = fallSave1;
+                        fallSave1 = 0;
+                    }
+                }
+            }
+            keyboard.a = false;
+            keyboard.d = false;
+
+            // Player2 input 
+            if (totalPlayers === 2) {
+                if (keyboard.up) {
+                    if (inputPress2 === false) {
+                        for (p = 0; p < player2.length; p++) {
+                            player2[p].pieceRotate(player2[p].rotationValidity());
+                        }
+                    }
+                    inputPress2 = true;
+                }
+                else if (keyboard.down || speedFall2 === true) {
+                    if (inputPress2 === false) {
+                        fallSave2 = fallSpeed2;
+                        fallSpeed2 = updatesPerSecond / 10;
+                        fallCooldown2 = 0;
+                    }
+                    inputPress2 = true;
+                }
+                else if (keyboard.left) {
+                    if (inputPress2 === false) {
+                        for (p = 0; p < player2.length; p++) {
+                            player2[p].pieceMove("left");
+                        }
+                    }
+                    inputPress2 = true;
+                }
+                else if (keyboard.right) {
+                    if (inputPress2 === false) {
+                        for (p = 0; p < player2.length; p++) {
+                            player2[p].pieceMove("right");
+                        }
+                    }
+                    inputPress2 = true;
+                }
+                else if (keyboard.enter) {
+                    if (inputPress2 === false) {
+                        speedFall2 = true;
+                        fallSave2 = fallSpeed2;
+                        fallSpeed2 = 0;
+                        fallCooldown2 = 0;
+                    }
+                    inputPress2 = true;
+                }
+                else if (keyboard.shift) {
+                    if (inputPress2 === false && canHold === true) {
+
+                        if (switchHold2 === true) {
+                            textAnimate2.push(new textAnimation(1, "Can't swap twice", size, 1));
+                        }
+                        else if (holding2 === 0) {
+
+                            holding2 = new piece(player2[0].shape, 1, 13, 8);
+                            nextPiece2.splice(0, 1);
+                            player2.splice(0, 1);
+                            player2.push(new piece(nextPiece2[0], 1, 0, 0));
+                        }
+                        else {
+
+                            player2.push(new piece(holding2.shape, 1, 0, 0));
+                            holding2 = new piece(player2[0].shape, 1, 13, 8);
+                            player2.splice(0, 1);
+                        }
+                        switchHold2 = true;
+                    }
+                    inputPress2 = true;
+                }
+                else {
+                    inputPress2 = false;
+                    if (fallSave2 !== 0) {
+                        fallSpeed2 = fallSave2;
+                        fallSave2 = 0;
+                    }
+                }
+            }
+
+            keyboard.left = false;
+            keyboard.right = false;
+        }
+
+        function systemInput() {
+
+            //Olika debug funktioner som jag använde i början samt pausknappen. Är i en separat funktion eftersom jag inte ville att spelarinmatningarna skulle fungera på pausskärmen.
+
+            if (keyboard.p || screenPause === true) {
+                if (press === false && needRestart === false) {
+                    if (pause === false) {
+                        pause = true;
+                        restore();
+                    }
+                    else {
+                        pause = false;
+                        showControlls = false;
+                        save();
+                        origoMove();
+                        startAnimation();
+                    }
+                }
+                press = true;
+            }
+            else if (keyboard.one && keyboard.ctrl) {
+                if (press === false) {
+                    player1.push(new piece(1, 0, 0, 0));
+                }
+                press = true;
+            }
+            else if (keyboard.two && keyboard.ctrl) {
+                if (press === false) {
+                    player1.push(new piece(2, 0, 0, 0));
+                }
+                press = true;
+            }
+            else if (keyboard.three && keyboard.ctrl) {
+                if (press === false) {
+                    player2.push(new piece(3, 1, 0, 0));
+                }
+                press = true;
+            }
+            else if (keyboard.four && keyboard.ctrl) {
+                if (press === false) {
+                    player1.push(new piece(4, 0, 0, 0));
+                }
+                press = true;
+            }
+            else if (keyboard.five && keyboard.ctrl) {
+                if (press === false) {
+                    player1.push(new piece(5, 0, 0, 0));
+                }
+                press = true;
+            }
+            else if (keyboard.six && keyboard.ctrl) {
+                if (press === false) {
+                    player1.push(new piece(6, 0, 0, 0));
+                }
+                press = true;
+            }
+            else if (keyboard.seven && keyboard.ctrl) {
+                if (press === false) {
+                    player1.push(new piece(7, 0, 0, 0));
+                }
+                press = true;
+            }
+            else if (keyboard.nine && keyboard.ctrl) {
+                if (press === false) {
+                    if (debugMode === false) {
+                        debugMode = true;
+                    }
+                    else {
+                        debugMode = false;
+                    }
+                }
+                press = true;
+            }
+            else if (keyboard.zero && keyboard.ctrl) {
+                if (press === false) {
+                    if (freeze === false) {
+                        freeze = true;
+                    }
+                    else {
+                        freeze = false;
+                    }
+                }
+                press = true;
+            }
+            else {
+                press = false;
+            }
+            screenPause = false;
+        }
+
+        function render(hideInfo) {
+
+            // Den här funktionen är vad som i huvudsak skriver ut allting som syns på skärmen. Dock skrivs vissa saker ut
+            // av de olika objektfunktionerna såsom t.ex de fallande bitarna
+
+            // Dessa vita rektanglar gör det lättare att urskilja bakgrunden från spelelementen 
+
+            rectangle(-1 * size, 0, 19 * size, totalHeight * 2, "white");
+            if (totalPlayers === 2) {
+                rectangle((-1 + centerOffset) * size, 0, 19 * size, totalHeight * 2, "white");
+            }
+
+            //Skriver ut tiden under spelets gång
+            rectangle((playfieldWidth + nextPieceOffset + 1) * size, (playfieldHeight - 9) * size, 6 * size, 2 * size, "black");
+            rectangle((playfieldWidth + nextPieceOffset + 1) * size + 2, (playfieldHeight - 9) * size + 2, 6 * size - 4, 2 * size - 4, "pink");
+            text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 8.2) * size, size / 2, "Time elapsed: ", "black");
+            text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 7.5) * size, size / 2, timeConverter(clock), "black");
+
+            //Skriver ut de spelkriterier som krävs för att vinna
+            rectangle((playfieldWidth + nextPieceOffset + 1) * size, (playfieldHeight - 6) * size, 6 * size, 3 * size, "black");
+            rectangle((playfieldWidth + nextPieceOffset + 1) * size + 2, (playfieldHeight - 6) * size + 2, 6 * size - 4, 3 * size - 4, "pink");
+            text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 5.2) * size, size / 2, "Gamemode: ", "black");
+            text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 4.5) * size, size / 2, gameMode, "black");
+            if (gameMode !== "survival") {
+
+                if (gameMode === "race") {
+
+                    text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 3.2) * size, size / 2, gameType, "black");
+
+                    if (gameType === "lines") {
+                        text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 3.8) * size, size / 2, raceLines, "black");
+                    }
+                    else {
+                        text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 3.8) * size, size / 2, raceScore, "black");
+                    }
+                }
+                else {
+
+                    text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 3.2) * size, size / 2, timeConverter(timeTrialTime), "black");
+
+                    if (gameType === "lines") {
+                        text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 3.8) * size, size / 2, "most lines in", "black");
+                    }
+                    else {
+                        text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 3.8) * size, size / 2, "best score in", "black");
+                    }
+                }
+            }
+
+            // skriver ut hur man pausar spelet. Ville ha en knapp men eftersom jag förflyttar origo och den musfunktionen som kommer med biblioteken ej 
+            // förflyttar sitt koordinatsystem så blev allt förskjutet konstigt och jag orkade inte fixa det.
+            rectangle((playfieldWidth + nextPieceOffset + 1) * size, (playfieldHeight - 2) * size, 6 * size, 2 * size, "black");
+            rectangle((playfieldWidth + nextPieceOffset + 1) * size + 2, (playfieldHeight - 2) * size + 2, 6 * size - 4, 2 * size - 4, "pink");
+            text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 1.2) * size, size / 2, "Press P", "black");
+            text((playfieldWidth + nextPieceOffset + 1.2) * size, (playfieldHeight - 0.5) * size, size / 2, "to pause", "black");
+
+            // Skriver ut spelfältet och alla bitar som redan blivit placerade   
+            for (p = 0; p < totalPlayers; p++) {
+                for (y = playfieldHidden; y < playfieldHeight; y++) {
+                    for (x = 0; x < playfieldWidth; x++) {
+
+                        if (hideInfo === false) {
+
+                            if (playfield[p][x][y] === 0) { // E
+
+                                square(x, y, "gray", p, 0);
+                                square(x, y, "lightGray", p, 1);
+                            }
+                            else if (playfield[p][x][y] === 1) { // I
+
+                                square(x, y, "#00e5e5", p, 0);
+                                square(x, y, "cyan", p, 2);
+                            }
+                            else if (playfield[p][x][y] === 2) { // J
+
+                                square(x, y, "#0065cc", p, 0);
+                                square(x, y, "#007fff", p, 2);
+                            }
+                            else if (playfield[p][x][y] === 3) { // L
+
+                                square(x, y, "orange", p, 0);
+                                square(x, y, "#ffc04c", p, 2);
+                            }
+                            else if (playfield[p][x][y] === 4) { // O
+
+                                square(x, y, "#e5e500", p, 0);
+                                square(x, y, "yellow", p, 2);
+                            }
+                            else if (playfield[p][x][y] === 5) { // T
+
+                                square(x, y, "#7647a2", p, 0);
+                                square(x, y, "#916bb4", p, 2);
+                            }
+                            else if (playfield[p][x][y] === 6) { // S
+
+                                square(x, y, "#198c19", p, 0);
+                                square(x, y, "#4ca64c", p, 2);
+                            }
+                            else if (playfield[p][x][y] === 7) { // Z
+
+                                square(x, y, "#ff3030", p, 0);
+                                square(x, y, "#ff5959", p, 2);
+                            }
+                            else {
+
+                                square(x, y, "brown", p, 0);
+                            }
+                        }
+                        else {
+
+                            square(x, y, "gray", p, 0);
+                            square(x, y, "lightGray", p, 1);
+                        }
+                    }
+                }
+            }
+
+            // Skriver ut de bitar som kommer härnäst ifall den inställningen är vald
+            if (piecePreviewAmount !== 0) {
+
+                text(11 * size, 25 * size - (0.5 * size), size / 2.5, "Piece preview", "Black");
+                if (totalPlayers === 2) {
+                    text((11 + centerOffset) * size, 25 * size - (0.5 * size), size / 2.5, "Piece preview", "Black");
+                }
+
+                for (p = 0; p < totalPlayers; p++) {
+                    for (y = playfieldHidden + 7 + (3 * (4 - piecePreviewAmount)); y < playfieldHeight; y++) {
+                        for (x = playfieldWidth + 1; x < playfieldWidth + nextPieceOffset; x++) {
+
+                            square(x, y, "gray", p, 0);
+                            square(x, y, "lightGray", p, 1);
+
+                            //square(x,y,"black",p,-1);
+
+                        }
+                    }
+                }
+
+                for (i = 0; i < piecePreviewAmount; i++) {
+
+                    if (hideInfo === false) {
+                        showNextPiece1[i].pieceRender();
+
+                        if (totalPlayers === 2) {
+
+                            showNextPiece2[i].pieceRender();
+                        }
+                    }
+                }
+            }
+
+            // skriver ut de bitar som spelarna håller i
+            if (canHold === true) {
+
+                text(11 * size, 11 * size - (0.5 * size), size / 2.5, "Hold", "Black");
+                if (totalPlayers === 2) {
+                    text((11 + centerOffset) * size, 11 * size - (0.5 * size), size / 2.5, "Hold", "Black");
+                }
+
+                for (p = 0; p < totalPlayers; p++) {
+                    for (y = playfieldHidden + 2; y < playfieldHidden + 6; y++) {
+                        for (x = playfieldWidth + 1; x < playfieldWidth + nextPieceOffset; x++) {
+
+                            square(x, y, "gray", p, 0);
+                            square(x, y, "lightGray", p, 1);
+                        }
+                    }
+                }
+
+                if (hideInfo === false) {
+
+                    if (holding1 !== 0) {
+                        holding1.pieceRender();
+                    }
+                    if (holding2 !== 0) {
+                        holding2.pieceRender();
+                    }
+                }
+            }
+
+            // Skriver ut spökblock för spelarna ifall denna inställning är vald.
+            if (ghosts === true && hideInfo === false) {
+
+                for (yy = 1; yy < playfieldHeight; yy++) {
+
+                    if (yy === playfieldHeight - 1 || playfield[0][player1[0].centerX][yy + 1] !== 0 || playfield[0][player1[0].orbitX1][yy - (player1[0].centerY - player1[0].orbitY1) + 1] !== 0 || playfield[0][player1[0].orbitX2][yy - (player1[0].centerY - player1[0].orbitY2) + 1] !== 0 || playfield[0][player1[0].orbitX3][yy - (player1[0].centerY - player1[0].orbitY3) + 1] !== 0) {
+
+                        if (yy >= player1[0].centerY && yy >= (player1[0].centerY - player1[0].orbitY1) && yy >= (player1[0].centerY - player1[0].orbitY1) && yy >= (player1[0].centerY - player1[0].orbitY1)) {
+
+                            square(player1[0].centerX, yy, "gray", 0, 0);
+                            square(player1[0].orbitX1, yy - (player1[0].centerY - player1[0].orbitY1), "gray", 0, 0);
+                            square(player1[0].orbitX2, yy - (player1[0].centerY - player1[0].orbitY2), "gray", 0, 0);
+                            square(player1[0].orbitX3, yy - (player1[0].centerY - player1[0].orbitY3), "gray", 0, 0);
+                            yy = playfieldHeight;
+                        }
+                    }
+                }
+                if (totalPlayers === 2) {
+                    for (yy = 1; yy < playfieldHeight; yy++) {
+
+                        if (yy === playfieldHeight - 1 || playfield[1][player2[0].centerX][yy + 1] !== 0 || playfield[1][player2[0].orbitX1][yy - (player2[0].centerY - player2[0].orbitY1) + 1] !== 0 || playfield[1][player2[0].orbitX2][yy - (player2[0].centerY - player2[0].orbitY2) + 1] !== 0 || playfield[1][player2[0].orbitX3][yy - (player2[0].centerY - player2[0].orbitY3) + 1] !== 0) {
+
+                            if (yy >= player2[0].centerY && yy >= (player2[0].centerY - player2[0].orbitY1) && yy >= (player2[0].centerY - player2[0].orbitY1) && yy >= (player2[0].centerY - player2[0].orbitY1)) {
+
+                                square(player2[0].centerX, yy, "gray", 1, 0);
+                                square(player2[0].orbitX1, yy - (player2[0].centerY - player2[0].orbitY1), "gray", 1, 0);
+                                square(player2[0].orbitX2, yy - (player2[0].centerY - player2[0].orbitY2), "gray", 1, 0);
+                                square(player2[0].orbitX3, yy - (player2[0].centerY - player2[0].orbitY3), "gray", 1, 0);
+                                yy = playfieldHeight;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function scores() {
+
+            // Skriver ut poängen, vilken level, hur många linjer spelaren tagit bort och hur mpnga linjer kvar till nästa level.
+            text(0 * size, 3 * size + (0.4 * size), size, score1 + " p", "black");
+            text(11 * size, 5 * size + (0.4 * size), size / 2.5, "Total lines: " + lines1, "black");
+            text(11 * size, 3 * size + (0.4 * size), size, "Lvl: " + level1, "black");
+            if (increaseDifficulty === true) {
+                text(11 * size, 4 * size + (0.4 * size), size / 2, nextLevel1 + " lines left", "black");
+            }
+
+            if (totalPlayers === 2) {
+
+                text(0 * size + (centerOffset * size), 3 * size + (0.4 * size), size, score2 + " p", "black");
+                text(11 * size + (centerOffset * size), 5 * size + (0.4 * size), size / 2.5, "Total lines: " + lines2, "black");
+                text(11 * size + (centerOffset * size), 3 * size + (0.4 * size), size, "Lvl: " + level2, "black");
+                if (increaseDifficulty === true) {
+                    text(11 * size + (centerOffset * size), 4 * size + (0.4 * size), size / 2, nextLevel2 + " lines left", "black");
+                }
+            }
+        }
+
+        function timer(seconds) {
+
+            // Ett timerobjekt som håller koll på tid och räknar ned.
+
+            this.time = seconds * updatesPerSecond;
+            this.originalTime = seconds * updatesPerSecond;
+
+            this.countdown = function () {
+
+                this.time--;
+            };
+        }
+
+        function textAnimation(player, textInput, textSize, time) {
+
+            // Visar text som ger information till spelarna under en viss tid med hjälp av timerobjektet ovanför.
+            // Lite kul att man kan ha ett objekt innanför ett annat objekt, men det fungerar väldigt effektivt.
+
+            this.animationTime = new timer(time);
+            this.showText = textInput;
+            this.player = player;
+            this.textSize = textSize;
+
+            this.update = function () {
+
+                this.animationTime.countdown();
+                text(this.player * centerOffset * size, (playfieldHeight + 1.5) * size, this.textSize, this.showText, "red");
+
+                if (this.animationTime.time === 0) {
+
+                    if (this.player === 0) {
+
+                        textAnimate1.splice(0, 1);
+                    }
+                    else {
+                        textAnimate2.splice(0, 1);
+                    }
+                }
+            };
+        }
+
+        function layerAnimation(player, layer) {
+
+            // Denna funktion spelar upp animationen när man tar bort lager.
+
+            for (x = 0; x < playfieldWidth; x++) {
+                square(x, layer, "pink", player, -1);
+            }
+        }
+
+        function piece(shape, player, x, y) {
+
+            /*
+            Detta enorma objekt tar hand om allting som har att göra med de fallande bitarna.
+            Att bitarna faller, förflyttas i sidled och rotetar samt kolla ifall den kolliderat med någonting.
+            Den bestämemr öven hur biten ska se ut.
+            */
+
+            this.priColor = "brown";
+            this.secColor = "black";
+            this.shape = shape;
+            this.player = player;
+
+            this.centerX = x;
+            this.centerY = y;
+            this.orbitX1 = 0;
+            this.orbitY1 = 0;
+            this.orbitX2 = 0;
+            this.orbitY2 = 0;
+            this.orbitX3 = 0;
+            this.orbitY3 = 0;
+
+            if (shape === 1) { // I
+
+                if (this.centerX === 0 && this.centerY === 0) {
+                    this.centerX = 4;
+                    this.centerY = 3;
+                }
+                this.priColor = "cyan";
+                this.secColor = "#00e5e5";
+
+                this.orbitX1 = this.centerX - 1;
+                this.orbitY1 = this.centerY;
+                this.orbitX2 = this.centerX + 1;
+                this.orbitY2 = this.centerY;
+                this.orbitX3 = this.centerX + 2;
+                this.orbitY3 = this.centerY;
+            }
+            else if (shape === 2) { // J
+
+                if (this.centerX === 0 && this.centerY === 0) {
+                    this.centerX = 4;
+                    this.centerY = 3;
+                }
+                this.secColor = "#0065cc";
+                this.priColor = "#007FFF";
+
+                this.orbitX1 = this.centerX + 1;
+                this.orbitY1 = this.centerY;
+                this.orbitX2 = this.centerX - 1;
+                this.orbitY2 = this.centerY;
+                this.orbitX3 = this.centerX - 1;
+                this.orbitY3 = this.centerY - 1;
+            }
+            else if (shape === 3) { // L
+
+                if (this.centerX === 0 && this.centerY === 0) {
+                    this.centerX = 4;
+                    this.centerY = 2;
+                }
+                this.priColor = "#ffc04c";
+                this.secColor = "orange";
+
+                this.orbitX1 = this.centerX - 1;
+                this.orbitY1 = this.centerY;
+                this.orbitX2 = this.centerX + 1;
+                this.orbitY2 = this.centerY;
+                this.orbitX3 = this.centerX + 1;
+                this.orbitY3 = this.centerY - 1;
+            }
+            else if (shape === 4) { // O
+
+                if (this.centerX === 0 && this.centerY === 0) {
+                    this.centerX = 4;
+                    this.centerY = 3;
+                }
+                this.secColor = "#e5e500";
+                this.priColor = "yellow";
+
+                this.orbitX1 = this.centerX + 1;
+                this.orbitY1 = this.centerY - 1;
+                this.orbitX2 = this.centerX;
+                this.orbitY2 = this.centerY - 1;
+                this.orbitX3 = this.centerX + 1;
+                this.orbitY3 = this.centerY;
+            }
+            else if (shape === 5) { // T
+
+                if (this.centerX === 0 && this.centerY === 0) {
+                    this.centerX = 4;
+                    this.centerY = 3;
+                }
+                this.secColor = "#7647a2";
+                this.priColor = "#916bb4";
+
+                this.orbitX1 = this.centerX;
+                this.orbitY1 = this.centerY - 1;
+                this.orbitX2 = this.centerX + 1;
+                this.orbitY2 = this.centerY;
+                this.orbitX3 = this.centerX - 1;
+                this.orbitY3 = this.centerY;
+            }
+            else if (shape === 6) { // S
+
+                if (this.centerX === 0 && this.centerY === 0) {
+                    this.centerX = 4;
+                    this.centerY = 3;
+                }
+                this.priColor = "#4ca64c";
+                this.secColor = "#198c19";
+
+                this.orbitX1 = this.centerX - 1;
+                this.orbitY1 = this.centerY;
+                this.orbitX2 = this.centerX;
+                this.orbitY2 = this.centerY - 1;
+                this.orbitX3 = this.centerX + 1;
+                this.orbitY3 = this.centerY - 1;
+            }
+            else if (shape === 7) { // Z
+
+                if (this.centerX === 0 && this.centerY === 0) {
+                    this.centerX = 4;
+                    this.centerY = 3;
+                }
+                this.priColor = "#ff5959";
+                this.secColor = "#ff3030";
+
+                this.orbitX1 = this.centerX + 1;
+                this.orbitY1 = this.centerY;
+                this.orbitX2 = this.centerX;
+                this.orbitY2 = this.centerY - 1;
+                this.orbitX3 = this.centerX - 1;
+                this.orbitY3 = this.centerY - 1;
+            }
+
+            this.pieceUpdate = function (id, check) {
+
+                //Kollar ifall det går att förflytta biten nedåt och flyttar den ifall möjligt, annars sparas dess position i spelfältet och en ny bit skapas
+
+                if (check === true) {
+                    this.collided = false;
+
+                    if (this.centerY === playfieldHeight - 1 || this.orbitY1 === playfieldHeight - 1 || this.orbitY2 === playfieldHeight - 1 || this.orbitY3 === playfieldHeight - 1) {
+
+                        console.log("hit bottom");
+                        this.collided = true;
+                    }
+                    else if (playfield[this.player][this.centerX][this.centerY + 1] !== 0 || playfield[this.player][this.orbitX1][this.orbitY1 + 1] !== 0 || playfield[this.player][this.orbitX2][this.orbitY2 + 1] !== 0 || playfield[this.player][this.orbitX3][this.orbitY3 + 1] !== 0) {
+
+                        console.log("hit piece");
+                        this.collided = true;
+                    }
+                    else {
+
+                        this.centerY++;
+                        this.orbitY1++;
+                        this.orbitY2++;
+                        this.orbitY3++;
+                    }
+
+                    if (this.collided === true) {
+
+                        playfield[this.player][this.centerX][this.centerY] = this.shape;
+                        playfield[this.player][this.orbitX1][this.orbitY1] = this.shape;
+                        playfield[this.player][this.orbitX2][this.orbitY2] = this.shape;
+                        playfield[this.player][this.orbitX3][this.orbitY3] = this.shape;
+
+                        if (this.player === 0) {
+
+                            nextPiece1.splice(0, 1);
+                            player1.push(new piece(nextPiece1[0], 0, 0, 0));
+                            player1.splice(id, 1);
+                            speedFall1 = false;
+                            switchHold1 = false;
+                            if (fallSave1 !== 0) {
+                                fallSpeed1 = fallSave1;
+                                fallSave1 = 0;
+                            }
+                            if (doCombo === true) {
+                                combo1++;
+                            }
+                            layerCheck(0);
+                            lossCheck(0);
+                            if (gameMode !== "survival") {
+                                winCondition();
+                            }
+                            for (i = 0; i < piecePreviewAmount; i++) {
+
+                                showNextPiece1[i] = new piece(nextPiece1[i + 1], 0, 13, 13 + (3 * (i + 4 - piecePreviewAmount)));
+                            }
+                        }
+                        else {
+
+                            nextPiece2.splice(0, 1);
+                            player2.push(new piece(nextPiece2[0], 1, 0, 0));
+                            player2.splice(id, 1);
+                            speedFall2 = false;
+                            switchHold2 = false;
+                            if (fallSave2 !== 0) {
+                                fallSpeed2 = fallSave2;
+                                fallSave2 = 0;
+                            }
+                            if (doCombo === true) {
+                                combo2++;
+                            }
+                            layerCheck(1);
+                            lossCheck(1);
+                            if (gameMode !== "survival") {
+                                winCondition();
+                            }
+                            for (i = 0; i < piecePreviewAmount; i++) {
+
+                                showNextPiece2[i] = new piece(nextPiece2[i + 1], 1, 13, 13 + (3 * (i + 4 - piecePreviewAmount)));
+                            }
+                        }
+
+                    }
+                }
+                else {
+                    this.centerY++;
+                    this.orbitY1++;
+                    this.orbitY2++;
+                    this.orbitY3++;
+                }
+            };
+
+            this.pieceRender = function () {
+
+                // skriver ut biten, separat funktion då detta objekt används för andra saker än att bara få bitar att falla
+
+                square(this.centerX, this.centerY, this.secColor, this.player, 0);
+                square(this.orbitX1, this.orbitY1, this.secColor, this.player, 0);
+                square(this.orbitX2, this.orbitY2, this.secColor, this.player, 0);
+                square(this.orbitX3, this.orbitY3, this.secColor, this.player, 0);
+
+                square(this.centerX, this.centerY, this.priColor, this.player, 2);
+                square(this.orbitX1, this.orbitY1, this.priColor, this.player, 2);
+                square(this.orbitX2, this.orbitY2, this.priColor, this.player, 2);
+                square(this.orbitX3, this.orbitY3, this.priColor, this.player, 2);
+            };
+
+            this.pieceMove = function (direction) {
+
+                //vad som får biten att förflyttas i sidled ifall möjligt
+
+                if (direction === "left") {
+
+                    if (this.centerX === 0 || this.orbitX1 === 0 || this.orbitX2 === 0 || this.orbitX3 === 0) {
+                        console.log("hit wall to the left");
+                    }
+                    else if (playfield[this.player][this.centerX - 1][this.centerY] !== 0 || playfield[this.player][this.orbitX1 - 1][this.orbitY1] !== 0 || playfield[this.player][this.orbitX2 - 1][this.orbitY2] !== 0 || playfield[this.player][this.orbitX3 - 1][this.orbitY3] !== 0) {
+                        console.log("hit piece to the left");
+                    }
+                    else {
+
+                        this.centerX--;
+                        this.orbitX1--;
+                        this.orbitX2--;
+                        this.orbitX3--;
+                    }
+                }
+                else {
+
+                    if (this.centerX === playfieldWidth - 1 || this.orbitX1 === playfieldWidth - 1 || this.orbitX2 === playfieldWidth - 1 || this.orbitX3 === playfieldWidth - 1) {
+                        console.log("hit wall to the right");
+                    }
+                    else if (playfield[this.player][this.centerX + 1][this.centerY] !== 0 || playfield[this.player][this.orbitX1 + 1][this.orbitY1] !== 0 || playfield[this.player][this.orbitX2 + 1][this.orbitY2] !== 0 || playfield[this.player][this.orbitX3 + 1][this.orbitY3] !== 0) {
+                        console.log("hit piece to the right");
+                    }
+                    else {
+
+                        this.centerX++;
+                        this.orbitX1++;
+                        this.orbitX2++;
+                        this.orbitX3++;
+                    }
+                }
+            };
+
+            this.rotationValidity = function () {
+
+                //funktion som kollar ifall det är möjligt att rotera biten
+                this.canRotate = true;
+
+                if (this.orbitX1 === this.centerX && this.orbitY1 !== this.centerY) {
+
+                    if (this.orbitY1 < this.centerY - 1) {
+
+                        if (this.orbitX1 + 2 >= playfieldWidth || this.orbitY1 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 + 2][this.orbitY1 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitY1 > this.centerY + 1) {
+
+                        if (this.orbitX1 - 2 < 0 || this.orbitY1 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 - 2][this.orbitY1 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitY1 < this.centerY) {
+
+                        if (this.orbitX1 + 1 >= playfieldWidth || this.orbitY1 + 1 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 + 1][this.orbitY1 + 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitX1 - 1 < 0 || this.orbitY1 - 1 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 - 1][this.orbitY1 - 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+                else if (this.orbitX1 !== this.centerX && this.orbitY1 === this.centerY) {
+
+                    if (this.orbitX1 < this.centerX - 1) {
+
+                        if (this.orbitX1 + 2 >= playfieldWidth || this.orbitY1 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 + 2][this.orbitY1 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX1 > this.centerX + 1) {
+
+                        if (this.orbitX1 - 2 < 0 || this.orbitY1 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 - 2][this.orbitY1 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX1 < this.centerX) {
+
+                        if (this.orbitX1 + 1 >= playfieldWidth || this.orbitY1 - 1 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 + 1][this.orbitY1 - 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitX1 - 1 < 0 || this.orbitY1 + 1 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 - 1][this.orbitY1 + 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+                else if (this.orbitX1 !== this.centerX && this.orbitY1 !== this.centerY) {
+
+                    if (this.orbitX1 < this.centerX && this.orbitY1 < this.centerY) {
+
+                        if (this.orbitX1 + 2 >= playfieldWidth) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 + 2][this.orbitY1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX1 > this.centerX && this.orbitY1 > this.centerY) {
+
+                        if (this.orbitX1 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1 - 2][this.orbitY1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX1 > this.centerX && this.orbitY1 < this.centerY) {
+
+                        if (this.orbitY1 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1][this.orbitY1 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitY1 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX1][this.orbitY1 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+
+                if (this.orbitX2 === this.centerX && this.orbitY2 !== this.centerY) {
+
+                    if (this.orbitY2 < this.centerY - 1) {
+
+                        if (this.orbitX2 + 2 >= playfieldWidth || this.orbitY2 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 + 2][this.orbitY2 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitY2 > this.centerY + 1) {
+
+                        if (this.orbitX2 - 2 < 0 || this.orbitY2 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 - 2][this.orbitY2 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitY2 < this.centerY) {
+
+                        if (this.orbitX2 + 1 >= playfieldWidth || this.orbitY2 + 1 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 + 1][this.orbitY2 + 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitX2 - 1 < 0 || this.orbitY2 - 1 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 - 1][this.orbitY2 - 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+                else if (this.orbitX2 !== this.centerX && this.orbitY2 === this.centerY) {
+
+                    if (this.orbitX2 < this.centerX - 1) {
+
+                        if (this.orbitX2 + 2 >= playfieldWidth || this.orbitY2 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 + 2][this.orbitY2 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX2 > this.centerX + 1) {
+
+                        if (this.orbitX2 - 2 < 0 || this.orbitY2 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 - 2][this.orbitY2 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX2 < this.centerX) {
+
+                        if (this.orbitX2 + 1 >= playfieldWidth || this.orbitY2 - 1 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 + 1][this.orbitY2 - 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitX2 - 1 < 0 || this.orbitY2 + 1 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 - 1][this.orbitY2 + 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+                else if (this.orbitX2 !== this.centerX && this.orbitY2 !== this.centerY) {
+
+                    if (this.orbitX2 < this.centerX && this.orbitY2 < this.centerY) {
+
+                        if (this.orbitX2 + 2 >= playfieldWidth) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 + 2][this.orbitY2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX2 > this.centerX && this.orbitY2 > this.centerY) {
+
+                        if (this.orbitX2 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2 - 2][this.orbitY2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX2 > this.centerX && this.orbitY2 < this.centerY) {
+
+                        if (this.orbitY2 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2][this.orbitY2 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitY2 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX2][this.orbitY2 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+
+                if (this.orbitX3 === this.centerX && this.orbitY3 !== this.centerY) {
+
+                    if (this.orbitY3 < this.centerY - 1) {
+
+                        if (this.orbitX3 + 2 >= playfieldWidth || this.orbitY3 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 + 2][this.orbitY3 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitY3 > this.centerY + 1) {
+
+                        if (this.orbitX3 - 2 < 0 || this.orbitY3 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 - 2][this.orbitY3 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitY3 < this.centerY) {
+
+                        if (this.orbitX3 + 1 >= playfieldWidth || this.orbitY3 + 1 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 + 1][this.orbitY3 + 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitX3 - 1 < 0 || this.orbitY3 - 1 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 - 1][this.orbitY3 - 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+                else if (this.orbitX3 !== this.centerX && this.orbitY3 === this.centerY) {
+
+                    if (this.orbitX3 < this.centerX - 1) {
+
+                        if (this.orbitX3 + 2 >= playfieldWidth || this.orbitY3 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 + 2][this.orbitY3 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX3 > this.centerX + 1) {
+
+                        if (this.orbitX3 - 2 < 0 || this.orbitY3 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 - 2][this.orbitY3 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX3 < this.centerX) {
+
+                        if (this.orbitX3 + 1 >= playfieldWidth || this.orbitY3 - 1 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 + 1][this.orbitY3 - 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitX3 - 1 < 0 || this.orbitY3 + 1 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 - 1][this.orbitY3 + 1] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+                else if (this.orbitX3 !== this.centerX && this.orbitY3 !== this.centerY) {
+
+                    if (this.orbitX3 < this.centerX && this.orbitY3 < this.centerY) {
+
+                        if (this.orbitX3 + 2 >= playfieldWidth) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 + 2][this.orbitY3] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX3 > this.centerX && this.orbitY3 > this.centerY) {
+
+                        if (this.orbitX3 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3 - 2][this.orbitY3] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else if (this.orbitX3 > this.centerX && this.orbitY3 < this.centerY) {
+
+                        if (this.orbitY3 + 2 >= playfieldHeight) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3][this.orbitY3 + 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                    else {
+
+                        if (this.orbitY3 - 2 < 0) {
+                            this.canRotate = false;
+                        }
+                        else if (playfield[this.player][this.orbitX3][this.orbitY3 - 2] !== 0) {
+                            this.canRotate = false;
+                        }
+                    }
+                }
+
+                return (this.canRotate);
+            };
+
+            this.pieceRotate = function (validity) {
+
+                //funktionen som roterar biten ifall funktionen ovanför tillåter det
+
+                if (validity === true) {
+
+                    if (this.orbitX1 === this.centerX && this.orbitY1 !== this.centerY) {
+
+                        if (this.orbitY1 < this.centerY - 1) {
+                            this.orbitX1 += 2;
+                            this.orbitY1 += 2;
+                        }
+                        else if (this.orbitY1 > this.centerY + 1) {
+                            this.orbitX1 -= 2;
+                            this.orbitY1 -= 2;
+                        }
+                        else if (this.orbitY1 < this.centerY) {
+                            this.orbitX1++;
+                            this.orbitY1++;
+                        }
+                        else {
+                            this.orbitX1--;
+                            this.orbitY1--;
+                        }
+                    }
+                    else if (this.orbitX1 !== this.centerX && this.orbitY1 === this.centerY) {
+
+                        if (this.orbitX1 < this.centerX - 1) {
+                            this.orbitX1 += 2;
+                            this.orbitY1 -= 2;
+                        }
+                        else if (this.orbitX1 > this.centerX + 1) {
+                            this.orbitX1 -= 2;
+                            this.orbitY1 += 2;
+                        }
+                        else if (this.orbitX1 < this.centerX) {
+                            this.orbitX1++;
+                            this.orbitY1--;
+                        }
+                        else {
+                            this.orbitX1--;
+                            this.orbitY1++;
+                        }
+                    }
+                    else if (this.orbitX1 !== this.centerX && this.orbitY1 !== this.centerY) {
+
+                        if (this.orbitX1 < this.centerX && this.orbitY1 < this.centerY) {
+                            this.orbitX1 += 2;
+                        }
+                        else if (this.orbitX1 > this.centerX && this.orbitY1 > this.centerY) {
+                            this.orbitX1 -= 2;
+                        }
+                        else if (this.orbitX1 > this.centerX && this.orbitY1 < this.centerY) {
+                            this.orbitY1 += 2;
+                        }
+                        else {
+                            this.orbitY1 -= 2;
+                        }
+                    }
+
+                    if (this.orbitX2 === this.centerX && this.orbitY2 !== this.centerY) {
+
+                        if (this.orbitY2 < this.centerY - 1) {
+                            this.orbitX2 += 2;
+                            this.orbitY2 += 2;
+                        }
+                        else if (this.orbitY2 > this.centerY + 1) {
+                            this.orbitX2 -= 2;
+                            this.orbitY2 -= 2;
+                        }
+                        else if (this.orbitY2 < this.centerY) {
+                            this.orbitX2++;
+                            this.orbitY2++;
+                        }
+                        else {
+                            this.orbitX2--;
+                            this.orbitY2--;
+                        }
+                    }
+                    else if (this.orbitX2 !== this.centerX && this.orbitY2 === this.centerY) {
+
+                        if (this.orbitX2 < this.centerX - 1) {
+                            this.orbitX2 += 2;
+                            this.orbitY2 -= 2;
+                        }
+                        else if (this.orbitX2 > this.centerX + 1) {
+                            this.orbitX2 -= 2;
+                            this.orbitY2 += 2;
+                        }
+                        else if (this.orbitX2 < this.centerX) {
+                            this.orbitX2++;
+                            this.orbitY2--;
+                        }
+                        else {
+                            this.orbitX2--;
+                            this.orbitY2++;
+                        }
+                    }
+                    else if (this.orbitX2 !== this.centerX && this.orbitY2 !== this.centerY) {
+
+                        if (this.orbitX2 < this.centerX && this.orbitY2 < this.centerY) {
+                            this.orbitX2 += 2;
+                        }
+                        else if (this.orbitX2 > this.centerX && this.orbitY2 > this.centerY) {
+                            this.orbitX2 -= 2;
+                        }
+                        else if (this.orbitX2 > this.centerX && this.orbitY2 < this.centerY) {
+                            this.orbitY2 += 2;
+                        }
+                        else {
+                            this.orbitY2 -= 2;
+                        }
+                    }
+
+                    if (this.orbitX3 === this.centerX && this.orbitY3 !== this.centerY) {
+
+                        if (this.orbitY3 < this.centerY - 1) {
+                            this.orbitX3 += 2;
+                            this.orbitY3 += 2;
+                        }
+                        else if (this.orbitY3 > this.centerY + 1) {
+                            this.orbitX3 -= 2;
+                            this.orbitY3 -= 2;
+                        }
+                        else if (this.orbitY3 < this.centerY) {
+                            this.orbitX3++;
+                            this.orbitY3++;
+                        }
+                        else {
+                            this.orbitX3--;
+                            this.orbitY3--;
+                        }
+                    }
+                    else if (this.orbitX3 !== this.centerX && this.orbitY3 === this.centerY) {
+
+                        if (this.orbitX3 < this.centerX - 1) {
+                            this.orbitX3 += 2;
+                            this.orbitY3 -= 2;
+                        }
+                        else if (this.orbitX3 > this.centerX + 1) {
+                            this.orbitX3 -= 2;
+                            this.orbitY3 += 2;
+                        }
+                        else if (this.orbitX3 < this.centerX) {
+                            this.orbitX3++;
+                            this.orbitY3--;
+                        }
+                        else {
+                            this.orbitX3--;
+                            this.orbitY3++;
+                        }
+                    }
+                    else if (this.orbitX3 !== this.centerX && this.orbitY3 !== this.centerY) {
+
+                        if (this.orbitX3 < this.centerX && this.orbitY3 < this.centerY) {
+                            this.orbitX3 += 2;
+                        }
+                        else if (this.orbitX3 > this.centerX && this.orbitY3 > this.centerY) {
+                            this.orbitX3 -= 2;
+                        }
+                        else if (this.orbitX3 > this.centerX && this.orbitY3 < this.centerY) {
+                            this.orbitY3 += 2;
+                        }
+                        else {
+                            this.orbitY3 -= 2;
+                        }
+                    }
+                }
+            };
+        }
+
+        function layerCheck(p) {
+
+            // Denna funktion kollar ifall en hel rad är fylld och anropar då layerMove() som flyttar alla lager ovanför ned en rad.
+
+            console.log("Checking player" + (p + 1) + " layers");
+            foundLayer = false;
+            for (y = 0; y < playfieldHeight; y++) {
+
+                completeLayer = true;
+
+                for (x = 0; x < playfieldWidth; x++) {
+
+                    if (playfield[p][x][y] === 0) {
+
+                        completeLayer = false;
+                    }
+                }
+                if (completeLayer === true) {
+
+                    updatePlayerStats(p);
+                    foundLayer = true;
+                }
+            }
+            if (foundLayer === false && doCombo === true) {
+
+                if (p === 0) {
+
+                    combo1 = 0;
+                }
+                else {
+
+                    combo2 = 0;
+                }
+            }
+            else {
+
+                if (combo1 > 1) {
+
+                    textAnimate1.push(new textAnimation(0, "Combo x" + combo1, size, 1));
+                }
+                if (combo2 > 1) {
+
+                    textAnimate2.push(new textAnimation(1, "Combo x" + combo2, size, 1));
+                }
+            }
+        }
+
+        function layerMove(player, startLayer) {
+
+            // Förflyttar alla rader ovanför den angivna raden nedåt
+
+            console.log("Removing layer", startLayer, "for player" + (player + 1));
+            for (y = startLayer; y > 0; y--) {
+                for (x = 0; x < playfieldWidth; x++) {
+
+                    playfield[player][x][y] = playfield[player][x][y - 1];
+
+                }
+            }
+        }
+
+        function updatePlayerStats(p) {
+
+            // Uppdaterar spelarnas poäng, rader och level när de tagit bort en rad. 
+
+            soundPlay("smack");
+
+            if (p === 0) {
+
+                score1 += 100 * level1 * combo1;
+                lines1++;
+
+                if (increaseDifficulty === true) {
+                    nextLevel1--;
+                    if (nextLevel1 === 0) {
+
+                        level1++;
+                        nextLevel1 = 5 * level1;
+                        fallSpeed1 = updatesPerSecond / level1;
+                        textAnimate1.push(new textAnimation(0, "Lvl up", size, 2));
+                    }
+                }
+                layerQueue1.push(y);
+                animation1 = new timer(0.5);
+            }
+            else {
+                score2 += 100 * level2 * combo2;
+                lines2++;
+                if (increaseDifficulty === true) {
+                    nextLevel2--;
+                    if (nextLevel2 === 0) {
+
+                        level2++;
+                        nextLevel2 = 5 * level2;
+                        fallSpeed2 = updatesPerSecond / level2;
+                        textAnimate2.push(new textAnimation(1, "Lvl up", size, 2));
+                    }
+                }
+                layerQueue2.push(y);
+                animation2 = new timer(0.5);
+            }
+        }
+
+        function lossCheck(p) {
+
+            // kollar ifall spelarna har placerat bitar som hamnar ovanför det angivna spelfäldtet vilket innebär att de förlorar. 
+            // ifall kriteriet uppnås så stannar allt upp och man kan endast komma åt pausmenyn.
+
+            for (y = 0; y < playfieldHidden; y++) {
+                for (x = 0; x < playfieldWidth; x++) {
+
+                    if (playfield[p][x][y] !== 0) {
+
+                        gameOver = true;
+                        soundPlay("failure");
+                        alert("Player" + (p + 1) + " has lost by filling their playarea");
+                        y = playfieldHidden;
+                        x = playfieldWidth;
+
+                        //window.location.reload(); 
+                    }
+                }
+            }
+        }
+
+        function winCondition() {
+
+            // Beroende på det valda vinstkriteriet så kommer denna funktion ifall kriteriet blir upfyllt och avslutar spelet.
+
+            if (gameMode === "race") {
+
+                if (gameType === "lines") {
+
+                    if (lines1 >= raceLines && lines2 >= raceLines) {
+                        gameOver = true;
+                        soundPlay("success");
+                        alert("Both players reached " + raceLines + " or more lines in " + timeConverter(clock));
+                    }
+                    else if (lines1 >= raceLines) {
+                        gameOver = true;
+                        soundPlay("success");
+                        alert("Player 1 reached " + lines1 + " lines in " + timeConverter(clock));
+                    }
+                    else if (lines2 >= raceLines) {
+                        gameOver = true;
+                        soundPlay("success");
+                        alert("Player 2 reached " + lines2 + " lines in " + timeConverter(clock));
+                    }
+                }
+                else {
+
+                    if (score1 >= raceScore && score2 >= raceScore) {
+                        gameOver = true;
+                        soundPlay("success");
+                        alert("Both players reached " + raceScore + " or more score in " + timeConverter(clock));
+                    }
+                    else if (score1 >= raceScore) {
+                        gameOver = true;
+                        soundPlay("success");
+                        alert("Player 1 reached " + score1 + " score in " + timeConverter(clock));
+                    }
+                    else if (score2 >= raceScore) {
+                        gameOver = true;
+                        soundPlay("success");
+                        alert("Player 2 reached " + score2 + " score in " + timeConverter(clock));
+                    }
+                }
+            }
+            else {
+
+                if (clock === timeTrialTime) {
+
+                    if (gameType === "lines") {
+
+                        if (lines1 > lines2) {
+                            gameOver = true;
+                            soundPlay("success");
+                            alert("Player 1 reached " + lines1 + " lines in " + timeConverter(clock));
+                        }
+                        else if (lines1 < lines2) {
+                            gameOver = true;
+                            soundPlay("success");
+                            alert("Player 2 reached " + lines2 + " lines in " + timeConverter(clock));
+                        }
+                        else {
+                            gameOver = true;
+                            soundPlay("success");
+                            alert("Both players reached " + lines1 + " lines in " + timeConverter(clock));
+                        }
+                    }
+                    else {
+
+                        if (score1 > score2) {
+                            gameOver = true;
+                            soundPlay("success");
+                            alert("Player 1 reached " + score1 + " score in " + timeConverter(clock));
+                        }
+                        else if (score1 < score2) {
+                            gameOver = true;
+                            soundPlay("success");
+                            alert("Player 2 reached " + score2 + " score in " + timeConverter(clock));
+                        }
+                        else {
+                            gameOver = true;
+                            soundPlay("success");
+                            alert("Both player reached " + score1 + " score in " + timeConverter(clock));
+                        }
+                    }
+                }
+            }
+        }
+
+        function timeElapse() {
+
+            // Räknar hur länge spelet har pågått
+
+            if (gameTimer > 0) {
+                gameTimer--;
+                if (gameMode === "time trial") {
+                    winCondition();
+                }
+            }
+            else {
+                gameTimer = updatesPerSecond;
+                clock++;
+            }
+        }
+
+        function timeConverter(seconds) {
+
+            //Konverterar tid från sekunder till minuter och sekunder vilket gör det lättare för oss MÄNNISKOR ; ^) att läsa
+
+            min = floor(seconds / 60);
+            sec = seconds % 60;
+
+            if (min === 0) {
+
+                minSec = sec + " sec";
+            }
+            else {
+
+                if (sec === 0) {
+
+                    minSec = min + " min";
+                }
+                else {
+
+                    minSec = min + " min " + sec + " sec";
+                }
+            }
+
+            return minSec;
+        }
+
+        function playMusic(song) {
+
+            //Spelar upp den valda songen med de ljudinställningar man valt.
+
+            musicControll = "pause";
+            document.getElementById("music").volume = musicVolume / 100;
+            document.getElementById('music').src = "https://kyriaelixia.github.com/server/games/music/" + song + ".mp3";
+            document.getElementById("music").playbackRate = playbackSpeed / 10;
+        }
+
+        function soundPlay(sound) {
+
+            //Spelar upp den valda ljudeffekten
+
+            playSound("https://kyriaelixia.github.com/server/games/sounds/" + sound, soundVolume / 100);
+        }
+
+    </script>
+    <audio id="music" autoplay="autoplay" loop="true">
+    </audio>
+</body>
+</html>

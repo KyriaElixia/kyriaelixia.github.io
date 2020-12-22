@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: rgb(235, 235, 235); 
+        }
+    </style>
+    <title>Elixia's Old Cuboid-Editor</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <br />
+    <form id="mapInput">
+        Level code: <input type="text" name="fname" value="">
+        <input type="button" onclick="levelLoad()" value="Load level">
+        <input type="button" onclick="loadDebug()" value="Load debug level">
+        <input type="button" onclick="loadClear()" value="Clear level">
+    </form>
+    <br>
+    Use WASD to move the red cursor. Buttons 0-8 for tile placements along with some extra buttons for different functions.
+<br>
+<br>
+0 = Blank tile
+<br>
+1 = Normal tile
+<br>
+2 = Blue button tile
+<br>
+3 = Green button tile (restricted activation)
+<br>
+4 = Level end tile
+<br>
+5 = Trap door tile
+<br>
+6 = Unstable tile
+<br>
+7 = Place starting position
+<br>
+8 = Place statistics position
+<br>
+<br>
+T - Switch between PlayTest(tm) and editor mode
+<br>
+<br>
+X,Y,Z - Link buttons to blank tiles or trap door tiles.
+<br>
+For example: A button with XYZ opens all tiles with either and X, Y or Z and a tile with XYZ can be opened by any button.
+<br>
+<br>
+O - Set button, door or blank tile to single use
+<br>
+<br>
+P - Print level code (can only be used if you finish the level in PlayTest(tm) mode)
+<br>
+<br>
+Copy and paste the printed level code into the google form below the level editor, which is located directly below.
+    <script>
+
+        var size = 30;
+        var posX = size;
+        var posY = size;
+        var posXs = -100;
+        var posYs = -100;
+        var tileX = 1;
+        var tileY = 1;
+        var statX = -100;
+        var statY = -100;
+        var offset = 4;
+        var move;
+        var moves = 0;
+        var completed = 0;
+        var status;
+        var press = false;
+        var playTest = false;
+        var buttonText = true;
+        var levelForm = "test";
+
+        var map = new Array(20);
+        for (var i = 0; i < 20; i++) {
+            map[i] = new Array(20);
+        }
+        for (var i = 0; i < 20; i++) {
+            for (var j = 0; j < 20; j++) {
+                map[i][j] = 0;
+            }
+        }
+
+        var savedMap = new Array(20);
+        for (var i = 0; i < 20; i++) {
+            savedMap[i] = new Array(20);
+        }
+        for (var i = 0; i < 20; i++) {
+            for (var j = 0; j < 20; j++) {
+                savedMap[i][j] = "0";
+            }
+        }
+
+        window.onload = function () {
+            console.log("Log in console");
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
+
+            var FPS = 60;
+            setInterval(game, 1000 / FPS);
+        };
+
+        function game() {
+            window.addEventListener('keydown', function (e) {
+                move = e.keyCode;
+            });
+            window.addEventListener('keyup', function (e) {
+                move = false;
+            });
+
+            gameCanvas.addEventListener('click', function (event) {
+                var rect = gameCanvas.getBoundingClientRect();
+                var x = event.clientX - rect.left;
+                var y = event.clientY - rect.top;
+
+                if (playTest == false) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (x > (i * size) && x < ((i * size) + size) && y > (j * size) && y < ((j * size) + size)) {
+                                posX = (i * size);
+                                posY = (j * size);
+                                tileX = i;
+                                tileY = j;
+                            }
+                        }
+                    }
+                }
+
+            }, false);
+
+            input();
+            userLevel();
+            gameplay();
+            render();
+        }
+
+        function userLevel() {
+            var x = document.getElementById("mapInput");
+            var text = "";
+            var i;
+            levelDisp = "";
+            var i = 0;
+            var j = 0;
+            for (k = 0; k < x.length; k++) {
+                levelForm += x.elements[k].value;
+            }
+        }
+
+        function loadDebug() {
+            map[0][0] = "0"; map[0][1] = "0"; map[0][2] = "0"; map[0][3] = "0"; map[0][4] = "0"; map[0][5] = "0"; map[0][6] = "0"; map[0][7] = "0"; map[0][8] = "0"; map[0][9] = "0"; map[0][10] = "0"; map[0][11] = "0"; map[0][12] = "0"; map[0][13] = "0"; map[0][14] = "0"; map[0][15] = "0"; map[0][16] = "0"; map[0][17] = "0"; map[0][18] = "0"; map[0][19] = "0"; map[1][0] = "0"; map[1][1] = "xyzp3o"; map[1][2] = "1"; map[1][3] = "1"; map[1][4] = "xyzp2"; map[1][5] = "0"; map[1][6] = "xyzd"; map[1][7] = "xyzb"; map[1][8] = "0"; map[1][9] = "0"; map[1][10] = "xyzdo"; map[1][11] = "xyzbo"; map[1][12] = "0"; map[1][13] = "0"; map[1][14] = "0"; map[1][15] = "0"; map[1][16] = "0"; map[1][17] = "0"; map[1][18] = "0"; map[1][19] = "0"; map[2][0] = "0"; map[2][1] = "yzp3o"; map[2][2] = "1"; map[2][3] = "1"; map[2][4] = "yzp2"; map[2][5] = "0"; map[2][6] = "yzd"; map[2][7] = "yzb"; map[2][8] = "0"; map[2][9] = "0"; map[2][10] = "yzdo"; map[2][11] = "yzbo"; map[2][12] = "0"; map[2][13] = "1"; map[2][14] = "0"; map[2][15] = "0"; map[2][16] = "0"; map[2][17] = "0"; map[2][18] = "0"; map[2][19] = "0"; map[3][0] = "0"; map[3][1] = "xzp3o"; map[3][2] = "1"; map[3][3] = "1"; map[3][4] = "xzp2"; map[3][5] = "0"; map[3][6] = "xzd"; map[3][7] = "xzb"; map[3][8] = "0"; map[3][9] = "0"; map[3][10] = "xzdo"; map[3][11] = "xzbo"; map[3][12] = "0"; map[3][13] = "2"; map[3][14] = "0"; map[3][15] = "0"; map[3][16] = "0"; map[3][17] = "0"; map[3][18] = "0"; map[3][19] = "0"; map[4][0] = "0"; map[4][1] = "xyp3o"; map[4][2] = "1"; map[4][3] = "1"; map[4][4] = "xyp2"; map[4][5] = "0"; map[4][6] = "xyd"; map[4][7] = "xyb"; map[4][8] = "0"; map[4][9] = "0"; map[4][10] = "xydo"; map[4][11] = "xybo"; map[4][12] = "0"; map[4][13] = "3"; map[4][14] = "0"; map[4][15] = "0"; map[4][16] = "0"; map[4][17] = "0"; map[4][18] = "0"; map[4][19] = "0"; map[5][0] = "0"; map[5][1] = "zp3o"; map[5][2] = "1"; map[5][3] = "1"; map[5][4] = "zp2"; map[5][5] = "0"; map[5][6] = "zd"; map[5][7] = "zb"; map[5][8] = "0"; map[5][9] = "0"; map[5][10] = "zdo"; map[5][11] = "zbo"; map[5][12] = "0"; map[5][13] = "4"; map[5][14] = "0"; map[5][15] = "0"; map[5][16] = "0"; map[5][17] = "0"; map[5][18] = "0"; map[5][19] = "0"; map[6][0] = "0"; map[6][1] = "yp3o"; map[6][2] = "1"; map[6][3] = "1"; map[6][4] = "yp2"; map[6][5] = "0"; map[6][6] = "yd"; map[6][7] = "yb"; map[6][8] = "0"; map[6][9] = "0"; map[6][10] = "ydo"; map[6][11] = "ybo";
+            map[6][12] = "0"; map[6][13] = "5"; map[6][14] = "0"; map[6][15] = "0"; map[6][16] = "0"; map[6][17] = "0"; map[6][18] = "0"; map[6][19] = "0"; map[7][0] = "0"; map[7][1] = "xp3o"; map[7][2] = "1"; map[7][3] = "1"; map[7][4] = "xp2"; map[7][5] = "0"; map[7][6] = "xd"; map[7][7] = "xb"; map[7][8] = "0"; map[7][9] = "0"; map[7][10] = "xdo"; map[7][11] = "xbo"; map[7][12] = "0"; map[7][13] = "6"; map[7][14] = "0"; map[7][15] = "0"; map[7][16] = "0"; map[7][17] = "0"; map[7][18] = "0"; map[7][19] = "0"; map[8][0] = "0"; map[8][1] = "7"; map[8][2] = "1"; map[8][3] = "1"; map[8][4] = "4"; map[8][5] = "0"; map[8][6] = "2"; map[8][7] = "2"; map[8][8] = "0"; map[8][9] = "0"; map[8][10] = "3"; map[8][11] = "3"; map[8][12] = "0"; map[8][13] = "0"; map[8][14] = "0"; map[8][15] = "0"; map[8][16] = "0"; map[8][17] = "0"; map[8][18] = "0"; map[8][19] = "0"; map[9][0] = "0"; map[9][1] = "0"; map[9][2] = "6"; map[9][3] = "6"; map[9][4] = "0"; map[9][5] = "0"; map[9][6] = "0"; map[9][7] = "0"; map[9][8] = "0"; map[9][9] = "0"; map[9][10] = "0"; map[9][11] = "0"; map[9][12] = "0"; map[9][13] = "8"; map[9][14] = "0"; map[9][15] = "0"; map[9][16] = "0"; map[9][17] = "0"; map[9][18] = "0"; map[9][19] = "0"; map[10][0] = "0"; map[10][1] = "0"; map[10][2] = "6"; map[10][3] = "6"; map[10][4] = "0"; map[10][5] = "0"; map[10][6] = "0"; map[10][7] = "0"; map[10][8] = "0"; map[10][9] = "0"; map[10][10] = "0"; map[10][11] = "0"; map[10][12] = "0"; map[10][13] = "0"; map[10][14] = "0"; map[10][15] = "0"; map[10][16] = "0"; map[10][17] = "0"; map[10][18] = "0"; map[10][19] = "0"; map[11][0] = "0"; map[11][1] = "5"; map[11][2] = "5"; map[11][3] = "5"; map[11][4] = "5"; map[11][5] = "0"; map[11][6] = "0"; map[11][7] = "0"; map[11][8] = "0"; map[11][9] = "0"; map[11][10] = "0"; map[11][11] = "0"; map[11][12] = "0"; map[11][13] = "0"; map[11][14] = "0"; map[11][15] = "0"; map[11][16] = "0"; map[11][17] = "0"; map[11][18] = "0"; map[11][19] = "0"; map[12][0] = "0"; map[12][1] = "5"; map[12][2] = "5"; map[12][3] = "5"; map[12][4] = "5"; map[12][5] = "0"; map[12][6] = "0"; map[12][7] = "0"; map[12][8] = "0"; map[12][9] = "0"; map[12][10] = "0"; map[12][11] = "0"; map[12][12] = "0"; map[12][13] = "0"; map[12][14] = "0"; map[12][15] = "0"; map[12][16] = "0"; map[12][17] = "0"; map[12][18] = "0"; map[12][19] = "0"; map[13][0] = "0"; map[13][1] = "5"; map[13][2] = "5"; map[13][3] = "5";
+            map[13][4] = "5"; map[13][5] = "0"; map[13][6] = "0"; map[13][7] = "0"; map[13][8] = "0"; map[13][9] = "0"; map[13][10] = "0"; map[13][11] = "0"; map[13][12] = "0"; map[13][13] = "0"; map[13][14] = "0"; map[13][15] = "0"; map[13][16] = "0"; map[13][17] = "0"; map[13][18] = "0"; map[13][19] = "0"; map[14][0] = "0"; map[14][1] = "5"; map[14][2] = "5"; map[14][3] = "5"; map[14][4] = "5"; map[14][5] = "0"; map[14][6] = "0"; map[14][7] = "0"; map[14][8] = "0"; map[14][9] = "0"; map[14][10] = "0"; map[14][11] = "0"; map[14][12] = "0"; map[14][13] = "0"; map[14][14] = "0"; map[14][15] = "0"; map[14][16] = "0"; map[14][17] = "0"; map[14][18] = "0"; map[14][19] = "0"; map[15][0] = "0"; map[15][1] = "0"; map[15][2] = "0"; map[15][3] = "0"; map[15][4] = "0"; map[15][5] = "0"; map[15][6] = "0"; map[15][7] = "0"; map[15][8] = "0"; map[15][9] = "0"; map[15][10] = "0"; map[15][11] = "0"; map[15][12] = "0"; map[15][13] = "0"; map[15][14] = "0"; map[15][15] = "0"; map[15][16] = "0"; map[15][17] = "0"; map[15][18] = "0"; map[15][19] = "0"; map[16][0] = "0"; map[16][1] = "0"; map[16][2] = "0"; map[16][3] = "0"; map[16][4] = "0"; map[16][5] = "0"; map[16][6] = "0"; map[16][7] = "0"; map[16][8] = "0"; map[16][9] = "0"; map[16][10] = "0"; map[16][11] = "0"; map[16][12] = "0"; map[16][13] = "0"; map[16][14] = "0"; map[16][15] = "0"; map[16][16] = "0"; map[16][17] = "0"; map[16][18] = "0"; map[16][19] = "0"; map[17][0] = "0"; map[17][1] = "0"; map[17][2] = "0"; map[17][3] = "0"; map[17][4] = "0"; map[17][5] = "0"; map[17][6] = "0"; map[17][7] = "0"; map[17][8] = "0"; map[17][9] = "0"; map[17][10] = "0"; map[17][11] = "0"; map[17][12] = "0"; map[17][13] = "0"; map[17][14] = "0"; map[17][15] = "0"; map[17][16] = "0"; map[17][17] = "0"; map[17][18] = "0"; map[17][19] = "0"; map[18][0] = "0"; map[18][1] = "0"; map[18][2] = "0"; map[18][3] = "0"; map[18][4] = "0"; map[18][5] = "0"; map[18][6] = "0"; map[18][7] = "0"; map[18][8] = "0"; map[18][9] = "0"; map[18][10] = "0"; map[18][11] = "0"; map[18][12] = "0"; map[18][13] = "0"; map[18][14] = "0"; map[18][15] = "0"; map[18][16] = "0"; map[18][17] = "0"; map[18][18] = "0"; map[18][19] = "0"; map[19][0] = "0"; map[19][1] = "0"; map[19][2] = "0"; map[19][3] = "0"; map[19][4] = "0"; map[19][5] = "0"; map[19][6] = "0"; map[19][7] = "0"; map[19][8] = "0"; map[19][9] = "0"; map[19][10] = "0"; map[19][11] = "0"; map[19][12] = "0"; map[19][13] = "0"; map[19][14] = "0"; map[19][15] = "0";
+            map[19][16] = "0"; map[19][17] = "0"; map[19][18] = "0"; map[19][19] = "0";
+        }
+
+        function loadClear() {
+            for (var i = 0; i < 20; i++) {
+                for (var j = 0; j < 20; j++) {
+                    map[i][j] = "0";
+                }
+            }
+        }
+
+        function levelLoad() {
+
+            userLevel();
+
+            var x = 0;
+            var y = 0;
+            var include = false;
+
+            for (var i = 0; i < 20; i++) {
+                for (var j = 0; j < 20; j++) {
+                    map[i][j] = "";
+                }
+            }
+
+            for (var k = 0; k < levelForm.length; k++) {
+
+                if (levelForm.charAt(k) != "\"" && include == true) {
+                    map[x][y] += levelForm.charAt(k);
+                }
+                if (levelForm.charAt(k) == "\"") {
+                    if (include == true) {
+                        include = false;
+                        y++;
+                        if (y == 20) {
+                            y = 0;
+                            x++;
+                        }
+                    }
+                    else {
+                        include = true;
+                    }
+                }
+            }
+        };
+
+        function gameplay() {
+            if (playTest === true) {
+
+                if (posX < 0 || posX > canvas.width - size || posY < 0 || posY > canvas.height - size || posXs < 0 || posXs > canvas.width - size || posYs < 0 || posYs > canvas.height - size) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "7") {
+                                posX = (i * size);
+                                posY = (j * size);
+                                posXs = (i * size);
+                                posYs = (j * size);
+                                status = 0;
+                            }
+                            map[i][j] = savedMap[i][j];
+                        }
+                    }
+                }
+
+                if (map[posX / size][posY / size] == "0" || map[posXs / size][posYs / size] == "0" || map[posX / size][posY / size] == "b" || map[posXs / size][posYs / size] == "b" || map[posX / size][posY / size] == "xb" || map[posXs / size][posYs / size] == "xb" || map[posX / size][posY / size] == "yb" || map[posXs / size][posYs / size] == "yb" || map[posX / size][posY / size] == "zb" || map[posXs / size][posYs / size] == "zb" || map[posX / size][posY / size] == "xyb" || map[posXs / size][posYs / size] == "xyb" || map[posX / size][posY / size] == "yzb" || map[posXs / size][posYs / size] == "yzb" || map[posX / size][posY / size] == "xzb" || map[posXs / size][posYs / size] == "xzb" || map[posX / size][posY / size] == "xyzb" || map[posXs / size][posYs / size] == "xyzb" || map[posX / size][posY / size] == "xbo" || map[posXs / size][posYs / size] == "xbo" || map[posX / size][posY / size] == "ybo" || map[posXs / size][posYs / size] == "ybo" || map[posX / size][posY / size] == "zbo" || map[posXs / size][posYs / size] == "zbo" || map[posX / size][posY / size] == "xybo" || map[posXs / size][posYs / size] == "xybo" || map[posX / size][posY / size] == "yzbo" || map[posXs / size][posYs / size] == "yzbo" || map[posX / size][posY / size] == "xzbo" || map[posXs / size][posYs / size] == "xzbo" || map[posX / size][posY / size] == "xyzbo" || map[posXs / size][posYs / size] == "xyzbo") {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "7") {
+                                posX = (i * size);
+                                posY = (j * size);
+                                posXs = (i * size);
+                                posYs = (j * size);
+                                status = 0;
+                            }
+                            map[i][j] = savedMap[i][j];
+                        }
+                    }
+                }
+                else if (map[posX / size][posY / size] == "4" && map[posXs / size][posYs / size] == "4" && posX == posXs && posY == posYs) {
+                    completed = 1;
+                    if (move == 80 && press == false) { // print level code
+                        press = true;
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                document.write("map[" + i + "][" + j + "]=\"" + savedMap[i][j] + "\";");
+                            }
+                        }
+                    }
+                }
+                else if (map[posX / size][posY / size] == "6" && map[posXs / size][posYs / size] == "6" && posX == posXs && posY == posYs) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            posX = (i * size);
+                            posY = (j * size);
+                            posXs = (i * size);
+                            posYs = (j * size);
+                            status = 0;
+                        }
+                    }
+                }
+                // Buttons
+                if (press === false) {
+                    if (((map[posX / size][posY / size] == "xp2" || map[posXs / size][posYs / size] == "xp2") || (map[posX / size][posY / size] == "xp2o" || map[posXs / size][posYs / size] == "xp2o"))) {
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                if (map[i][j] == "xb") {
+                                    map[i][j] = "xd";
+                                }
+                                else if (map[i][j] == "xd") {
+                                    map[i][j] = "xb";
+                                }
+                                if (map[i][j] == "xyb") {
+                                    map[i][j] = "xyd";
+                                }
+                                else if (map[i][j] == "xyd") {
+                                    map[i][j] = "xyb";
+                                }
+                                if (map[i][j] == "xzb") {
+                                    map[i][j] = "xzd";
+                                }
+                                else if (map[i][j] == "xzd") {
+                                    map[i][j] = "xzb";
+                                }
+                                if (map[i][j] == "xyzb") {
+                                    map[i][j] = "xyzd";
+                                }
+                                else if (map[i][j] == "xyzd") {
+                                    map[i][j] = "xyzb";
+                                }
+
+                                if (map[i][j] == "xbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xyzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xyzdo") {
+                                    map[i][j] = "0";
+                                }
+                            }
+                        }
+                        if (map[posX / size][posY / size] == "xp2o") {
+                            map[posX / size][posY / size] = "2";
+                        }
+                        else if (map[posXs / size][posYs / size] == "xp2o") {
+                            map[posXs / size][posYs / size] = "2";
+                        }
+                        press = true;
+                    }
+                    if (((map[posX / size][posY / size] == "yp2" || map[posXs / size][posYs / size] == "yp2") || (map[posX / size][posY / size] == "yp2o" || map[posXs / size][posYs / size] == "yp2o"))) {
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                if (map[i][j] == "yb") {
+                                    map[i][j] = "yd";
+                                }
+                                else if (map[i][j] == "yd") {
+                                    map[i][j] = "yb";
+                                }
+                                if (map[i][j] == "xyb") {
+                                    map[i][j] = "xyd";
+                                }
+                                else if (map[i][j] == "xyd") {
+                                    map[i][j] = "xyb";
+                                }
+                                if (map[i][j] == "yzb") {
+                                    map[i][j] = "yzd";
+                                }
+                                else if (map[i][j] == "yzd") {
+                                    map[i][j] = "yzb";
+                                }
+                                if (map[i][j] == "xyzb") {
+                                    map[i][j] = "xyzd";
+                                }
+                                else if (map[i][j] == "xyzd") {
+                                    map[i][j] = "xyzb";
+                                }
+
+                                if (map[i][j] == "ybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "ydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "yzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "yzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xyzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xyzdo") {
+                                    map[i][j] = "0";
+                                }
+                            }
+                        }
+                        if (map[posX / size][posY / size] == "yp2o") {
+                            map[posX / size][posY / size] = "2";
+                        }
+                        else if (map[posXs / size][posYs / size] == "yp2o") {
+                            map[posXs / size][posYs / size] = "2";
+                        }
+                        press = true;
+                    }
+                    if (((map[posX / size][posY / size] == "zp2" || map[posXs / size][posYs / size] == "zp2") || (map[posX / size][posY / size] == "zp2o" || map[posXs / size][posYs / size] == "zp2o"))) {
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                if (map[i][j] == "zb") {
+                                    map[i][j] = "zd";
+                                }
+                                else if (map[i][j] == "zd") {
+                                    map[i][j] = "zb";
+                                }
+                                if (map[i][j] == "xzb") {
+                                    map[i][j] = "xzd";
+                                }
+                                else if (map[i][j] == "xzd") {
+                                    map[i][j] = "xzb";
+                                }
+                                if (map[i][j] == "yzb") {
+                                    map[i][j] = "yzd";
+                                }
+                                else if (map[i][j] == "yzd") {
+                                    map[i][j] = "yzb";
+                                }
+                                if (map[i][j] == "xyzb") {
+                                    map[i][j] = "xyzd";
+                                }
+                                else if (map[i][j] == "xyzd") {
+                                    map[i][j] = "xyzb";
+                                }
+
+                                if (map[i][j] == "zbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "zdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "yzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "yzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xyzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xyzdo") {
+                                    map[i][j] = "0";
+                                }
+                            }
+                        }
+                        if (map[posX / size][posY / size] == "zp2o") {
+                            map[posX / size][posY / size] = "2";
+                        }
+                        else if (map[posXs / size][posYs / size] == "zp2o") {
+                            map[posXs / size][posYs / size] = "2";
+                        }
+                        press = true;
+                    }
+                    if (((map[posX / size][posY / size] == "xyp2" || map[posXs / size][posYs / size] == "xyp2") || (map[posX / size][posY / size] == "xyp2o" || map[posXs / size][posYs / size] == "xyp2o"))) {
+                        press = true;
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                if (map[i][j] == "xb") {
+                                    map[i][j] = "xd";
+                                }
+                                else if (map[i][j] == "xd") {
+                                    map[i][j] = "xb";
+                                }
+                                if (map[i][j] == "yb") {
+                                    map[i][j] = "yd";
+                                }
+                                else if (map[i][j] == "yd") {
+                                    map[i][j] = "yb";
+                                }
+                                if (map[i][j] == "xyb") {
+                                    map[i][j] = "xyd";
+                                }
+                                else if (map[i][j] == "xyd") {
+                                    map[i][j] = "xyb";
+                                }
+                                if (map[i][j] == "xzb") {
+                                    map[i][j] = "xzd";
+                                }
+                                else if (map[i][j] == "xzd") {
+                                    map[i][j] = "xzb";
+                                }
+                                if (map[i][j] == "yzb") {
+                                    map[i][j] = "yzd";
+                                }
+                                else if (map[i][j] == "yzd") {
+                                    map[i][j] = "yzb";
+                                }
+                                if (map[i][j] == "xyzb") {
+                                    map[i][j] = "xyzd";
+                                }
+                                else if (map[i][j] == "xyzd") {
+                                    map[i][j] = "xyzb";
+                                }
+
+                                if (map[i][j] == "xbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "ybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "ydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "yzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "yzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xyzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xyzdo") {
+                                    map[i][j] = "0";
+                                }
+                            }
+                        }
+                        if (map[posX / size][posY / size] == "xyp2o") {
+                            map[posX / size][posY / size] = "2";
+                        }
+                        else if (map[posXs / size][posYs / size] == "xyp2o") {
+                            map[posXs / size][posYs / size] = "2";
+                        }
+                        press = true;
+                    }
+                    if (((map[posX / size][posY / size] == "yzp2" || map[posXs / size][posYs / size] == "yzp2") || (map[posX / size][posY / size] == "yzp2o" || map[posXs / size][posYs / size] == "yzp2o"))) {
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                if (map[i][j] == "yb") {
+                                    map[i][j] = "yd";
+                                }
+                                else if (map[i][j] == "yd") {
+                                    map[i][j] = "yb";
+                                }
+                                if (map[i][j] == "zb") {
+                                    map[i][j] = "zd";
+                                }
+                                else if (map[i][j] == "zd") {
+                                    map[i][j] = "zb";
+                                }
+                                if (map[i][j] == "xyb") {
+                                    map[i][j] = "xyd";
+                                }
+                                else if (map[i][j] == "xyd") {
+                                    map[i][j] = "xyb";
+                                }
+                                if (map[i][j] == "xzb") {
+                                    map[i][j] = "xzd";
+                                }
+                                else if (map[i][j] == "xzd") {
+                                    map[i][j] = "xzb";
+                                }
+                                if (map[i][j] == "yzb") {
+                                    map[i][j] = "yzd";
+                                }
+                                else if (map[i][j] == "yzd") {
+                                    map[i][j] = "yzb";
+                                }
+                                if (map[i][j] == "xyzb") {
+                                    map[i][j] = "xyzd";
+                                }
+                                else if (map[i][j] == "xyzd") {
+                                    map[i][j] = "xyzb";
+                                }
+
+                                if (map[i][j] == "ybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "ydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "zbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "zdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "yzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "yzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xyzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xyzdo") {
+                                    map[i][j] = "0";
+                                }
+
+                            }
+                        }
+                        if (map[posX / size][posY / size] == "yzp2o") {
+                            map[posX / size][posY / size] = "2";
+                        }
+                        else if (map[posXs / size][posYs / size] == "yzp2o") {
+                            map[posXs / size][posYs / size] = "2";
+                        }
+                        press = true;
+                    }
+                    if (((map[posX / size][posY / size] == "xzp2" || map[posXs / size][posYs / size] == "xzp2") || (map[posX / size][posY / size] == "xzp2o" || map[posXs / size][posYs / size] == "xzp2o"))) {
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                if (map[i][j] == "xb") {
+                                    map[i][j] = "xd"
+                                }
+                                else if (map[i][j] == "xd") {
+                                    map[i][j] = "xb"
+                                }
+                                if (map[i][j] == "zb") {
+                                    map[i][j] = "zd"
+                                }
+                                else if (map[i][j] == "zd") {
+                                    map[i][j] = "zb"
+                                }
+                                if (map[i][j] == "xyb") {
+                                    map[i][j] = "xyd"
+                                }
+                                else if (map[i][j] == "xyd") {
+                                    map[i][j] = "xyb"
+                                }
+                                if (map[i][j] == "xzb") {
+                                    map[i][j] = "xzd"
+                                }
+                                else if (map[i][j] == "xzd") {
+                                    map[i][j] = "xzb"
+                                }
+                                if (map[i][j] == "yzb") {
+                                    map[i][j] = "yzd"
+                                }
+                                else if (map[i][j] == "yzd") {
+                                    map[i][j] = "yzb"
+                                }
+                                if (map[i][j] == "xyzb") {
+                                    map[i][j] = "xyzd"
+                                }
+                                else if (map[i][j] == "xyzd") {
+                                    map[i][j] = "xyzb"
+                                }
+
+                                if (map[i][j] == "xbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "zbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "zdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "yzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "yzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xyzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xyzdo") {
+                                    map[i][j] = "0";
+                                }
+                            }
+                        }
+                        if (map[posX / size][posY / size] == "xzp2o") {
+                            map[posX / size][posY / size] = "2";
+                        }
+                        else if (map[posXs / size][posYs / size] == "xzp2o") {
+                            map[posXs / size][posYs / size] = "2";
+                        }
+                        press = true;
+                    }
+                    if (((map[posX / size][posY / size] == "xyzp2" || map[posXs / size][posYs / size] == "xyzp2") || (map[posX / size][posY / size] == "xyzp2o" || map[posXs / size][posYs / size] == "xyzp2o"))) {
+                        for (var i = 0; i < 20; i++) {
+                            for (var j = 0; j < 20; j++) {
+                                if (map[i][j] == "xb") {
+                                    map[i][j] = "xd";
+                                }
+                                else if (map[i][j] == "xd") {
+                                    map[i][j] = "xb";
+                                }
+                                if (map[i][j] == "yb") {
+                                    map[i][j] = "yd";
+                                }
+                                else if (map[i][j] == "yd") {
+                                    map[i][j] = "yb";
+                                }
+                                if (map[i][j] == "zb") {
+                                    map[i][j] = "zd";
+                                }
+                                else if (map[i][j] == "zd") {
+                                    map[i][j] = "zb";
+                                }
+                                if (map[i][j] == "xyb") {
+                                    map[i][j] = "xyd";
+                                }
+                                else if (map[i][j] == "xyd") {
+                                    map[i][j] = "xyb";
+                                }
+                                if (map[i][j] == "xzb") {
+                                    map[i][j] = "xzd";
+                                }
+                                else if (map[i][j] == "xzd") {
+                                    map[i][j] = "xzb";
+                                }
+                                if (map[i][j] == "yzb") {
+                                    map[i][j] = "yzd";
+                                }
+                                else if (map[i][j] == "yzd") {
+                                    map[i][j] = "yzb";
+                                }
+                                if (map[i][j] == "xyzb") {
+                                    map[i][j] = "xyzd";
+                                }
+                                else if (map[i][j] == "xyzd") {
+                                    map[i][j] = "xyzb";
+                                }
+
+                                if (map[i][j] == "xbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "ybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "ydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "zbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "zdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xybo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xydo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "yzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "yzdo") {
+                                    map[i][j] = "0";
+                                }
+                                if (map[i][j] == "xyzbo") {
+                                    map[i][j] = "5";
+                                }
+                                else if (map[i][j] == "xyzdo") {
+                                    map[i][j] = "0";
+                                }
+                            }
+                        }
+                        if (map[posX / size][posY / size] == "xyzp2o") {
+                            map[posX / size][posY / size] = "2";
+                        }
+                        else if (map[posXs / size][posYs / size] == "xyzp2o") {
+                            map[posXs / size][posYs / size] = "2";
+                        }
+                        press = true;
+                    }
+                }
+                if ((((map[posX / size][posY / size] == "xp3" && map[posXs / size][posYs / size] == "xp3") || (map[posX / size][posY / size] == "xp3o" && map[posXs / size][posYs / size] == "xp3o")) && posX == posXs && posY == posYs && press === false)) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "xb") {
+                                map[i][j] = "xd";
+                            }
+                            else if (map[i][j] == "xd") {
+                                map[i][j] = "xb";
+                            }
+                            if (map[i][j] == "xyb") {
+                                map[i][j] = "xyd";
+                            }
+                            else if (map[i][j] == "xyd") {
+                                map[i][j] = "xyb";
+                            }
+                            if (map[i][j] == "xzb") {
+                                map[i][j] = "xzd";
+                            }
+                            else if (map[i][j] == "xzd") {
+                                map[i][j] = "xzb";
+                            }
+                            if (map[i][j] == "xyzb") {
+                                map[i][j] = "xyzd";
+                            }
+                            else if (map[i][j] == "xyzd") {
+                                map[i][j] = "xyzb";
+                            }
+
+                            if (map[i][j] == "xbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xyzdo") {
+                                map[i][j] = "0";
+                            }
+                        }
+                    }
+                    if (map[posX / size][posY / size] == "xp3o") {
+                        map[posX / size][posY / size] = "3";
+                    }
+                    else if (map[posXs / size][posYs / size] == "xp3o") {
+                        map[posXs / size][posYs / size] = "3";
+                    }
+                    press = true;
+                }
+                if ((((map[posX / size][posY / size] == "yp3" && map[posXs / size][posYs / size] == "yp3") || (map[posX / size][posY / size] == "yp3o" && map[posXs / size][posYs / size] == "yp3o")) && posX == posXs && posY == posYs && press === false)) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "yb") {
+                                map[i][j] = "yd";
+                            }
+                            else if (map[i][j] == "yd") {
+                                map[i][j] = "yb";
+                            }
+                            if (map[i][j] == "xyb") {
+                                map[i][j] = "xyd";
+                            }
+                            else if (map[i][j] == "xyd") {
+                                map[i][j] = "xyb";
+                            }
+                            if (map[i][j] == "yzb") {
+                                map[i][j] = "yzd";
+                            }
+                            else if (map[i][j] == "yzd") {
+                                map[i][j] = "yzb";
+                            }
+                            if (map[i][j] == "xyzb") {
+                                map[i][j] = "xyzd";
+                            }
+                            else if (map[i][j] == "xyzd") {
+                                map[i][j] = "xyzb";
+                            }
+
+                            if (map[i][j] == "ybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "ydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "yzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "yzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xyzdo") {
+                                map[i][j] = "0";
+                            }
+                        }
+                    }
+                    if (map[posX / size][posY / size] == "yp3o") {
+                        map[posX / size][posY / size] = "3";
+                    }
+                    else if (map[posXs / size][posYs / size] == "yp3o") {
+                        map[posXs / size][posYs / size] = "3";
+                    }
+                    press = true;
+                }
+                if ((((map[posX / size][posY / size] == "zp3" && map[posXs / size][posYs / size] == "zp3") || (map[posX / size][posY / size] == "zp3o" && map[posXs / size][posYs / size] == "zp3o")) && posX == posXs && posY == posYs && press === false)) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "zb") {
+                                map[i][j] = "zd"
+                            }
+                            else if (map[i][j] == "zd") {
+                                map[i][j] = "zb";
+                            }
+                            if (map[i][j] == "xzb") {
+                                map[i][j] = "xzd";
+                            }
+                            else if (map[i][j] == "xzd") {
+                                map[i][j] = "xzb";
+                            }
+                            if (map[i][j] == "yzb") {
+                                map[i][j] = "yzd";
+                            }
+                            else if (map[i][j] == "yzd") {
+                                map[i][j] = "yzb";
+                            }
+                            if (map[i][j] == "xyzb") {
+                                map[i][j] = "xyzd";
+                            }
+                            else if (map[i][j] == "xyzd") {
+                                map[i][j] = "xyzb";
+                            }
+
+                            if (map[i][j] == "zbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "zdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "yzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "yzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xyzdo") {
+                                map[i][j] = "0";
+                            }
+                        }
+                    }
+                    if (map[posX / size][posY / size] == "zp3o") {
+                        map[posX / size][posY / size] = "3";
+                    }
+                    else if (map[posXs / size][posYs / size] == "zp3o") {
+                        map[posXs / size][posYs / size] = "3";
+                    }
+                    press = true;
+                }
+                if ((((map[posX / size][posY / size] == "xyp3" && map[posXs / size][posYs / size] == "xyp3") || (map[posX / size][posY / size] == "xyp3o" && map[posXs / size][posYs / size] == "xyp3o")) && posX == posXs && posY == posYs && press === false)) {
+                    press = true;
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "xb") {
+                                map[i][j] = "xd";
+                            }
+                            else if (map[i][j] == "xd") {
+                                map[i][j] = "xb";
+                            }
+                            if (map[i][j] == "yb") {
+                                map[i][j] = "yd";
+                            }
+                            else if (map[i][j] == "yd") {
+                                map[i][j] = "yb";
+                            }
+                            if (map[i][j] == "xyb") {
+                                map[i][j] = "xyd";
+                            }
+                            else if (map[i][j] == "xyd") {
+                                map[i][j] = "xyb";
+                            }
+                            if (map[i][j] == "xzb") {
+                                map[i][j] = "xzd";
+                            }
+                            else if (map[i][j] == "xzd") {
+                                map[i][j] = "xzb";
+                            }
+                            if (map[i][j] == "yzb") {
+                                map[i][j] = "yzd";
+                            }
+                            else if (map[i][j] == "yzd") {
+                                map[i][j] = "yzb";
+                            }
+                            if (map[i][j] == "xyzb") {
+                                map[i][j] = "xyzd";
+                            }
+                            else if (map[i][j] == "xyzd") {
+                                map[i][j] = "xyzb";
+                            }
+
+                            if (map[i][j] == "xbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "ybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "ydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "yzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "yzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xyzdo") {
+                                map[i][j] = "0";
+                            }
+                        }
+                    }
+                    if (map[posX / size][posY / size] == "xyp3o") {
+                        map[posX / size][posY / size] = "3";
+                    }
+                    else if (map[posXs / size][posYs / size] == "xyp3o") {
+                        map[posXs / size][posYs / size] = "3";
+                    }
+                    press = true;
+                }
+                if ((((map[posX / size][posY / size] == "yzp3" && map[posXs / size][posYs / size] == "yzp3") || (map[posX / size][posY / size] == "yzp3o" && map[posXs / size][posYs / size] == "yzp3o")) && posX == posXs && posY == posYs && press === false)) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "yb") {
+                                map[i][j] = "yd";
+                            }
+                            else if (map[i][j] == "yd") {
+                                map[i][j] = "yb";
+                            }
+                            if (map[i][j] == "zb") {
+                                map[i][j] = "zd";
+                            }
+                            else if (map[i][j] == "zd") {
+                                map[i][j] = "zb";
+                            }
+                            if (map[i][j] == "xyb") {
+                                map[i][j] = "xyd";
+                            }
+                            else if (map[i][j] == "xyd") {
+                                map[i][j] = "xyb";
+                            }
+                            if (map[i][j] == "xzb") {
+                                map[i][j] = "xzd";
+                            }
+                            else if (map[i][j] == "xzd") {
+                                map[i][j] = "xzb";
+                            }
+                            if (map[i][j] == "yzb") {
+                                map[i][j] = "yzd";
+                            }
+                            else if (map[i][j] == "yzd") {
+                                map[i][j] = "yzb";
+                            }
+                            if (map[i][j] == "xyzb") {
+                                map[i][j] = "xyzd";
+                            }
+                            else if (map[i][j] == "xyzd") {
+                                map[i][j] = "xyzb";
+                            }
+
+                            if (map[i][j] == "ybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "ydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "zbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "zdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "yzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "yzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xyzdo") {
+                                map[i][j] = "0";
+                            }
+
+                        }
+                    }
+                    if (map[posX / size][posY / size] == "yzp3o") {
+                        map[posX / size][posY / size] = "3";
+                    }
+                    else if (map[posXs / size][posYs / size] == "yzp3o") {
+                        map[posXs / size][posYs / size] = "3";
+                    }
+                    press = true;
+                }
+                if ((((map[posX / size][posY / size] == "xzp3" && map[posXs / size][posYs / size] == "xzp3") || (map[posX / size][posY / size] == "xzp3o" && map[posXs / size][posYs / size] == "xzp3o")) && posX == posXs && posY == posYs && press === false)) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "xb") {
+                                map[i][j] = "xd";
+                            }
+                            else if (map[i][j] == "xd") {
+                                map[i][j] = "xb";
+                            }
+                            if (map[i][j] == "zb") {
+                                map[i][j] = "zd";
+                            }
+                            else if (map[i][j] == "zd") {
+                                map[i][j] = "zb";
+                            }
+                            if (map[i][j] == "xyb") {
+                                map[i][j] = "xyd";
+                            }
+                            else if (map[i][j] == "xyd") {
+                                map[i][j] = "xyb";
+                            }
+                            if (map[i][j] == "xzb") {
+                                map[i][j] = "xzd";
+                            }
+                            else if (map[i][j] == "xzd") {
+                                map[i][j] = "xzb";
+                            }
+                            if (map[i][j] == "yzb") {
+                                map[i][j] = "yzd";
+                            }
+                            else if (map[i][j] == "yzd") {
+                                map[i][j] = "yzb";
+                            }
+                            if (map[i][j] == "xyzb") {
+                                map[i][j] = "xyzd";
+                            }
+                            else if (map[i][j] == "xyzd") {
+                                map[i][j] = "xyzb";
+                            }
+
+                            if (map[i][j] == "xbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "zbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "zdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "yzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "yzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xyzdo") {
+                                map[i][j] = "0";
+                            }
+                        }
+                    }
+                    if (map[posX / size][posY / size] == "xzp3o") {
+                        map[posX / size][posY / size] = "3";
+                    }
+                    else if (map[posXs / size][posYs / size] == "xzp3o") {
+                        map[posXs / size][posYs / size] = "3";
+                    }
+                    press = true;
+                }
+                if ((((map[posX / size][posY / size] == "xyzp3" && map[posXs / size][posYs / size] == "xyzp3") || (map[posX / size][posY / size] == "xyzp3o" && map[posXs / size][posYs / size] == "xyzp3o")) && posX == posXs && posY == posYs && press === false)) {
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == "xb") {
+                                map[i][j] = "xd";
+                            }
+                            else if (map[i][j] == "xd") {
+                                map[i][j] = "xb";
+                            }
+                            if (map[i][j] == "yb") {
+                                map[i][j] = "yd";
+                            }
+                            else if (map[i][j] == "yd") {
+                                map[i][j] = "yb";
+                            }
+                            if (map[i][j] == "zb") {
+                                map[i][j] = "zd";
+                            }
+                            else if (map[i][j] == "zd") {
+                                map[i][j] = "zb";
+                            }
+                            if (map[i][j] == "xyb") {
+                                map[i][j] = "xyd";
+                            }
+                            else if (map[i][j] == "xyd") {
+                                map[i][j] = "xyb";
+                            }
+                            if (map[i][j] == "xzb") {
+                                map[i][j] = "xzd";
+                            }
+                            else if (map[i][j] == "xzd") {
+                                map[i][j] = "xzb";
+                            }
+                            if (map[i][j] == "yzb") {
+                                map[i][j] = "yzd";
+                            }
+                            else if (map[i][j] == "yzd") {
+                                map[i][j] = "yzb";
+                            }
+                            if (map[i][j] == "xyzb") {
+                                map[i][j] = "xyzd";
+                            }
+                            else if (map[i][j] == "xyzd") {
+                                map[i][j] = "xyzb";
+                            }
+
+                            if (map[i][j] == "xbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "ybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "ydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "zbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "zdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xybo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xydo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "yzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "yzdo") {
+                                map[i][j] = "0";
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                map[i][j] = "5";
+                            }
+                            else if (map[i][j] == "xyzdo") {
+                                map[i][j] = "0";
+                            }
+                        }
+                    }
+                    if (map[posX / size][posY / size] == "xyzp3o") {
+                        map[posX / size][posY / size] = "3";
+                    }
+                    else if (map[posXs / size][posYs / size] == "xyzp3o") {
+                        map[posXs / size][posYs / size] = "3";
+                    }
+                    press = true;
+                }
+
+            }
+        }
+
+        function render() {
+            //map
+            for (var i = 0; i < 20; i++) {
+                for (var j = 0; j < 20; j++) {
+                    if (map[i][j] == "1") {
+                        canvasContext.fillStyle = '#c3c3c3';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#d3d3d3';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                    }
+                    else if (map[i][j] == "2" || map[i][j] == "xp2" || map[i][j] == "yp2" || map[i][j] == "zp2" || map[i][j] == "xyp2" || map[i][j] == "yzp2" || map[i][j] == "xzp2" || map[i][j] == "xyzp2" || map[i][j] == "xp2o" || map[i][j] == "yp2o" || map[i][j] == "zp2o" || map[i][j] == "xyp2o" || map[i][j] == "yzp2o" || map[i][j] == "xzp2o" || map[i][j] == "xyzp2o") {
+                        canvasContext.fillStyle = '#c3c3c3';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#d3d3d3';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                        canvasContext.fillStyle = '#007fff';
+                        canvasContext.fillRect((i * size) + offset, (j * size) + offset, size - (2 * offset), size - (2 * offset));
+
+                        if (buttonText == true) {
+                            if (map[i][j] == "xp2") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("X", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yp2") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Y", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zp2") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyp2") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yzp2") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzp2") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzp2") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+
+                            if (map[i][j] == "xp2o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yp2o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zp2o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyp2o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yzp2o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzp2o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzp2o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                        }
+                    }
+                    else if (map[i][j] == "3" || map[i][j] == "xp3" || map[i][j] == "yp3" || map[i][j] == "zp3" || map[i][j] == "xyp3" || map[i][j] == "yzp3" || map[i][j] == "xzp3" || map[i][j] == "xyzp3" || map[i][j] == "xp3o" || map[i][j] == "yp3o" || map[i][j] == "zp3o" || map[i][j] == "xyp3o" || map[i][j] == "yzp3o" || map[i][j] == "xzp3o" || map[i][j] == "xyzp3o") {
+                        canvasContext.fillStyle = '#c3c3c3';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#d3d3d3';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                        canvasContext.fillStyle = '#18e518';
+                        canvasContext.fillRect((i * size) + offset, (j * size) + offset, size - (2 * offset), size - (2 * offset));
+
+                        if (buttonText == true) {
+                            if (map[i][j] == "xp3") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("X", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yp3") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Y", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zp3") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyp3") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yzp3") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzp3") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzp3") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+
+                            if (map[i][j] == "xp3o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yp3o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zp3o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyp3o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yzp3o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzp3o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzp3o") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                        }
+                    }
+                    else if (map[i][j] == "4") {
+                        canvasContext.fillStyle = '#434343';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#545454';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                    }
+                    else if (map[i][j] == "5" || map[i][j] == "xd" || map[i][j] == "yd" || map[i][j] == "zd" || map[i][j] == "xzd" || map[i][j] == "yzd" || map[i][j] == "xyd" || map[i][j] == "xyzd" || map[i][j] == "xdo" || map[i][j] == "ydo" || map[i][j] == "zdo" || map[i][j] == "xzdo" || map[i][j] == "yzdo" || map[i][j] == "xydo" || map[i][j] == "xyzdo") {
+                        canvasContext.fillStyle = '#c3c3c3';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#b3b3b3';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+
+                        if (buttonText == true) {
+                            if (map[i][j] == "xd") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("X", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yd") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Y", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zd") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyd") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yzd") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzd") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzd") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+
+                            if (map[i][j] == "xdo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "ydo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zdo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xydo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yzdo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzdo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzdo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                        }
+                    }
+                    else if (map[i][j] == "6") {
+                        canvasContext.fillStyle = '#ffb123';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#ffc356';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                    }
+                    else if (map[i][j] == "0" || map[i][j] == "xb" || map[i][j] == "yb" || map[i][j] == "zb" || map[i][j] == "xyb" || map[i][j] == "yzb" || map[i][j] == "xzb" || map[i][j] == "xyzb" || map[i][j] == "xbo" || map[i][j] == "ybo" || map[i][j] == "zbo" || map[i][j] == "xybo" || map[i][j] == "yzbo" || map[i][j] == "xzbo" || map[i][j] == "xyzbo") {
+                        canvasContext.fillStyle = '#f2f2f2';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#ffffff';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+
+                        if (map[i][j] != "0") {
+                            canvasContext.fillStyle = '#e4e4e4';
+                            canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                        }
+
+                        if (buttonText == true) {
+                            if (map[i][j] == "xb") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("X", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yb") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Y", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zb") {
+                                canvasContext.font = "20px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyb") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "yzb") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzb") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzb") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("Z", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+
+                            if (map[i][j] == "xbo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "ybo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "zbo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xybo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+
+                            }
+                            if (map[i][j] == "yzbo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("YZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xzbo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XZ", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillText("O", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                            if (map[i][j] == "xyzbo") {
+                                canvasContext.font = "10px Verdana";
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("XY", (i * size) + (size / 4), (j * size) + (2 * size / 4));
+                                canvasContext.fillStyle = '#000000';
+                                canvasContext.fillText("ZO", (i * size) + (size / 4), (j * size) + (3 * size / 4));
+                            }
+                        }
+                    }
+                    else if (map[i][j] == "7" && playTest === false) {
+                        canvasContext.fillStyle = '#ff3030';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#ff5959';
+                        canvasContext.fillRect((i * size) + 2, (j * size) + 2, size - 4, size - 4);
+
+                    }
+                    else if (map[i][j] == "7" && playTest === true) {
+                        canvasContext.fillStyle = '#c3c3c3';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#d3d3d3';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                    }
+                    else if (map[i][j] == "8" && playTest === false) {
+                        canvasContext.fillStyle = '#000000';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        statX = -100;
+                        statY = -100;
+                    }
+                    else if (map[i][j] == "8" && playTest === true) {
+                        statX = i * size;
+                        statY = j * size;
+                        canvasContext.fillStyle = '#f2f2f2';
+                        canvasContext.fillRect((i * size), (j * size), size, size);
+                        canvasContext.fillStyle = '#ffffff';
+                        canvasContext.fillRect((i * size) + 1, (j * size) + 1, size - 2, size - 2);
+                    }
+                }
+            }
+
+            //selector
+            if (playTest === false) {
+                canvasContext.fillStyle = 'black';
+                canvasContext.fillRect((posX + size / 2 - size / 8), (posY + size / 2 - size / 8), size / 4, size / 4);
+                canvasContext.fillStyle = 'red';
+                canvasContext.fillRect((posX + size / 2 - size / 8) + 1, (posY + size / 2 - size / 8) + 1, size / 4 - 2, size / 4 - 2);
+
+                canvasContext.fillStyle = '#000000';
+                canvasContext.fillRect(statX, statY, size, size);
+            }
+            if (playTest === true) {
+
+                if (status == 0) {
+                    canvasContext.fillStyle = '#ff3030';
+                    canvasContext.fillRect(posX, posY, size, size);
+                    canvasContext.fillStyle = '#ff5959';
+                    canvasContext.fillRect(posX + 2, posY + 2, size - 4, size - 4);
+                    canvasContext.fillStyle = '#ff3030';
+                    canvasContext.fillRect(posXs, posYs, size, size);
+                    canvasContext.fillStyle = '#ff5959';
+                    canvasContext.fillRect(posXs + 2, posYs + 2, size - 4, size - 4);
+                }
+                if (status == 1) {
+                    canvasContext.fillStyle = '#ff3030';
+                    canvasContext.fillRect(posX, posY, size, size);
+                    canvasContext.fillStyle = '#ff5959';
+                    canvasContext.fillRect(posX, posY + 2, size - 2, size - 4);
+                    canvasContext.fillStyle = '#ff3030';
+                    canvasContext.fillRect(posXs, posYs, size, size);
+                    canvasContext.fillStyle = '#ff5959';
+                    canvasContext.fillRect(posXs + 2, posYs + 2, size, size - 4);
+                }
+                if (status == 2) {
+                    canvasContext.fillStyle = '#ff3030';
+                    canvasContext.fillRect(posX, posY, size, size);
+                    canvasContext.fillStyle = '#ff5959';
+                    canvasContext.fillRect(posX + 2, posY, size - 4, size - 2);
+                    canvasContext.fillStyle = '#ff3030';
+                    canvasContext.fillRect(posXs, posYs, size, size);
+                    canvasContext.fillStyle = '#ff5959';
+                    canvasContext.fillRect(posXs + 2, posYs + 2, size - 4, size);
+                }
+            }
+
+            var moveCount = "Moves: " + moves + " (" + completed + ")";
+            canvasContext.font = "20px Verdana";
+            canvasContext.fillStyle = '#000000';
+            canvasContext.fillText(moveCount, statX, statY + size);
+
+            canvasContext.font = "20px Verdana";
+            canvasContext.fillStyle = '#000000';
+            canvasContext.fillText("Level X", statX, statY + (2 * size));
+        }
+
+        function input() {
+            if (move == 84) {
+                move = false;
+                if (playTest === false) {
+                    playTest = true;
+                    completed = 0;
+                    moves = 0;
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            if (map[i][j] == 7) {
+                                posX = i * size;
+                                posXs = i * size;
+                                posY = j * size;
+                                posYs = j * size;
+                                status = 0;
+                            }
+                            savedMap[i][j] = map[i][j];
+                        }
+                    }
+                }
+                else {
+                    playTest = false;
+                    press = true;
+                    tileX = posX / size;
+                    tileY = posY / size;
+                    for (var i = 0; i < 20; i++) {
+                        for (var j = 0; j < 20; j++) {
+                            map[i][j] = savedMap[i][j];
+                        }
+                    }
+                }
+            }
+            if (playTest === false) {
+                //vänster
+                if (move == 65) {
+                    move = false;
+                    press = false;
+                    posX = posX - size;
+                    tileX--;
+                }
+                //höger
+                if (move == 68) {
+                    move = false;
+                    press = false;
+                    posX = posX + size;
+                    tileX++;
+                }
+                //upp
+                if (move == 87) {
+                    move = false;
+                    press = false;
+                    posY = posY - size;
+                    tileY--;
+                }
+                //ner
+                if (move == 83) {
+                    move = false;
+                    press = false;
+                    posY = posY + size;
+                    tileY++;
+                }
+
+                if (move == 49) { // normal tile
+                    map[tileX][tileY] = "1";
+                }
+                if (move == 50) { // blue button tile
+                    map[tileX][tileY] = "2";
+                }
+                if (move == 51) { // green button tile
+                    map[tileX][tileY] = "3";
+                }
+                if (move == 52) { // end tile
+                    map[tileX][tileY] = "4";
+                }
+                if (move == 53) { // door tile
+                    map[tileX][tileY] = "5";
+                }
+                if (move == 54) { // unstable tile
+                    map[tileX][tileY] = "6";
+                }
+                if (move == 48) { // blank tile
+                    map[tileX][tileY] = "0";
+                }
+                if (move == 55) { // player start pos
+                    map[tileX][tileY] = "7";
+                }
+                if (move == 56) {
+                    map[tileX][tileY] = "8"
+                }
+                if (move == 88) { // button X match
+                    if (map[tileX][tileY] == "2") {
+                        map[tileX][tileY] = "xp2";
+                    }
+                    if (map[tileX][tileY] == "3") {
+                        map[tileX][tileY] = "xp3";
+                    }
+                    else if (map[tileX][tileY] == "5") {
+                        map[tileX][tileY] = "xd";
+                    }
+                    else if (map[tileX][tileY] == "0") {
+                        map[tileX][tileY] = "xb";
+                    }
+
+                    else if (map[tileX][tileY] == "yb") {
+                        map[tileX][tileY] = "xyb";
+                    }
+                    else if (map[tileX][tileY] == "zb") {
+                        map[tileX][tileY] = "xzb";
+                    }
+                    else if (map[tileX][tileY] == "yzb") {
+                        map[tileX][tileY] = "xyzb";
+                    }
+
+                    else if (map[tileX][tileY] == "yd") {
+                        map[tileX][tileY] = "xyd";
+                    }
+                    else if (map[tileX][tileY] == "zd") {
+                        map[tileX][tileY] = "xzd";
+                    }
+                    else if (map[tileX][tileY] == "yzd") {
+                        map[tileX][tileY] = "xyzd";
+                    }
+
+                    else if (map[tileX][tileY] == "yp2") {
+                        map[tileX][tileY] = "xyp2";
+                    }
+                    else if (map[tileX][tileY] == "zp2") {
+                        map[tileX][tileY] = "xzp2";
+                    }
+                    else if (map[tileX][tileY] == "yzp2") {
+                        map[tileX][tileY] = "xyzp2";
+                    }
+                    else if (map[tileX][tileY] == "yp2o") {
+                        map[tileX][tileY] = "xyp2o";
+                    }
+                    else if (map[tileX][tileY] == "zp2o") {
+                        map[tileX][tileY] = "xzp2o";
+                    }
+                    else if (map[tileX][tileY] == "yzp2o") {
+                        map[tileX][tileY] = "xyzp2o";
+                    }
+
+                    else if (map[tileX][tileY] == "yp3") {
+                        map[tileX][tileY] = "xyp3";
+                    }
+                    else if (map[tileX][tileY] == "zp3") {
+                        map[tileX][tileY] = "xzp3";
+                    }
+                    else if (map[tileX][tileY] == "yzp3") {
+                        map[tileX][tileY] = "xyzp3";
+                    }
+                    else if (map[tileX][tileY] == "yp3o") {
+                        map[tileX][tileY] = "xyp3o";
+                    }
+                    else if (map[tileX][tileY] == "zp3o") {
+                        map[tileX][tileY] = "xzp3o";
+                    }
+                    else if (map[tileX][tileY] == "yzp3o") {
+                        map[tileX][tileY] = "xyzp3o";
+                    }
+                }
+                if (move == 89) { // button Y match
+                    if (map[tileX][tileY] == "2") {
+                        map[tileX][tileY] = "yp2";
+                    }
+                    if (map[tileX][tileY] == "3") {
+                        map[tileX][tileY] = "yp3";
+                    }
+                    else if (map[tileX][tileY] == "5") {
+                        map[tileX][tileY] = "yd";
+                    }
+                    else if (map[tileX][tileY] == "0") {
+                        map[tileX][tileY] = "yb";
+                    }
+
+                    else if (map[tileX][tileY] == "xb") {
+                        map[tileX][tileY] = "xyb";
+                    }
+                    else if (map[tileX][tileY] == "zb") {
+                        map[tileX][tileY] = "yzb";
+                    }
+                    else if (map[tileX][tileY] == "xzb") {
+                        map[tileX][tileY] = "xyzb";
+                    }
+
+                    else if (map[tileX][tileY] == "xd") {
+                        map[tileX][tileY] = "xyd";
+                    }
+                    else if (map[tileX][tileY] == "zd") {
+                        map[tileX][tileY] = "yzd";
+                    }
+                    else if (map[tileX][tileY] == "xzd") {
+                        map[tileX][tileY] = "xyzd";
+                    }
+
+                    else if (map[tileX][tileY] == "xp2") {
+                        map[tileX][tileY] = "xyp2";
+                    }
+                    else if (map[tileX][tileY] == "zp2") {
+                        map[tileX][tileY] = "yzp2";
+                    }
+                    else if (map[tileX][tileY] == "xzp2") {
+                        map[tileX][tileY] = "xyzp2";
+                    }
+                    else if (map[tileX][tileY] == "xp2o") {
+                        map[tileX][tileY] = "xyp2o";
+                    }
+                    else if (map[tileX][tileY] == "zp2o") {
+                        map[tileX][tileY] = "yzp2o";
+                    }
+                    else if (map[tileX][tileY] == "xzp2o") {
+                        map[tileX][tileY] = "xyzp2o";
+                    }
+
+                    else if (map[tileX][tileY] == "xp3") {
+                        map[tileX][tileY] = "xyp3";
+                    }
+                    else if (map[tileX][tileY] == "zp3") {
+                        map[tileX][tileY] = "yzp3";
+                    }
+                    else if (map[tileX][tileY] == "xzp3") {
+                        map[tileX][tileY] = "xyzp3";
+                    }
+                    else if (map[tileX][tileY] == "xp3o") {
+                        map[tileX][tileY] = "xyp3o";
+                    }
+                    else if (map[tileX][tileY] == "zp3o") {
+                        map[tileX][tileY] = "yzp3o";
+                    }
+                    else if (map[tileX][tileY] == "xzp3o") {
+                        map[tileX][tileY] = "xyzp3o";
+                    }
+                }
+                if (move == 90) { // button Z match
+                    if (map[tileX][tileY] == "2") {
+                        map[tileX][tileY] = "zp2";
+                    }
+                    if (map[tileX][tileY] == "3") {
+                        map[tileX][tileY] = "zp3";
+                    }
+                    else if (map[tileX][tileY] == "5") {
+                        map[tileX][tileY] = "zd";
+                    }
+                    else if (map[tileX][tileY] == "0") {
+                        map[tileX][tileY] = "zb";
+                    }
+
+                    else if (map[tileX][tileY] == "yb") {
+                        map[tileX][tileY] = "yzb";
+                    }
+                    else if (map[tileX][tileY] == "xb") {
+                        map[tileX][tileY] = "xzb";
+                    }
+                    else if (map[tileX][tileY] == "xyb") {
+                        map[tileX][tileY] = "xyzb";
+                    }
+
+                    else if (map[tileX][tileY] == "yd") {
+                        map[tileX][tileY] = "yzd";
+                    }
+                    else if (map[tileX][tileY] == "xd") {
+                        map[tileX][tileY] = "xzd";
+                    }
+                    else if (map[tileX][tileY] == "xyd") {
+                        map[tileX][tileY] = "xyzd";
+                    }
+
+                    else if (map[tileX][tileY] == "xp2") {
+                        map[tileX][tileY] = "xzp2";
+                    }
+                    else if (map[tileX][tileY] == "yp2") {
+                        map[tileX][tileY] = "yzp2";
+                    }
+                    else if (map[tileX][tileY] == "xyp2") {
+                        map[tileX][tileY] = "xyzp2";
+                    }
+                    else if (map[tileX][tileY] == "xp2o") {
+                        map[tileX][tileY] = "xzp2o";
+                    }
+                    else if (map[tileX][tileY] == "yp2o") {
+                        map[tileX][tileY] = "yzp2o";
+                    }
+                    else if (map[tileX][tileY] == "xyp2o") {
+                        map[tileX][tileY] = "xyzp2o";
+                    }
+
+                    else if (map[tileX][tileY] == "xp3") {
+                        map[tileX][tileY] = "xzp3";
+                    }
+                    else if (map[tileX][tileY] == "yp3") {
+                        map[tileX][tileY] = "yzp3";
+                    }
+                    else if (map[tileX][tileY] == "xyp3") {
+                        map[tileX][tileY] = "xyzp3";
+                    }
+                    else if (map[tileX][tileY] == "xp3o") {
+                        map[tileX][tileY] = "xzp3o";
+                    }
+                    else if (map[tileX][tileY] == "yp3o") {
+                        map[tileX][tileY] = "yzp3o";
+                    }
+                    else if (map[tileX][tileY] == "xyp3o") {
+                        map[tileX][tileY] = "xyzp3o";
+                    }
+                }
+                if (move == 79) { // make single use
+                    if (map[tileX][tileY] == "xp2") {
+                        map[tileX][tileY] = "xp2o";
+                    }
+                    else if (map[tileX][tileY] == "yp2") {
+                        map[tileX][tileY] = "yp2o";
+                    }
+                    else if (map[tileX][tileY] == "zp2") {
+                        map[tileX][tileY] = "zp2o";
+                    }
+                    else if (map[tileX][tileY] == "xyp2") {
+                        map[tileX][tileY] = "xyp2o";
+                    }
+                    else if (map[tileX][tileY] == "yzp2") {
+                        map[tileX][tileY] = "yzp2o";
+                    }
+                    else if (map[tileX][tileY] == "xzp2") {
+                        map[tileX][tileY] = "xzp2o";
+                    }
+                    else if (map[tileX][tileY] == "xyzp2") {
+                        map[tileX][tileY] = "xyzp2o";
+                    }
+
+                    else if (map[tileX][tileY] == "xp3") {
+                        map[tileX][tileY] = "xp3o";
+                    }
+                    else if (map[tileX][tileY] == "yp3") {
+                        map[tileX][tileY] = "yp3o";
+                    }
+                    else if (map[tileX][tileY] == "zp3") {
+                        map[tileX][tileY] = "zp3o";
+                    }
+                    else if (map[tileX][tileY] == "xyp3") {
+                        map[tileX][tileY] = "xyp3o";
+                    }
+                    else if (map[tileX][tileY] == "yzp3") {
+                        map[tileX][tileY] = "yzp3o";
+                    }
+                    else if (map[tileX][tileY] == "xzp3") {
+                        map[tileX][tileY] = "xzp3o";
+                    }
+                    else if (map[tileX][tileY] == "xyzp3") {
+                        map[tileX][tileY] = "xyzp3o";
+                    }
+
+                    else if (map[tileX][tileY] == "xb") {
+                        map[tileX][tileY] = "xbo";
+                    }
+                    else if (map[tileX][tileY] == "yb") {
+                        map[tileX][tileY] = "ybo";
+                    }
+                    else if (map[tileX][tileY] == "zb") {
+                        map[tileX][tileY] = "zbo";
+                    }
+                    else if (map[tileX][tileY] == "xyb") {
+                        map[tileX][tileY] = "xybo";
+                    }
+                    else if (map[tileX][tileY] == "yzb") {
+                        map[tileX][tileY] = "yzbo";
+                    }
+                    else if (map[tileX][tileY] == "xzb") {
+                        map[tileX][tileY] = "xzbo";
+                    }
+                    else if (map[tileX][tileY] == "xyzb") {
+                        map[tileX][tileY] = "xyzbo";
+                    }
+
+                    else if (map[tileX][tileY] == "xd") {
+                        map[tileX][tileY] = "xdo";
+                    }
+                    else if (map[tileX][tileY] == "yd") {
+                        map[tileX][tileY] = "ydo";
+                    }
+                    else if (map[tileX][tileY] == "zd") {
+                        map[tileX][tileY] = "zdo";
+                    }
+                    else if (map[tileX][tileY] == "xyd") {
+                        map[tileX][tileY] = "xydo";
+                    }
+                    else if (map[tileX][tileY] == "yzd") {
+                        map[tileX][tileY] = "yzdo";
+                    }
+                    else if (map[tileX][tileY] == "xzd") {
+                        map[tileX][tileY] = "xzdo";
+                    }
+                    else if (map[tileX][tileY] == "xyzd") {
+                        map[tileX][tileY] = "xyzdo";
+                    }
+                }
+                if (move == 76) {
+                    levelLoad();
+                }
+            }
+            if (playTest === true) {
+                //vänster
+                if (move == 65) {
+                    move = false;
+                    moves++;
+                    press = false;
+                    if (status == 0) {
+                        posX = posX - size;
+                        posXs = posX - size;
+                        status = 1;
+                    }
+                    else if (status == 1) {
+                        posXs = posXs - size;
+                        posX = posXs;
+                        status = 0;
+                    }
+                    else {
+                        posX = posX - size;
+                        posXs = posXs - size;
+                    }
+                }
+                //höger
+                if (move == 68) {
+                    move = false;
+                    moves++;
+                    press = false;
+                    if (status == 0) {
+                        posXs = posX + size;
+                        posX = posXs + size;
+                        status = 1;
+                    }
+                    else if (status == 1) {
+                        posX = posX + size;
+                        posXs = posX;
+                        status = 0;
+                    }
+                    else {
+                        posX = posX + size;
+                        posXs = posXs + size;
+                    }
+                }
+                //upp
+                if (move == 87) {
+                    move = false;
+                    moves++;
+                    press = false;
+                    if (status == 0) {
+                        posY = posY - size;
+                        posYs = posY - size;
+                        status = 2;
+                    }
+                    else if (status == 2) {
+                        posYs = posYs - size;
+                        posY = posYs;
+                        status = 0;
+                    }
+                    else {
+                        posY = posY - size;
+                        posYs = posYs - size;
+                    }
+                }
+                //ner
+                if (move == 83) {
+                    move = false;
+                    moves++;
+                    press = false;
+                    if (status == 0) {
+                        posYs = posY + size;
+                        posY = posYs + size;
+                        status = 2;
+                    }
+                    else if (status == 2) {
+                        posY = posY + size;
+                        posYs = posY;
+                        status = 0;
+                    }
+                    else {
+                        posY = posY + size;
+                        posYs = posYs + size;
+                    }
+                }
+            }
+        }
+
+
+
+    </script>
+</body>
+
+</html>

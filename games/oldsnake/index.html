@@ -1,0 +1,286 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <style>
+        body {
+            background-color: rgb(235, 235, 235); 
+        }
+    </style>
+    <title>Elixia's Old Snake</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="450"></canvas><br />
+    Use WASD or the ARROW KEYS to change direction.
+    <br>
+You can always restart by pressing R and pause by pressing P.
+<br>
+Eat as many apples as possible and avoid biting yourself. 
+<br>
+Eat the Azure apples which have a 5% chance of spawning and disappear after 5 seconds for extra points.
+    <script sandbox="allow-scripts allow-modals">
+        var canvas;
+        var canvasContext;
+        var size = 10;
+        var posX = 40;
+        var posY = 40;
+        var speed = size;
+        var speedX = speed;
+        var speedY = 0;
+        var dir;
+        var isFood = false;
+        var foodX;
+        var foodY;
+        var snakeX = [];
+        var snakeY = [];
+        var stor = 1;
+        var crash = false;
+        var fontSize = 10;
+        var wall = true;
+        var eatScore = 0;
+        var time = 0;
+        var FPS = 12;
+        var timeDisp = "00:00";
+        var minutes = 0;
+        var randomX = -100;
+        var randomY = -100;
+        var randomTime = 0;
+        var extraScore = 0;
+        var pause = false;
+
+        window.onload = function () {
+            console.log("Log in console");
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
+            food();
+            setInterval(game, 1000 / FPS);
+            setInterval(stopwatch, 1000);
+            setInterval(keyboard, 1000 / 144)
+        };
+
+        function game() {
+            if (crash === false) {
+                window.addEventListener('keydown', function (e) {
+                    dir = e.keyCode;
+                });
+                window.addEventListener('keyup', function (e) {
+                    dir = false;
+                });
+
+                collision();
+                update();
+                borderWarp();
+                render();
+            }
+        }
+
+        function render() {
+            canvasContext.fillStyle = '#d3d3d3';
+            canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+            canvasContext.fillStyle = '#bdbdbd';
+            canvasContext.fillRect(0, canvas.height - 50, canvas.width, 50);
+
+            canvasContext.fillStyle = 'red';
+            canvasContext.fillRect(foodX, foodY, size, size);
+
+            canvasContext.fillStyle = '#007fff';
+            canvasContext.fillRect(randomX, randomY, size, size);
+
+            if (crash === true) {
+                FPS = 0;
+            }
+
+            if (crash === false && pause === false) {
+                snakeX[stor] = posX;
+                snakeY[stor] = posY;
+
+                posX = posX + speedX;
+                posY = posY + speedY;
+
+                for (var i = 0; i < stor; i++) {
+                    snakeX[i] = snakeX[i + 1];
+                    snakeY[i] = snakeY[i + 1];
+
+                }
+            }
+            if (wall === false) {
+
+                if (posX > canvas.width - size) {
+                    posX = 0;
+                }
+                if (posX < 0) {
+                    posX = canvas.width - size;
+                }
+                if (posY > canvas.height - 50 - size) {
+                    posY = 0;
+                }
+                if (posY < 0) {
+                    posY = canvas.height - 50 - size;
+                }
+            }
+            for (var i = stor; i >= 0; i--) {
+                canvasContext.fillStyle = 'green';
+                canvasContext.fillRect(snakeX[i], snakeY[i], size, size);
+            }
+
+            canvasContext.fillStyle = 'green';
+            canvasContext.fillRect(posX, posY, size, size);
+
+            /* streck genom mitten
+            canvasContext.fillStyle = '#ff0069';
+            canvasContext.fillRect(canvas.width/2,0,2,canvas.height);
+            */
+            var score = "Score: " + eatScore;
+            if (extraScore > 0) {
+                score = "Score: " + (eatScore + extraScore) + " (" + eatScore + " + " + extraScore + " extra)"
+            }
+            canvasContext.font = "30px Arial";
+            canvasContext.fillStyle = 'black';
+            canvasContext.fillText(score, 15, canvas.height - 15);
+
+            canvasContext.font = "30px Arial";
+            canvasContext.fillStyle = 'black';
+            canvasContext.fillText(timeDisp, canvas.width - 90, canvas.height - 15);
+            if (pause === true) {
+                canvasContext.font = "30px Arial";
+                canvasContext.fillStyle = 'black';
+                canvasContext.fillText("Paused", canvas.width / 2 - 52, canvas.height - 60);
+            }
+            if (crash === true) {
+                canvasContext.font = "30px Arial";
+                canvasContext.fillStyle = 'black';
+                canvasContext.fillText("Game over", canvas.width / 2 - 85, canvas.height - 60);
+            }
+        }
+
+        function update() {
+            if (posX == foodX && posY == foodY) {
+                snakeX.push(snakeX[stor]);
+                snakeY.push(snakeY[stor]);
+                stor++;
+
+                eatScore++;
+                console.log("eat", posX, posY);
+                isFood = false;
+            }
+            if (isFood === false) {
+                isFood = true;
+                food();
+            }
+            if (crash === true) {
+                speedX = 0;
+                speedY = 0;
+            }
+            if (posX == randomX && posY == randomY) {
+                extraScore += 5;
+                randomX = -100;
+                randomY = -100;
+            }
+        }
+
+        function borderWarp() {
+            if (wall = false) {
+                if (posX > canvas.width - size) {
+                    posX = 0;
+                }
+                if (posX < 0) {
+                    posX = canvas.width - size;
+                }
+                if (posY > canvas.height - 50 - size) {
+                    posY = 0;
+                }
+                if (posY < 0) {
+                    posY = canvas.height - 50 - size;
+                }
+
+            }
+        }
+
+        function collision() {
+            for (var i = 0; i <= stor; i++) {
+                if (posX == snakeX[i] && posY == snakeY[i]) {
+                    crash = true;
+                }
+                if (wall === true && ((posX > canvas.width - size) || (posX < 0) || (posY > canvas.height - 50 - size) || (posY < 0))) {
+                    crash = true;
+                }
+            }
+        }
+
+        function keyboard() {
+            if (dir == 80 && pause === false) { pause = true; dir = false; }
+            else if (dir == 80 && pause === true) { pause = false; dir = false; }
+
+            if (dir == 82) { stor = 1; score = 0; minutes = 0; time = 0; posX = 40; posY = 40; speedY = 0; speedX = size; crash = false; snakeX = []; snakeY = []; eatScore = 0; extraScore = 0; timeDisp = "00:00" }
+
+            if ((dir == 37 || dir == 65) && pause === false && speedX != speed) { speedX = -speed; speedY = 0; }
+            if ((dir == 39 || dir == 68) && pause === false && speedX != -speed) { speedX = speed; speedY = 0; }
+            if ((dir == 38 || dir == 87) && pause === false && speedY != speed) { speedY = -speed; speedX = 0; }
+            if ((dir == 40 || dir == 83) && pause === false && speedY != -speed) { speedY = speed; speedX = 0; }
+
+        }
+
+        function stopwatch() {
+            if (pause === false) {
+                time++;
+                if (time == 60) {
+                    time = 0;
+                    minutes++;
+                }
+                timeDisp = minutes + ":" + time;
+                if (minutes < 10)
+                    if (minutes == 0) {
+                        timeDisp = "00:" + time;
+                        if (time < 10) {
+                            timeDisp = "00:0" + time;
+                        }
+                    }
+                if (minutes > 0 && minutes < 10) {
+                    timeDisp = "0" + minutes + ":" + time;
+                    if (time < 10) {
+                        timeDisp = "0" + minutes + ":0" + time;
+                    }
+                }
+                if (minutes >= 10) {
+                    timeDisp = minutes + ":" + time;
+                    if (time < 10) {
+                        timeDisp = minutes + ":0" + time;
+                    }
+                }
+                if (randomTime > 0) {
+                    randomTime--;
+                    if (randomTime == 0) {
+                        randomX = -100;
+                        randomY = -100;
+                    }
+                }
+            }
+        }
+
+        function food() {
+            foodX = Math.floor(Math.random() * canvas.width / size) * size;
+            foodY = Math.floor(Math.random() * (canvas.height - 50) / size) * size;
+
+            var random = Math.floor(Math.random() * 100);
+            if (random <= 5) {
+                randomX = Math.floor(Math.random() * canvas.width / size) * size;
+                randomY = Math.floor(Math.random() * (canvas.height - 50) / size) * size;
+                randomTime = 5;
+
+            }
+            for (var i = 0; i < stor; i++) {
+                if ((snakeX[i] == randomX || snakeX[i] == foodX) && (snakeY[i] == randomY || snakeY[i] == foodY)) {
+                    console.log("Food spawn on snake: X:", snakeX[i], foodX, randomX, "Y:", snakeY[i], foodY, randomY);
+                    food();
+                }
+            }
+        }
+
+        function startGame() {
+            speed = size;
+        }
+
+    </script>
+</body>
+
+</html>

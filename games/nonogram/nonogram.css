@@ -1,0 +1,168 @@
+@font-face {
+    font-family: menloFont;
+    src: url(https://kyriaelixia.github.com/server/fonts/Menlo.ttf);
+}
+body {
+    font-family: menloFont;
+    font-weight: bold;
+}
+button {
+
+    /* font-family: "Roboto", monospace;; */
+    border-radius: 8px;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    /* font-size: 16px; */
+    margin: 4px 2px;
+    cursor: pointer;
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+button:hover {
+
+    background-color: lightgray;
+}
+button:disabled {
+
+    background-color: lightgray;
+    color: lightslategray;
+}
+
+
+.slider {
+    -webkit-appearance: none;
+    width: 200px;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    border: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.slider:hover {
+    opacity: 1;
+}
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 25px;
+    border: none;
+    background: gray;
+    cursor: pointer;
+}
+.slider::-moz-range-thumb {
+    width: 5px;
+    height: 25px;
+    border: none;
+    background: gray;
+    cursor: pointer;
+}
+
+
+/* Light MODE */
+.light_on {
+
+    background-color: #bfbfbf;    
+}
+.light_off {
+
+    background-color: #f2f2f2;
+}
+.light_hint {
+    
+    color: black;
+    background-color: #d3d3d3;
+}
+.light_hint_done {
+
+    color: gray;
+    background-color: #d3d3d3;
+}
+.light_not {
+    
+    background-color: #f2f2f2;
+    text-align: center;
+    color: red;
+    font-family: menloFont;
+    font-weight: bold;
+    /* background-color: lightpink; */
+}
+.light_not::before {
+    content: "X"; 
+}
+.light_body {
+
+    background-color: #FFFFFF;
+}
+.light_port {
+    
+    color: black;
+    background-color: #d3d3d3;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.light_settings {
+
+    color: black;
+    font-family: menloFont;
+    font-weight: bold;
+}
+
+/* DARK MODE */
+.dark_on {
+
+    background-color: #a6a6a6;
+}
+.dark_off {
+
+    background-color: #666666;
+}
+.dark_hint {
+      
+    color: #bfbfbf;
+    background-color: #404040;
+}
+.dark_hint_done {
+      
+    color: #5f5f5f;
+    background-color: #404040;
+}
+.dark_not {
+
+    /* background-color: lightsalmon; */
+    text-align: center;
+    color: salmon;
+    background-color: #666666;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.dark_not::before {
+    content: "X"; 
+}
+.dark_body {
+
+    background-color: #262626;
+}
+.dark_port {
+
+    color: #bfbfbf;
+    background-color: #404040;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.dark_settings {
+    
+    color: #bfbfbf;
+    font-family: menloFont;
+    font-weight: bold;
+}

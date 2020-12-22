@@ -1,0 +1,34 @@
+.smallText {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0px
+}
+.mediumText {
+
+    font-size: 45px;
+    font-weight: bold;
+    margin: 0px
+}
+.LargeText {
+
+    font-size: 72px;
+    font-weight: bold;
+    margin: 0px
+}
+.spaces {
+    border-spacing: 0px 10px;
+}
+.element {
+
+    border: 2px solid #007fff;
+    border-radius: 4px;
+}
+.chips {
+
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+
+    background-color: white;
+    border: 2px solid #007fff;
+}

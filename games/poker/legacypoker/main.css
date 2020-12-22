@@ -1,0 +1,127 @@
+body {
+
+    background-color: rgb(235, 235, 235);
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+h1 {
+
+    padding: 10px;
+    color: black;
+    text-align: center;
+    
+}
+h2 {
+
+    color: black;
+    text-align: center;
+}
+a {
+
+    box-align: center;
+    color: #007fff;
+}
+p {
+
+    text-align: center;
+}
+
+.spec {
+
+    background-color: tomato;
+    color: white;
+}
+.standard {
+
+    background-color: white;
+    color: black;
+    box-shadow: 2px 2px 1px darkslategray;
+}
+.selectedButton {
+
+    border-radius: 4px;
+    padding: 15px 28px;
+    font-size: 18px;
+
+    background-color: tomato;
+    border: 2px solid tomato;
+    
+    margin: 2px;
+}
+.button {
+
+    border-radius: 4px;
+    padding: 15px 28px;
+    font-size: 18px;
+
+    background-color: white;
+    border: 2px solid tomato;
+
+    transition-duration: 0.4s;
+    -webkit-transition-duration: 0.4s;
+    margin: 2px;
+
+}
+.button:hover {
+
+    border-radius: 4px;
+    padding: 15px 28px;
+
+    background-color: tomato;
+}
+.buttonSmall {
+
+    border-radius: 4px;
+    font-size: 12px;
+
+    background-color: white;
+    border: 2px solid #007fff;
+
+    transition-duration: 0.4s;
+    -webkit-transition-duration: 0.4s;
+    margin: 2px;
+
+}
+.buttonSmall:hover {
+
+    border-radius: 4px;
+
+    background-color: #007fff;
+}
+.buttonLink {
+
+    border-radius: 4px;
+    padding: 15px 28px;
+    font-size: 18px;
+
+    background-color: white;
+    border: 2px solid #007fff;
+
+    transition-duration: 0.4s;
+    -webkit-transition-duration: 0.4s;
+    margin: 2px;
+
+}
+.buttonLink:hover {
+
+    border-radius: 4px;
+    padding: 15px 28px;
+
+    background-color: #007fff;
+}
+.buttonKeypad {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+
+    background-color: white;
+    border: 2px solid #007fff;
+}
+.textInput {
+
+    border-radius: 4px;
+    border: 2px solid #007fff;
+    padding: 5px 5px;
+
+}

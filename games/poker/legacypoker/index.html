@@ -1,0 +1,90 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link href="main.css" rel="stylesheet" type="text/css" />
+        <link href="test.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <table class="standard" align="center" width="700" border="1" cellspacing="10">
+            <tr>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <form id="addPlayer">                                    
+                                    <input class="textInput" type="text" name="playerName" placeholder="Name" value="">
+                                    <br>
+                                    <input class="textInput" type="text" name="playerMoney" placeholder="Starting money" value="">
+                                </form>
+                                <button class="buttonSmall" onclick="addPlayer();">add player</button>
+                            </td>
+                        </tr>
+                    </table>    
+                <td align="center">
+                    <table>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td><button class="buttonKeypad" onclick="addToPot(50);">50</button></td>
+                                        <td><button class="buttonKeypad" onclick="addToPot(100);">100</button></td>
+                                        <td><button class="buttonKeypad" onclick="addToPot(250);">250</button></td>
+                                        <td><button class="buttonKeypad" onclick="addToPot(500);">500</button></td>
+                                        <td><button class="buttonKeypad" onclick="addToPot(1000);">1000</button></td>
+                                    </tr>
+                                </table>
+                            </td>                            
+                        </tr>
+                    </table>                               
+                </td>
+            </tr>
+            <tr>            
+                <td align="left">
+                    <table border="0" width="100%" cellpadding="10" class="spaces" id="playerList">
+
+                        <tr>
+                            <td class="element" align="center">
+                                <table border="1">
+                                    <tr>
+                                        <td colspan="3" class="smallText">
+                                            Kris
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p class="mediumText">5000</p>
+                                        </td>
+                                        <td>
+                                            <img src="coin.png" alt="kyk" width="35" height="35">
+                                        </td>
+                                        <td width="25"></td>
+                                        <td>
+                                            <button class="buttonKeypad" onclick="addToPot(1000);">Fold</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                    </table>                
+                </td>
+                <td align="center">
+                    <table border="1">
+                        <tr>
+                            <td class="mediumText" colspan="2" align="center">The pot</td>
+                        </tr>
+                        <tr>
+                            <td class="largeText" id="thePot">
+                                5000
+                            </td>
+                            <td>
+                                <img src="coin.png" width="50" height="50">
+                            </td>
+                        </tr>
+                    </table>                    
+                </td>
+            </tr>
+        </table>
+    </body>
+    <script src="test.js"></script>
+</html>

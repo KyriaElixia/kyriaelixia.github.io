@@ -1,0 +1,243 @@
+<head>
+    <meta charset="utf-8">
+    <link href="https://kyriaelixia.github.com/server/main.css" rel="stylesheet" type="text/css">
+    <link href="" rel="icon">
+    
+    <title>Elixia's pong</title>
+</head>
+<script src="http://spelprogrammering.nu/simple.js">
+
+    balls = [];
+    paddles = [];
+    scores = [];
+    AIs = [];
+
+    //useAI = confirm("Do you want to play against the AI? \n\n Confirm - yes \n Cancel - no");
+
+    updatesPerSecond = 120;
+    debug = false;
+
+    start = function() {
+
+        // 16:9 scaling
+        if (totalWidth/totalHeight != 16/9) {
+            
+            if (totalWidth < 16*(totalHeight/9)) {
+
+                totalHeight = 9*(totalWidth/16);
+            }
+            else {
+
+                totalWidth = 16*(totalHeight/9)
+            }
+            // document.getElementById("canvas").style.width = totalWidth;
+            // document.getElementById("canvas").style.height = totalHeight;            
+        }
+
+        ballDS = totalHeight/300;
+        ballR = totalHeight/40;
+
+        paddleH = 5 * 2*ballR // 5 ggr längre än boll diameter
+        paddleW = 10;
+        paddleX = 50; // paddle distance from side walls
+        
+        // Push main objects
+        balls.push(new ball(totalWidth/2,totalHeight/2,pi+pi/3,ballDS,ballR,"white",balls.length));
+        paddles.push(new paddle(paddleX,totalHeight/2-paddleH/2,10,paddleH,"white"));
+        paddles.push(new paddle(totalWidth-paddleX-paddleW,totalHeight/2-paddleH/2,paddleW,paddleH,"white"));
+        scores.push(new score(0,0,20,"white"));
+        scores.push(new score(totalWidth-20,0,20,"white"));
+
+        AIs.push(new AI(0));
+        AIs.push(new AI(1));
+    }
+
+    update = function() {
+
+        clearScreen();
+        rectangle(0,0,totalWidth,totalHeight,"black");
+        
+        
+        if (debug == true) { 
+
+            rectangle(0,totalHeight/2,totalWidth,1,"lightgray");
+            rectangle(totalWidth/2,0,1,totalHeight,"lightgray");
+            text(0,totalHeight-10,20,totalWidth+"x"+totalHeight,"white");
+
+            paddles[0].y = mouse.y-paddles[0].h/2;
+
+            if (mouse.left) {
+
+                balls[0].x = mouse.x;
+                balls[0].y = mouse.y;
+            }
+        }
+
+        for (u = 0; u < balls.length; u++) {
+
+            balls[u].updateBall();            
+        }
+        for (u = 0; u < paddles.length; u++) {
+
+            paddles[u].updatePaddle();
+            scores[u].updateScore();            
+        }
+        for (u = 0; u < AIs.length; u++) {
+
+            AIs[u].runAI();            
+        }
+
+        if (keyboard.w == true && paddles[0].y > 0) {
+
+            paddles[0].y -= 2;
+        }
+        if (keyboard.s == true && paddles[0].y+paddles[0].h < totalHeight) {
+
+            paddles[0].y += 2;
+        }
+        
+        rectangle(paddles[0].x ,paddles[0].y+paddles[0].h/2,20,20,"red")
+    }
+
+    AI = function(paddleID) {
+
+        this.id = paddleID;
+        this.paddleMiddle = paddles[this.id].y + paddles[this.id].h / 2;
+        this.offset = 1; //Div offset
+
+        this.a = 0.1;
+        
+        this.v = 0;
+        this.vCap = 3;
+
+        this.runAI = function() {
+
+            this.paddleMiddle = paddles[this.id].y + paddles[this.id].h / 2;
+
+            // Velocity modification
+            if (balls[0].y < this.paddleMiddle - paddles[0].h / this.offset) {
+
+                if (this.v > -this.vCap) {
+
+                    this.v -= this.a;
+                    console.log("up acc")
+                }                
+                console.log("1")
+            }
+            else if (balls[0].y > this.paddleMiddle + paddles[this.id].h / this.offset) {
+
+                if (this.v < this.vCap) {
+
+                    this.v += this.a;
+                    console.log("down acc")
+                }
+                console.log("2")
+            }
+
+            // Move paddle
+            if ((this.paddleMiddle - paddles[this.id].h/2 > 0 && this.v < 0) || (this.paddleMiddle + paddles[this.id].h/2 < totalHeight && this.v > 0)) {
+                
+                paddles[this.id].y += this.v;
+                console.log("wut ",this.v)
+            }
+            else {
+
+                this.v = 0;
+            }
+        }
+
+    }
+
+    ball = function(x,y,degree,ds,r,color,id) {
+
+        this.x = x;
+        this.y = y;
+        this.degree = degree;
+        this.dx = 1;
+        this.dy = 1;
+        this.ds = ds;
+        this.r = r;
+        this.color = color;
+        this.id = id;
+
+        this.updateBall = function() {
+
+            if (this.x-this.r <= 0 || this.x+this.r >= totalWidth) {
+            
+                this.dx *= -1;
+                
+                if (this.x < totalWidth/2) {
+                    
+                    scores[1].score++;
+                }
+                else {
+
+                    scores[0].score++;
+                }
+                balls[this.id].x = totalWidth/2;
+                balls[this.id].y = totalHeight/2;
+                balls[this.id].degree = pi + pi/3;
+            }
+            if (this.y-this.r <= 0 || this.y+this.r >= totalHeight) {
+            
+                this.dy *= -1;
+            }            
+
+            this.x += this.ds * this.dx * Math.cos(this.degree);
+            this.y += this.ds * this.dy * Math.sin(this.degree);
+
+            circle(this.x,this.y,this.r,this.color);
+        }
+    }
+
+    paddle = function(x,y,w,h,color) {
+
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.color = color;
+        this.maxDiv = 3; // 30° // Mellan [pi+pi/maxDiv,-pi-pi/maxDiv]
+
+        this.updatePaddle = function() {
+
+            rectangle(this.x,this.y,this.w,this.h,this.color);
+
+            for (b = 0; b < balls.length; b++) {
+
+                if (balls[b].y+balls[b].r >= this.y && balls[b].y-balls[b].r <= this.y+this.h) {
+                    
+                    if ((balls[b].x+balls[b].r >= this.x || balls[b].x-balls[b].r >= this.x) && (balls[b].x+balls[b].r <= this.x+this.w || balls[b].x-balls[b].r <= this.x+this.w)) {
+                        
+                        balls[b].dx *= -1;
+
+                        distBallPaddle = distance(0,balls[b].y,0,this.y+this.h/2);
+                        divFactor = this.maxDiv*(this.h/2)/distBallPaddle;
+
+                        balls[b].degree = pi+pi/abs(divFactor);
+
+                        if ((balls[b].dy > 0 && balls[b].y > this.y+this.h/2) || (balls[b].dy < 0 && balls[b].y < this.y+this.h/2)) {
+
+                            balls[b].dy *= -1;
+                        }                    
+                    }
+                }
+            }
+        }
+    }
+
+    score = function(x,y,fs,color) {
+
+        this.x = x;
+        this.y = y;
+        this.fs = fs;
+        this.score = 0;
+        this.color = color;
+
+        this.updateScore = function() {
+
+            text(this.x,this.y+this.fs,this.fs,this.score,this.color);
+        }     
+    }
+
+</script>

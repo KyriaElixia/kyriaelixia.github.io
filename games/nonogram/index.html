@@ -1,0 +1,28 @@
+<head>
+    <link rel="stylesheet" href="nonogram.css">
+    <title>Elixia's nonogram</title>
+</head>
+<script src="https://kyriaelixia.github.com/server/libraries/radix.js"></script>
+<script src="nonogram.js"></script>
+
+<div id="settings" class="light_settings">
+    <input type="range" name="tileSize" id="tileSize" min="20" max="100" step="1" value="30" class="slider">
+    <label for="tileSize" id="tileSizeLabel">30px</label>
+
+    <input type="range" name="gridSize" id="gridSize" min="5" max="30" step="5" value="5" class="slider">
+    <label for="gridSize" id="gridSizeLabel">5x5</label>
+    <button onclick="toggleMode();">Mode</button>
+    <button onclick="shuffle();">Shuffle</button>
+    <button onclick="checkButton();">Check</button>
+    <button onclick="clearGrid();">Clear</button>
+    <button onclick="getShareURL(); this.innerHTML = 'Link copied';" onmouseout="this.innerHTML = 'Get puzzle link'">Get puzzle link</button>
+</div>
+<div><p id="message" class="light_settings"></p></div>
+<div id="gameHolder"><table id="game"></table></div>
+
+<div style="display: none;">
+    <textarea name="port" id="port" cols="40" rows="2" style="border: 0px solid gray;" class="light_port"></textarea>
+    <button onclick="exportGrid();">Export</button>
+    <button onclick="importGrid();">Import</button>
+</div>
+
