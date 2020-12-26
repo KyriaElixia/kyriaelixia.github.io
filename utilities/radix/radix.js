@@ -1,5 +1,6 @@
 fromBase = 10;
 toBase = 10;
+size = 15;
 
 lFB = 0;
 lTB = 0;
@@ -137,10 +138,15 @@ update = function() {
         document.getElementById("toValue").value = "";
     }
 
+    if (size != parseInt(document.getElementById("size").value)) {
+
+        document.body.style.setProperty("--fontsize", parseInt(document.getElementById("size").value))
+    }
+    
+
     lFB = (document.getElementById("fromValue").value).length;
     lTB = (document.getElementById("toValue").value).length;
 }
-
 
 preformat = function(input) {
     
