@@ -1,21 +1,21 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <link href="https://kyriaelixia.github.com/server/main.css" rel="stylesheet" type="text/css" />
+        <link href="https://kyriaelixia.github.io/server/main.css" rel="stylesheet" type="text/css" />
         <link href="overlay.css" rel="stylesheet" type="text/css" />
-        <link href="https://kyriaelixia.github.com/server/games/15-puzzle/sprites/scale-4.png" rel="icon">
+        <link href="https://kyriaelixia.github.io/server/games/15-puzzle/sprites/scale-4.png" rel="icon">
         
         <title>Elixia's 15-Puzzle</title>        
     </head>
     <body>
-        <img id="cookieButton" src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/buttons/cookie.png" onclick="showCookies();" alt="cookies" width="75" height="75" ondragstart="return false;" ondrop="return false;" title="Info about cookies">
-        <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/buttons/retry.png" width="75" height="75" onclick="startGame();" id="restartButton" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;" title="Shuffle board">
-        <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/buttons/settings.png" width="75" height="75" onclick="toggleOption('settings');" id="openSettings" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;" title="Open settings">
+        <img id="cookieButton" src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/buttons/cookie.png" onclick="showCookies();" alt="cookies" width="75" height="75" ondragstart="return false;" ondrop="return false;" title="Info about cookies">
+        <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/buttons/retry.png" width="75" height="75" onclick="startGame();" id="restartButton" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;" title="Shuffle board">
+        <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/buttons/settings.png" width="75" height="75" onclick="toggleOption('settings');" id="openSettings" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;" title="Open settings">
     
         <div class="overlay" id="settings">
             <!-- <a href="javascript:void(0)" class="closebtn" style="text-decoration: none; color:white;" onclick="document.getElementById('settings').style.display = 'none'">&times;</a> -->
             <div class="overlay-content" align="center">
-                <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/buttons/close-settings.png" width="75" height="75" onclick="toggleOption('settings');" id="closeSettings" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;" title="Close settings">
+                <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/buttons/close-settings.png" width="75" height="75" onclick="toggleOption('settings');" id="closeSettings" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;" title="Close settings">
                 <br>
                 <span title="Choose which board to play on">
                     <img src="sprites/scale-3.png" onclick="scaleGame(3);" width="110" height="110" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">
@@ -25,11 +25,11 @@
                 </span>
                 <br>
                 <span title="Chance how big the tiles are">
-                    <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(60);" width="60" height="60" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">
-                    <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(90);" width="90" height="90" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">    
-                    <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(120);" width="120" height="120" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">    
-                    <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(150);" width="150" height="150" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">
-                    <img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(210);" width="210" height="210" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">
+                    <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(60);" width="60" height="60" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">
+                    <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(90);" width="90" height="90" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">    
+                    <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(120);" width="120" height="120" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">    
+                    <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(150);" width="150" height="150" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">
+                    <img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/tile.png" onclick="scaleTiles(210);" width="210" height="210" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;">
                 </span>
                 <br>    
                 <span class="option" onclick="toggleOption('optionAnimation');" title="Enable/disable animations"><input type="checkbox" id="optionAnimation" class="checkBoxOption">  Use Animations</span><br>
@@ -55,13 +55,13 @@
             <div id="clock">
                 <table cellspacing="0" cellpadding="0">
                     <tr>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="clock_100" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_2" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="clock_10" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_3" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="clock_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_4" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="clock_100" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_2" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="clock_10" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_3" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="clock_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="clock_div_4" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
                     </tr>                    
                     <tr><td colspan="7"><br></td></tr>
                     <tr>
@@ -72,13 +72,13 @@
             <div id="moves">
                 <table cellspacing="0" cellpadding="0">
                     <tr>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="moves_div_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="moves_100" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92"id="moves_div_2" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="moves_10" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92"id="moves_div_3" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="moves_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
-                        <td><img src="https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92"id="moves_div_4" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92" id="moves_div_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="moves_100" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92"id="moves_div_2" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="moves_10" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92"id="moves_div_3" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/0-digit.png" width="39" height="92" id="moves_1" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
+                        <td><img src="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/digit-divider.png" width="13" height="92"id="moves_div_4" oncontextmenu="return false;" ondragstart="return false;" ondrop="return false;"></td>
                     </tr>
                     <tr><td colspan="7"><br></td></tr>
                     <tr>
@@ -120,7 +120,7 @@
             </table>
         </div>
 
-        <script src="https://kyriaelixia.github.com/server/libraries/cookies.js"></script>
+        <script src="https://kyriaelixia.github.io/server/libraries/cookies.js"></script>
         <script src="15-puzzle.js"></script>
     </body>
 </html>

@@ -406,31 +406,31 @@ game.render = function () {
 
             if (field[x][y] == "hidden") {
 
-                game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/tile.png", size, size);
+                game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/tile.png", size, size);
             }
             else if (field[x][y] == 0) {
 
-                game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/open-tile.png", size, size);
+                game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/open-tile.png", size, size);
             }
             else if (field[x][y] >= 1 && field[x][y] <= 8) {
 
-                game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/" + field[x][y] + "-tile.png", size, size);
+                game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/" + field[x][y] + "-tile.png", size, size);
             }
             else if (field[x][y] == "flag") {
 
-                game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/flag.png", size, size);
+                game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/flag.png", size, size);
             }
             else if (field[x][y] == "bomb") {
 
-                game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/bomb.png", size, size);
+                game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/bomb.png", size, size);
             }
             else if (field[x][y] == "exploded" || field[x][y] == "not") {
 
-                game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/" + field[x][y] + "-bomb.png", size, size);
+                game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/" + field[x][y] + "-bomb.png", size, size);
             }
             else if (field[x][y] == "maybe") {
 
-                game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/maybe.png", size, size);
+                game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/maybe.png", size, size);
             }
 
 
@@ -451,7 +451,7 @@ game.render = function () {
     
                     if (tileCount > field[x][y]) {
 
-                        game.picture(x * size, y * size, "https://kyriaelixia.github.com/server/games/oldminesweeper/sprites/error-" + field[x][y] + ".png", size, size);
+                        game.picture(x * size, y * size, "https://kyriaelixia.github.io/server/games/oldminesweeper/sprites/error-" + field[x][y] + ".png", size, size);
                     }
                 }
             }

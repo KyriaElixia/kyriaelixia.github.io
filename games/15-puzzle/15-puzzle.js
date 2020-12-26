@@ -60,7 +60,7 @@ createGame = function() {
     imgTable.setAttributeNode(imgTableId);
 
     backgroundStyle = document.createAttribute("style");
-    backgroundStyle.value = "position: absolute; left:"+xZero+"; top:"+yZero+"; width:"+gameSize*size+"; height:"+gameSize*size+"; background-image: url('https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/tiles/open-tile.png'); background-size: "+size+"px "+size+"px;";
+    backgroundStyle.value = "position: absolute; left:"+xZero+"; top:"+yZero+"; width:"+gameSize*size+"; height:"+gameSize*size+"; background-image: url('https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/open-tile.png'); background-size: "+size+"px "+size+"px;";
     document.getElementById("backgroundDiv").setAttributeNode(backgroundStyle);
 
     textTable = document.createElement("div");
@@ -91,7 +91,7 @@ createGame = function() {
             imgTable.appendChild(tileImg);
 
             tileImgSrc = document.createAttribute("src");
-            tileImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/tiles/tile.png";
+            tileImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/tile.png";
             tileImg.setAttributeNode(tileImgSrc);
 
             tileImgId = document.createAttribute("id");
@@ -215,29 +215,29 @@ createBorder = function() {
 
                 if (t == 0) {
 
-                    // borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/cross-nes.png";
-                    borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/corner-es.png";
+                    // borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/cross-nes.png";
+                    borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/corner-es.png";
                 }
                 else {
                     
-                    borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/corner-ne.png";
+                    borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/corner-ne.png";
                 }
             }
             else if (b == lim-1) {
 
                 if (t == 0) {
 
-                    // borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/cross-nsw.png";
-                    borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/corner-sw.png";
+                    // borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/cross-nsw.png";
+                    borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/corner-sw.png";
                 }
                 else {
 
-                    borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/corner-nw.png";
+                    borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/corner-nw.png";
                 }
             }
             else {
 
-                borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/line-h.png";
+                borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/line-h.png";
             }
             borderImg.setAttributeNode(borderImgSrc);
 
@@ -265,7 +265,7 @@ createBorder = function() {
             borderDiv.appendChild(borderImg);
 
             borderImgSrc = document.createAttribute("Src");
-            borderImgSrc.value = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/frame/line-v.png";
+            borderImgSrc.value = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/frame/line-v.png";
             borderImg.setAttributeNode(borderImgSrc);
 
             borderImgStyle = document.createAttribute("Style");
@@ -670,9 +670,9 @@ timer = function() {
     tio = Math.floor((time % 100) / 10);
     ett = Math.floor((time % 100) % 10);
 
-    document.getElementById("clock_100").src = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/"+hundra+"-digit.png"; 
-    document.getElementById("clock_10").src = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/"+tio+"-digit.png";
-    document.getElementById("clock_1").src = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/"+ett+"-digit.png";
+    document.getElementById("clock_100").src = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/"+hundra+"-digit.png"; 
+    document.getElementById("clock_10").src = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/"+tio+"-digit.png";
+    document.getElementById("clock_1").src = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/"+ett+"-digit.png";
 }
 
 moveCounter = function() {
@@ -683,9 +683,9 @@ moveCounter = function() {
     tio = Math.floor((moves % 100) / 10);
     ett = Math.floor((moves % 100) % 10);
 
-    document.getElementById("moves_100").src = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/"+hundra+"-digit.png"; 
-    document.getElementById("moves_10").src = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/"+tio+"-digit.png";
-    document.getElementById("moves_1").src = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/digits/"+ett+"-digit.png";
+    document.getElementById("moves_100").src = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/"+hundra+"-digit.png"; 
+    document.getElementById("moves_10").src = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/"+tio+"-digit.png";
+    document.getElementById("moves_1").src = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/digits/"+ett+"-digit.png";
 }
 
 restart = function() {
@@ -714,7 +714,7 @@ toggleOption = function(option) {
 
             // document.getElementById("gameHolder").style.display = "";
             document.getElementById("settings").style.display = "none";
-            // document.getElementById("toggleSettings").src = "https://kyriaelixia.github.com/server/games/minesweeper/sprites/light_mode/buttons/settings.png";
+            // document.getElementById("toggleSettings").src = "https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/buttons/settings.png";
             settings = false;
         }
     }

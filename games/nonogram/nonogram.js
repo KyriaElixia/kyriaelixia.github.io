@@ -576,7 +576,7 @@ clearGrid = function() {
 
 getShareURL = function(doReturn) {
 
-    share = "https://kyriaelixia.github.com/server/games/nonogram/?" + exportGrid(true);
+    share = "https://kyriaelixia.github.io/server/games/nonogram/?" + exportGrid(true);
 
    link = document.createElement('textarea');
    link.value = share;
