@@ -1,0 +1,31 @@
+:root {
+
+    --ang: 45deg;
+    
+    --r1: 34;
+    --g1: 193;
+    --b1: 195;
+
+    --r2: 253;
+    --g2: 187;
+    --b2: 45;
+}
+
+body {
+
+
+    background: rgb(34,193,195);
+    /* background: linear-gradient(30, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%); */
+    background: linear-gradient(var(--ang), rgba(var(--r1), var(--g1), var(--b1), 1) 0%, rgba(var(--r2), var(--g2), var(--b2), 1) 100%);
+}
+
+.gameContainer {
+
+    position: relative;
+    left: 50%;
+}
+
+.tile {
+    
+    position: absolute;
+}
