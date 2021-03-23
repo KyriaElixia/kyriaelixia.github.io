@@ -1,0 +1,7 @@
+@font-face {
+    font-family: menloFont;
+    src: url(http://elixia.spelar.se/fonts/Menlo.ttf);
+}
+.menlo {
+    font-family: menloFont;
+}

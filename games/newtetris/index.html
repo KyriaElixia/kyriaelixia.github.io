@@ -1,0 +1,59 @@
+<head>
+    <meta charset="utf-8" />
+    <link href="http://elixia.spelar.se/games/newtetris/newtetris.css" rel="stylesheet" type="text/css" /> 
+    
+    <style>
+        body {
+            background: 
+                
+                linear-gradient(
+                rgba(5, 5, 5, 0.8), 
+                rgba(5, 5, 5, 0.8)
+                ),
+                url("http://elixia.spelar.se/games/newtetris/sprites/background.png");
+            background-size: 525px 300px
+
+        }
+    </style>
+    <title>Elixia's Tetris</title>  
+</head>
+<body>
+        <script src="http://elixia.spelar.se/libraries/linalg.js"></script>
+        <script src="http://elixia.spelar.se/libraries/keyboard.js"></script>
+        <script src="newtetris.js"></script>
+        
+        <div id="game-holder" style="position: absolute; top: 0; left: 0; display: none;">
+            <div id="game"></div>
+            <!-- <img src="http://elixia.spelar.se/games/minesweeper/sprites/tiles/tile.png" id="test"> -->
+        </div>
+        <button id="pause" onclick="unpause();" style="font-family:menlo;">Start</button>
+        <button id="restart" onclick="restart();" style="display:none; font-family:menlo;">Restart</button>
+        <br>
+        <span id="optionError" style="font-family:menlo; color:white;"></span>
+        <button id="revert" onclick="revertOptions();" style="display:none; font-family:menlo;">Revert conflicting options</button>
+    
+    <div id="options">
+        
+        <input size="100" type="checkbox" id="canHold" checked> <span id="text_canHold" style="font-family:menlo; color:white;">Hold pieces</span>
+        <br>
+        <input type="checkbox" id="samePieces" checked> <span id="text_samePieces" style="font-family:menlo; color:white;">Same pieces</span>
+        <br>
+        <input type="range" id="previewPieces" step="1" min="0" max="4" value="4"> <span id="text_previewPieces" style="font-family:menlo; color:white;">Piece Preview</span>
+        <br>
+        <input type="checkbox" id="ghosts" checked> <span id="text_ghosts" style="font-family:menlo; color:white;">Ghosts</span>
+        <br>
+        <input type="checkbox" id="combos"> <span id="text_combos" style="font-family:menlo; color:white;">Combos</span>
+        <br>
+        <input type="checkbox" id="increaseDifficulty"> <span id="text_increaseDifficulty" style="font-family:menlo; color:white;">Increase difficulty</span>
+        <br>
+        <input type="range" id="startingLevel" step="1" min="1" max="9" value="1"> <span id="text_startingLevel" style="font-family:menlo; color:white;">Starting level</span>
+        <br>
+        <input type="range" id="totalPlayers" step="1" min="1" max="2" value="1"> <span id="text_totalPlayers" style="font-family:menlo; color:white;">Players</span>
+        <br>
+            
+        <div id="controls-holder">
+            <span id="selectControl" style="font-family:menlo; color:white; font-size: 50px; display: none;"><br><br>Remap key to:</span>                        
+            <table id="controls"></table>
+        </div>
+    </div>
+</body>
