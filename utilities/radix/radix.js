@@ -158,7 +158,7 @@ preformat = function(input) {
 
         formatting = format[input[i]];
 
-        if (limit[formatting] < parseInt(fromBase)) {
+        if (limit[formatting] < parseInt(fromBase) || limit[formatting] == ".") {
             
             preformatted += formatting;
         }

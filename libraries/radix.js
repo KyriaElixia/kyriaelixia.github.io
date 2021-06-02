@@ -99,6 +99,7 @@ radixFunc = function () {
             exponent -= 1;
         }
 
+        
         newValue = newInteger + newFraction;
         return newValue;
     }
@@ -136,7 +137,7 @@ radixFunc = function () {
 
         exponent = -1;
         newFraction = "";
-        while (fraction > 0) {
+        while (fraction > Math.pow(10,-16)) {
 
             if (fraction/Math.pow(base,exponent) >= 1) {
                 
@@ -157,7 +158,7 @@ radixFunc = function () {
             exponent--;
             // console.log(fraction, factor, newFraction)
         }
-
+        
         newValue = newInteger + "." + newFraction;
         // console.log("val",newInteger,newFraction,newValue);
 
