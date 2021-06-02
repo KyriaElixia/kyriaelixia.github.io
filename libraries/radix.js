@@ -159,7 +159,7 @@ radixFunc = function () {
             // console.log(fraction, factor, newFraction)
         }
         
-        newValue = newInteger + "." + newFraction.toFixed(4);
+        newValue = newInteger + "." + newFraction;//.toFixed(4);
         // console.log("val",newInteger,newFraction,newValue);
 
         if (this.clearZeros) {
