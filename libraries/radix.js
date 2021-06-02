@@ -155,22 +155,24 @@ radixFunc = function () {
                 newFraction += "0";
             }
             exponent--;
-            console.log(fraction, factor, newFraction)
+            // console.log(fraction, factor, newFraction)
         }
 
         newValue = newInteger + "." + newFraction;
+        console.log("val",newInteger,newFraction,newValue);
 
         if (this.clearZeros) {
 
-            for (z = 0; z < newValue.length; z++) {
+            for (z = 0; z < newValue.length-1; z++) {
                 
-                if (newValue.charAt(z) == "0" && newValue.length > 1) {
+                
+                if (newValue.charAt(z) == "0" && newValue.charAt(z + 1) != "." && newValue.length > 1) {
                     
                     newValue = newValue.slice(1,newValue.length);
                     z--;
                 }
                 else {
-                    z = newValue.length;
+                   break;
                 }
             }
         }
