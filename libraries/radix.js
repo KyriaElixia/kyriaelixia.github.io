@@ -73,45 +73,92 @@ radixFunc = function () {
     this.toDecimalFrom = function(base,value) {
 
         value = "" + value;
-        newValue = 0;
-        exponent = value.length;
+        value = value.split(".");
 
-        for (l = 0; l < value.length; l++) {
+
+        integer = value[0];
+        fraction = value[1];
+
+        newInteger = 0;
+        exponent = integer.length;
+
+        // Integer conversion
+        for (l = 0; l < integer.length; l++) {
             
             exponent -= 1;
-            newValue += this.list[value.charAt(l)]*Math.pow(base,exponent);
+            newInteger += this.list[integer.charAt(l)]*Math.pow(base,exponent);
         }
 
+        newFraction = 0;
+        exponent = -1;
+
+        // Fraction conversion
+        for (l = 0; l < fraction.length; l++) {
+
+            newFraction += this.list[fraction.charAt(l)]*Math.pow(base,exponent);
+            exponent -= 1;
+        }
+
+        newValue = newInteger + newFraction;
         return newValue;
     }
 
     this.fromDecimalTo = function(base,value) {
 
         exponent = 1;
-        while (Math.pow(base,exponent) < value) {
+        fraction = value % 1;
+        integer = value - fraction;
+
+        while (Math.pow(base,exponent) < integer) {
             
             exponent++;
         }
 
-        newValue = "";
+        newInteger = "";
         for (e = exponent; e >= 0; e--) {
-            if (value/Math.pow(base,e) >= 1) {
+            if (integer/Math.pow(base,e) >= 1) {
      
-                factor = Math.floor(value/Math.pow(base,e));
+                factor = Math.floor(integer/Math.pow(base,e));
 
-                value -= Math.pow(base,e)*factor;
+                integer -= Math.pow(base,e)*factor;
 
                 if (factor > 9) {                    
-                    newValue += this.list[factor];
+                    newInteger += this.list[factor];
                 }
                 else {
-                    newValue += factor;
+                    newInteger += factor;
                 }
             }
             else {
-                newValue += "0";
+                newInteger += "0";
             }
         }
+
+        exponent = -1;
+        newFraction = "";
+        while (fraction > 0) {
+
+            if (fraction/Math.pow(base,exponent) >= 1) {
+                
+                factor = Math.floor(fraction/Math.pow(base,exponent));
+
+                fraction -= Math.pow(base,exponent)*factor;
+
+                if (factor > 9) {                    
+                    newFraction += this.list[factor];
+                }
+                else {
+                    newFraction += factor;
+                }
+            }
+            else {
+                newFraction += "0";
+            }
+            exponent--;
+            console.log(fraction, factor, newFraction)
+        }
+
+        newValue = newInteger + "." + newFraction;
 
         if (this.clearZeros) {
 
