@@ -77,7 +77,12 @@ radixFunc = function () {
 
 
         integer = value[0];
-        fraction = value[1];
+        fraction = 0;
+        if (value.length > 1) {
+            fraction = value[1];
+        }
+        
+        
 
         newInteger = 0;
         exponent = integer.length;
