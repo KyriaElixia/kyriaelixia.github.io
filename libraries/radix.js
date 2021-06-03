@@ -77,7 +77,7 @@ radixFunc = function () {
 
 
         integer = value[0];
-        fraction = 0;
+        fraction = "";
         if (value.length > 1) {
             fraction = value[1];
         }
