@@ -117,6 +117,14 @@ function dragElement(elmnt) {
         // set the element's new position:
         elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
         elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+
+        if ((elmnt.offsetTop - pos2) < 0) {
+            elmnt.style.top = "0px";
+        }
+
+        if ((elmnt.offsetLeft - pos1) < 0) {
+            elmnt.style.left = "0px";
+        }
     }
 
     function closeDragElement() {
