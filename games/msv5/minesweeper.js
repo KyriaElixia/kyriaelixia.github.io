@@ -1,58 +1,89 @@
 
-width = 9;
-height = 9;
+width = 16;
+height = 16;
+mines = 40;
 
-scale = 50;
+scale = 40;
 
 borderWidth = 2;
 
-dark_mode = false;
+dark_mode = true;
+restartButton_state = "happy";
+clickDown = false;
 
 
-lightSrc = {
-    "tile":         "sprites/light_mode/tiles/tile.png",
-    "line-v":       "sprites/light_mode/frame/line-v.png",
-    "line-h":       "sprites/light_mode/frame/line-h.png",
-    "cross-nes":    "sprites/light_mode/frame/cross-nes.png",
-    "cross-nsw":    "sprites/light_mode/frame/cross-nsw.png",
-    "corner-ne":    "sprites/light_mode/frame/corner-ne.png",
-    "corner-nw":    "sprites/light_mode/frame/corner-nw.png",
-    "corner-es":    "sprites/light_mode/frame/corner-es.png",
-    "corner-sw":    "sprites/light_mode/frame/corner-sw.png",
-    "divider":      "sprites/light_mode/digits/digit-divider.png",
-    "blank-digit":  "sprites/light_mode/digits/blank-digit.png",
-    "happy":        "sprites/light_mode/buttons/happy.png"
+
+mx = -1;
+my = -1;
+
+grid = new Array(width);
+field = new Array(width);
+for (i = 0; i < width; i++) {
+    grid[i] = new Array(height);
+    field[i] = new Array(height);
+    for (j = 0; j < height; j++) {
+        grid[i][j] = "tile";
+        field[i][j] = "tile";
+    }
 }
 
-darkSrc = {
-    "tile":         "sprites/dark_mode/tiles/tile.png",
-    "line-v":       "sprites/dark_mode/frame/line-v.png",
-    "line-h":       "sprites/dark_mode/frame/line-h.png",
-    "cross-nes":    "sprites/dark_mode/frame/cross-nes.png",
-    "cross-nsw":    "sprites/dark_mode/frame/cross-nsw.png",
-    "corner-ne":    "sprites/dark_mode/frame/corner-ne.png",
-    "corner-nw":    "sprites/dark_mode/frame/corner-nw.png",
-    "corner-es":    "sprites/dark_mode/frame/corner-es.png",
-    "corner-sw":    "sprites/dark_mode/frame/corner-sw.png",
-    "divider":      "sprites/dark_mode/digits/digit-divider.png",
-    "blank-digit":  "sprites/dark_mode/digits/blank-digit.png",
-    "happy":        "sprites/dark_mode/buttons/happy.png"
+imgSrc = {}
+imageSources = function() {
+
+    mode = dark_mode ? "dark_mode" : "light_mode";
+    imgSrc = {
+        "tile":             "sprites/" + mode + "/tiles/tile.png",
+        "0-tile":           "sprites/" + mode + "/tiles/open-tile.png",
+        "1-tile":           "sprites/" + mode + "/tiles/1-tile.png",
+        "2-tile":           "sprites/" + mode + "/tiles/2-tile.png",
+        "3-tile":           "sprites/" + mode + "/tiles/3-tile.png",
+        "4-tile":           "sprites/" + mode + "/tiles/4-tile.png",
+        "5-tile":           "sprites/" + mode + "/tiles/5-tile.png",
+        "6-tile":           "sprites/" + mode + "/tiles/6-tile.png",
+        "7-tile":           "sprites/" + mode + "/tiles/7-tile.png",
+        "8-tile":           "sprites/" + mode + "/tiles/8-tile.png",
+        "error-1":          "sprites/" + mode + "/tiles/error-1.png",
+        "error-2":          "sprites/" + mode + "/tiles/error-2.png",
+        "error-3":          "sprites/" + mode + "/tiles/error-3.png",
+        "error-4":          "sprites/" + mode + "/tiles/error-4.png",
+        "error-5":          "sprites/" + mode + "/tiles/error-5.png",
+        "error-6":          "sprites/" + mode + "/tiles/error-6.png",
+        "error-7":          "sprites/" + mode + "/tiles/error-7.png",
+        "error-8":          "sprites/" + mode + "/tiles/error-8.png",
+        "bomb":             "sprites/" + mode + "/tiles/bomb.png",
+        "not-bomb":         "sprites/" + mode + "/tiles/not-bomb.png",
+        "exploded-bomb":    "sprites/" + mode + "/tiles/exploded-bomb.png",
+        "flag":             "sprites/" + mode + "/tiles/flag.png",
+        "maybe":            "sprites/" + mode + "/tiles/maybe.png",
+        "line-v":           "sprites/" + mode + "/frame/line-v.png",
+        "line-h":           "sprites/" + mode + "/frame/line-h.png",
+        "cross-nes":        "sprites/" + mode + "/frame/cross-nes.png",
+        "cross-nsw":        "sprites/" + mode + "/frame/cross-nsw.png",
+        "corner-ne":        "sprites/" + mode + "/frame/corner-ne.png",
+        "corner-nw":        "sprites/" + mode + "/frame/corner-nw.png",
+        "corner-es":        "sprites/" + mode + "/frame/corner-es.png",
+        "corner-sw":        "sprites/" + mode + "/frame/corner-sw.png",
+        "divider":          "sprites/" + mode + "/digits/digit-divider.png",
+        "blank-digit":      "sprites/" + mode + "/digits/blank-digit.png",
+        "happy":            "sprites/" + mode + "/buttons/happy.png",
+        "dead":             "sprites/" + mode + "/buttons/dead.png",
+        "cool":             "sprites/" + mode + "/buttons/cool.png",
+        "kiss":             "sprites/" + mode + "/buttons/kiss.png",
+        "settings":         "sprites/" + mode + "/buttons/settings.png",
+        "happy_pushed":     "sprites/" + mode + "/buttons/happy_pushed.png",
+        "dead_pushed":      "sprites/" + mode + "/buttons/dead_pushed.png",
+        "cool_pushed":      "sprites/" + mode + "/buttons/cool_pushed.png",
+        "kiss_pushed":      "sprites/" + mode + "/buttons/kiss_pushed.png",
+        "settings_pushed":  "sprites/" + mode + "/buttons/settings_pushed.png"     
+    }
 }
-
-boop = 2/9
-
-imgSrc = lightSrc;
 
 gameWindow = document.getElementById("game0");
 gameWindowBar = document.getElementById("game0_bar");
 
 createGameGrid = function() {
 
-    if (dark_mode) {
-        imgSrc = darkSrc;
-    } else {
-        imgSrc = lightSrc;
-    }
+    imageSources();
 
     gameDiv = document.createElement("div");
     gameDiv.style.position = "relative";
@@ -129,6 +160,11 @@ createGameGrid = function() {
     }
 
     gameWindow.appendChild(gameDiv);
+
+    if (dark_mode) {
+
+        toggleDarkMode("dark", false);
+    }
 }
 
 createGameTile = function(xx, yy, dx, dy, src) {
@@ -152,8 +188,31 @@ createGameTile = function(xx, yy, dx, dy, src) {
     tileImg.src = src;
     tileImg.id = "gameTileImg_" + xx + "_" + yy;
 
-    tile.appendChild(tileImg);
+    tileImg.onmouseover = function() {
+        
+        mx = xx; 
+        my = yy;
+        if (field[mx][my] == "tile" && clickDown) { 
+            document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc["0-tile"]; 
+        }
+    }
+    tileImg.onmouseout = function() {
+
+        document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc[field[mx][my]];
+        mx = -1; 
+        my = -1; 
+    }
+    tileImg.onmousedown = function() {
+        
+        console.log("down", mx, my)
+        clickDown = true;
+
+        if (field[mx][my] == "tile" && clickDown) { 
+            document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc["0-tile"]; 
+        }
+    }
     
+    tile.appendChild(tileImg);
     return tile;
 }
 
@@ -190,7 +249,7 @@ createCounterTile = function(xx, yy, id, counterScale) {
     counter.style.position = "absolute";
     counter.style.left = xx;
     counter.style.top = yy;
-    counter.style.backgroundColor = "#3d0603";
+    counter.style.backgroundColor =  dark_mode ? "#1c0201" : "#3d0603";
     counter.style.width = 13 * counterScale; //3*3 + 4
 
     for (i = 0; i < 3; i++) {
@@ -244,9 +303,47 @@ createRestartButton = function() {
     restartButton.style.left = width * scale/2; //- scale;
     restartButton.style.position = "absolute";
     restartButton.style.top = scale * 3/2;
-    restartButton.src = imgSrc["happy"];
+    restartButton.src = imgSrc[restartButton_state];
 
+    restartButton.onmousedown = function() { restartButton.src = imgSrc[restartButton_state + "_pushed"]}
+    restartButton.onmouseup = function() { restartButton.src = imgSrc[restartButton_state]}
+    restartButton.onmouseleave = function() { restartButton.src = imgSrc[restartButton_state]}
+    
     return restartButton;
+}
+
+resizeGrid = function(ww, hh, mm) {
+
+    width = ww;
+    height = hh;
+    mines = mm;
+
+    reRender();
+}
+
+resizeGridCustom = function() {
+
+    ww = parseInt(document.getElementById("customWidth").value);
+    hh = parseInt(document.getElementById("customHeight").value);
+    mm = parseInt(document.getElementById("customMines").value);
+
+    ww = ww < 9 ? 9 : ww;
+    hh = hh < 9 ? 9 : hh;
+    mm = mm < 1 ? 1 : mm;
+    
+    document.getElementById("customWidth").value = ww;
+    document.getElementById("customHeight").value = hh;
+    document.getElementById("customMines").value = mm;
+
+    resizeGrid(ww,hh,mm);
+}
+
+openPeek = function(xx, yy) {
+
+}
+
+closePeek = function() {
+
 }
 
 reRender = function() {
@@ -255,27 +352,61 @@ reRender = function() {
     createGameGrid();
 }
 
+clickAction = function(action) {
+
+    if (action == "left") {
+
+    }
+    else if (action == "right") {
 
 
+    }
+    else if (action == "special"){
+
+    }
+}
+
+toggleDarkMode = function(modeSelect = "light", doRerender = true) {
 
 
-
-toggleDarkMode = function() {
-
-    if (dark_mode) {
+    if (dark_mode && modeSelect == "light") {
 
         dark_mode = false;
+        imageSources();
+        document.getElementById("game0").className = "window";
+        document.getElementById("game0_bar").className = "window_bar";
+        document.getElementById("settings1").className = "window";
+        document.getElementById("settings1_bar").className = "window_bar";
+        document.getElementById("settings1").style.backgroundColor = "#ebebeb";
+        document.getElementById("settings_button").src = imgSrc["settings"];
     } else {
 
         dark_mode = true;
+        imageSources();
+        document.getElementById("game0").className = "window_dark";
+        document.getElementById("game0_bar").className = "window_bar_dark";
+        document.getElementById("settings1").className = "window_dark";
+        document.getElementById("settings1_bar").className = "window_bar_dark";
+        document.getElementById("settings1").style.backgroundColor = "#777777";
+        document.getElementById("settings_button").src = imgSrc["settings"];
     }
-    reRender();
+    
+    if (doRerender) {
+        
+        reRender();
+    }
 }
+
+
+
 
 restart = function() {
 
     console.warn("restart");
 }
+
+
+
 
 main = function() {
     
@@ -283,9 +414,11 @@ main = function() {
     if (scale != referenceScale) {
 
         scale = referenceScale;
+        document.getElementById("sizeValue").innerHTML = scale;
         reRender();
     }
 }
+
 
 FPS = 1000/60;
 setInterval(main, FPS);

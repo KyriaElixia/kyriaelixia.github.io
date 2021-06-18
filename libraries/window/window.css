@@ -3,6 +3,7 @@
 :root {
     --window_backgground_color: whitesmoke;
     --window_border_color: 	#0080ff;
+    --window_border_color_dark: #004386;
     --window_border_width: 2px;
 }
 
@@ -17,6 +18,21 @@
 
     background-color: var(--window_border_color);
     border: var(--window_border_width) solid var(--window_border_color);
+    right: var(--window_border_width);
+    bottom: var(--window_border_width);
+    text-align: left;
+}
+
+.window_dark {
+
+    background-color: var(--window_backgground_color_dark);
+    border: var(--window_border_width) solid var(--window_border_color_dark);
+    /* border-color: gray; */
+}
+.window_bar_dark {
+
+    background-color: var(--window_border_color_dark);
+    border: var(--window_border_width) solid var(--window_border_color_dark);
     right: var(--window_border_width);
     bottom: var(--window_border_width);
     text-align: left;

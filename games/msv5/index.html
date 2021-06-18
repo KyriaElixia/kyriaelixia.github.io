@@ -23,8 +23,25 @@
 </body>
 
 <div id="settings_panel">
-    Size<input type="range" name="sizeSlider" id="sizeSlider" min="20" max="75" onchange=""><br>
-    <input type="button" value="Dark mode" onclick="toggleDarkMode();">
+    Size<input type="range" name="sizeSlider" id="sizeSlider" min="20" max="75" onchange=""> <span id="sizeValue">50</span><br>
+    <input type="button" value="Dark mode" onclick="toggleDarkMode();"><br>
+    <span onclick="resizeGrid(9,9,10);">Beginner</span><br>
+    <span onclick="resizeGrid(16,16,40);">Intermediate</span><br>
+    <span onclick="resizeGrid(30,16,99);">Expert</span><br>
+    <table>
+        <tr>
+            <td>Width</td>
+            <td>Height</td>
+            <td>Mines</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><input type="number" name="customWidth" id="customWidth" min="9" size="6"></td>
+            <td><input type="number" name="customHeight" id="customHeight" min="9" size="6"></td>
+            <td><input type="number" name="customMines" id="customMines" min="0" size="6"></td>
+            <td><input type="button" value="Confirm" onclick="resizeGridCustom();"><br></td>
+        </tr>
+    </table>
 </div>
 
 
