@@ -2,6 +2,7 @@
 width = 16;
 height = 16;
 mines = 40;
+minesLeft = mines;
 
 scale = 40;
 
@@ -10,11 +11,18 @@ borderWidth = 2;
 dark_mode = true;
 restartButton_state = "happy";
 clickDown = false;
-
+firstClick = true;
+maybe = false;
+playing = true;
+clearing = false;
+fastOpening = false;
+restartHover = false;
 
 
 mx = -1;
 my = -1;
+
+clearList = [];
 
 grid = new Array(width);
 field = new Array(width);
@@ -28,7 +36,7 @@ for (i = 0; i < width; i++) {
 }
 
 imgSrc = {}
-imageSources = function() {
+updateImgSrc = function() {
 
     mode = dark_mode ? "dark_mode" : "light_mode";
     imgSrc = {
@@ -83,7 +91,7 @@ gameWindowBar = document.getElementById("game0_bar");
 
 createGameGrid = function() {
 
-    imageSources();
+    updateImgSrc();
 
     gameDiv = document.createElement("div");
     gameDiv.style.position = "relative";
@@ -99,7 +107,7 @@ createGameGrid = function() {
     for (h = 0; h < height; h++) {
         for (w = 0; w < width; w++) {
             
-            gameDiv.appendChild(createGameTile(w, h, xOffset, hOffset, imgSrc["tile"]));
+            gameDiv.appendChild(createGameTile(w, h, xOffset, hOffset, imgSrc[field[w][h]]));
         }
     }
 
@@ -202,13 +210,28 @@ createGameTile = function(xx, yy, dx, dy, src) {
         mx = -1; 
         my = -1; 
     }
-    tileImg.onmousedown = function() {
+    tileImg.onmousedown = function(e) {
         
-        console.log("down", mx, my)
-        clickDown = true;
+        if (playing) {
 
-        if (field[mx][my] == "tile" && clickDown) { 
-            document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc["0-tile"]; 
+            if (e.which == 1 && field[mx][my] == "tile") {
+    
+                clickDown = true;
+                document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc["0-tile"]; 
+            }
+            else if (e.which == 3) {
+    
+                rightAction(mx, my); 
+            }
+        }
+    }
+    tileImg.onmouseup = function(e) {
+
+        if (playing) {
+            if (e.which == 1) {
+    
+                leftAction(mx, my);
+            }
         }
     }
     
@@ -305,10 +328,11 @@ createRestartButton = function() {
     restartButton.style.top = scale * 3/2;
     restartButton.src = imgSrc[restartButton_state];
 
-    restartButton.onmousedown = function() { restartButton.src = imgSrc[restartButton_state + "_pushed"]}
-    restartButton.onmouseup = function() { restartButton.src = imgSrc[restartButton_state]}
-    restartButton.onmouseleave = function() { restartButton.src = imgSrc[restartButton_state]}
-    
+    restartButton.onmousedown = function() { restartButton.src = imgSrc[restartButton_state + "_pushed"]; restartHover = true;}
+    restartButton.onmouseup = function() { restartButton.src = imgSrc[restartButton_state]; }
+    restartButton.onmouseleave = function() { restartButton.src = imgSrc[restartButton_state]; }
+    restartButton.onmouseover = function() { if (restartHover) { restartButton.src = imgSrc[restartButton_state + "_pushed"]; }}
+
     return restartButton;
 }
 
@@ -317,6 +341,20 @@ resizeGrid = function(ww, hh, mm) {
     width = ww;
     height = hh;
     mines = mm;
+
+    grid = new Array(width);
+    field = new Array(width);
+    for (i = 0; i < width; i++) {
+    grid[i] = new Array(height);
+    field[i] = new Array(height);
+    for (j = 0; j < height; j++) {
+        grid[i][j] = "tile";
+        field[i][j] = "tile";
+    }
+}
+
+    firstClick = true;
+    playing = true;
 
     reRender();
 }
@@ -346,24 +384,153 @@ closePeek = function() {
 
 }
 
+openTile = function() {
+
+
+}
+
+clearOpenTiles = function() {
+
+    cl = clearList.pop();
+    cx = cl[0];
+    cy = cl[1];
+    clearing = true;
+
+    for (y = -1; y <= 1; y++) {
+        for (x = -1; x <= 1; x++) {
+            if ((x != 0 || y != 0) && (cx + x) >= 0 && (cx + x) < width && (cy + y) >= 0 && (cy + y) < height) {
+                
+                leftAction(cx + x, cy + y);
+            }
+        }
+    }
+
+    if (clearList.length > 0) {
+
+        clearOpenTiles();
+    } else {
+
+        clearing = false;
+    }
+}
+
+fastOpen = function(fx, fy) {
+
+    fastOpening = true;
+    flagCount = 0;
+    
+    for (y = -1; y <= 1; y++) {
+        for (x = -1; x <= 1; x++) {
+            if ((x != 0 || y != 0) && (fx + x) >= 0 && (fx + x) < width && (fy + y) >= 0 && (fy + y) < height) {
+                if (field[fx + x][fy + y] == "flag") {
+
+                    flagCount++;
+                }
+            }
+        }
+    }
+
+    if (flagCount == grid[fx][fy]) {
+        for (y = -1; y <= 1; y++) {
+            for (x = -1; x <= 1; x++) {
+                if ((x != 0 || y != 0) && (fx + x) >= 0 && (fx + x) < width && (fy + y) >= 0 && (fy + y) < height) {
+                    
+                    leftAction(fx + x, fy + y);
+                }
+            }
+        }
+    }
+    fastOpening = false;
+}
+
 reRender = function() {
 
     gameWindow.removeChild(document.getElementById("gameDiv"))
     createGameGrid();
 }
 
-clickAction = function(action) {
+updateTile = function(ux, uy) {
 
-    if (action == "left") {
+    document.getElementById("gameTileImg_" + ux + "_" + uy).src = imgSrc[field[ux][uy]];
+}
 
+
+leftAction = function(ax, ay) {
+
+    if (firstClick && clickDown) {
+
+        firstClick = false;
+        shuffle(ax, ay);
     }
-    else if (action == "right") {
 
+    if (field[ax][ay] == "tile" && (clickDown || fastOpening)) {
+        if (grid[ax][ay] != "bomb") {
 
+            field[ax][ay] = grid[ax][ay] + "-tile";
+
+            if (grid[ax][ay] == 0) {
+
+                clearList.push([ax, ay]);
+                // console.log("cl len", clearList.length);
+                if (clearList.length == 1 && !clearing) {
+
+                    clearOpenTiles();
+                }
+            }
+        } else {
+
+            field[ax][ay] = "exploded-" + grid[ax][ay];
+            gameOver();
+        }
+        updateTile(ax, ay);
     }
-    else if (action == "special"){
-
+    else if (grid[ax][ay] > 0 && field[ax][ay] != "tile" && !fastOpening && !clearing) {
+        
+        fastOpen(ax, ay);
     }
+} 
+
+rightAction = function(ax, ay) {
+    
+    // console.log("right", ax, ay);
+
+    if (field[ax][ay] == "tile") {
+
+        field[ax][ay] = "flag";
+    }
+    else if (maybe && field[ax][ay] == "flag") {
+
+        field[ax][ay] = "maybe";
+    } 
+    else if (field[ax][ay] == "flag" || field[ax][ay] == "maybe"){
+        
+        field[ax][ay] = "tile";
+    }
+    updateTile(ax, ay);
+}
+
+gameOver = function() {
+
+    console.error("game over");
+    playing = false;
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+
+            if (grid[x][y] == "bomb" && field[x][y] != "exploded-bomb" && field[x][y] != "flag") {
+
+                field[x][y] = grid[x][y];  
+            }
+            else if (field[x][y] == "flag" && grid[x][y] != "bomb") {
+
+                field[x][y] = "not-bomb";
+            }
+            updateTile(x, y);
+        }
+    }
+}
+
+spaceAction = function(ax ,ay) {
+
 }
 
 toggleDarkMode = function(modeSelect = "light", doRerender = true) {
@@ -372,23 +539,27 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     if (dark_mode && modeSelect == "light") {
 
         dark_mode = false;
-        imageSources();
+        updateImgSrc();
         document.getElementById("game0").className = "window";
         document.getElementById("game0_bar").className = "window_bar";
         document.getElementById("settings1").className = "window";
         document.getElementById("settings1_bar").className = "window_bar";
         document.getElementById("settings1").style.backgroundColor = "#ebebeb";
-        document.getElementById("settings_button").src = imgSrc["settings"];
+        // document.getElementById("settings_button").src = imgSrc["settings"];
+        document.getElementById("settings_button_1").className = "customButton";
+        document.getElementById("settings_button_2").className = "customButton";
     } else {
 
         dark_mode = true;
-        imageSources();
+        updateImgSrc();
         document.getElementById("game0").className = "window_dark";
         document.getElementById("game0_bar").className = "window_bar_dark";
         document.getElementById("settings1").className = "window_dark";
         document.getElementById("settings1_bar").className = "window_bar_dark";
         document.getElementById("settings1").style.backgroundColor = "#777777";
-        document.getElementById("settings_button").src = imgSrc["settings"];
+        // document.getElementById("settings_button").src = imgSrc["settings"];
+        document.getElementById("settings_button_1").className = "customButton_dark";
+        document.getElementById("settings_button_2").className = "customButton_dark";
     }
     
     if (doRerender) {
@@ -397,16 +568,69 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     }
 }
 
+setTimerDisplay = function() {
+
+    // hundred = Math.floor(time / 100);
+    // ten = Math.floor((time % 100) / 10);
+    // one = Math.floor((time % 100) % 10);
+}
+
+shuffle = function(xx, yy) {
+
+    console.warn("shuffle", xx, yy);
+
+    placeMines = mines;
+    while (placeMines > 0) {
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+
+                place = Math.floor(Math.random()*100);
+                
+                if (place < 5 && (x != xx || y != yy) && placeMines > 0 && grid[x][y] != "bomb") {
+                    grid[x][y] = "bomb";
+                    placeMines--;
+                }
+            }
+        }
+    }
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+
+            if (grid[x][y] != "bomb") {
+
+                bombCount = 0;
+                if (x - 1 >= 0)                      { if (grid[x - 1][y]     == "bomb") { bombCount++; } }
+                if (x + 1 < width)                   { if (grid[x + 1][y]     == "bomb") { bombCount++; } }
+                if (y - 1 >= 0)                      { if (grid[x][y - 1]     == "bomb") { bombCount++; } }
+                if (y + 1 < height)                  { if (grid[x][y + 1]     == "bomb") { bombCount++; } }
+                if (x - 1 >= 0    && y - 1 >= 0)     { if (grid[x - 1][y - 1] == "bomb") { bombCount++; } }
+                if (x - 1 >= 0    && y + 1 < height) { if (grid[x - 1][y + 1] == "bomb") { bombCount++; } }
+                if (x + 1 < width && y - 1 >= 0)     { if (grid[x + 1][y - 1] == "bomb") { bombCount++; } }
+                if (x + 1 < width && y + 1 < height) { if (grid[x + 1][y + 1] == "bomb") { bombCount++; } }
+
+                grid[x][y] = bombCount;
+            }
+        }
+    }
+}
 
 
 
 restart = function() {
 
     console.warn("restart");
+    for (i = 0; i < width; i++) {
+        for (j = 0; j < height; j++) {
+
+            grid[i][j] = "tile";
+            field[i][j] = "tile";
+            updateTile(i, j);
+        }
+    }
+    
+    firstClick = true;
+    playing = true;
 }
-
-
-
 
 main = function() {
     

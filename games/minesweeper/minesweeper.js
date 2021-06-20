@@ -793,8 +793,8 @@ setTimerDisplay = function () {
     else {
         
         document.getElementById("digit_timer_100").src = "sprites/" + mode_path + "/digits/" + hundra + "-digit.png";
-        document.getElementById("digit_timer_10").src = "sprites/" + mode_path + "/digits/"+tio+"-digit.png";
-        document.getElementById("digit_timer_1").src = "sprites/" + mode_path + "/digits/"+ett+"-digit.png";
+        document.getElementById("digit_timer_10").src = "sprites/" + mode_path + "/digits/" + tio + "-digit.png";
+        document.getElementById("digit_timer_1").src = "sprites/" + mode_path + "/digits/" + ett + "-digit.png";
     }
 }
 

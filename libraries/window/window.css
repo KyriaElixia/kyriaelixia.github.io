@@ -41,7 +41,6 @@
 
 .closeButton {
 
-    background-color: #0080ff;
     color: white;
     border: 0;
 }
@@ -50,13 +49,25 @@
     background-color: crimson;
 }
 
+
+
 .customButton {
 
-    background-color: #0080ff;
+    /* background-color: #0080ff; */
     color: white;
     border: 0;
 }
 .customButton:hover {
 
-    background-color: gray;
+    background-color: #3399ff;
+}
+.customButton_dark {
+
+    /* background-color: #0080ff; */
+    color: #b3b3b3;
+    border: 0;
+}
+.customButton_dark:hover {
+
+    background-color: #004d99;
 }
