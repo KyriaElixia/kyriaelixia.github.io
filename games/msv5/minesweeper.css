@@ -1,0 +1,138 @@
+
+@font-face {
+    font-family: menloFont;
+    src: url(https://kyriaelixia.github.io/server/fonts/Menlo.ttf);
+}
+body {
+    font-family: menloFont;
+    /* font-weight: bold; */
+}
+
+:root {
+    
+    --inputBackgroundColor: #dadada;
+    --inputBackgroundColorHover: #bdbdbd;
+
+    
+    --inputBackgroundColorDark: #646464;
+    --inputBackgroundColorHoverDark: #3c3c3c;
+}
+
+
+.toggleButton {
+
+    /* font-family: "Roboto", monospace;; */
+    border-radius: 8px;
+    border: none;
+    padding: 6px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    /* font-size: 16px; */
+    margin: 4px 2px;
+    cursor: pointer;
+    background-color: var(--inputBackgroundColor);
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.toggleButton:hover {
+
+    background-color: var(--inputBackgroundColorHover);
+}
+
+.toggleButtonDark {
+
+    /* font-family: "Roboto", monospace;; */
+    border-radius: 8px;
+    border: none;
+    padding: 6px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    /* font-size: 16px; */
+    margin: 4px 2px;
+    cursor: pointer;
+    background-color: var(--inputBackgroundColorDark);
+    /* color: var(--inputBackgroundColor); */
+    color: white;
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.toggleButtonDark:hover {
+
+    background-color: var(--inputBackgroundColorHoverDark);
+}
+
+
+
+.slider {
+    -webkit-appearance: none;
+    width: 200px;
+    height: 10px;
+    background: var(--inputBackgroundColor);
+    outline: none;
+    border: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.slider:hover {
+    opacity: 1;
+}
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorDark);
+    cursor: pointer;
+}
+.slider::-moz-range-thumb {
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorDark);
+    cursor: pointer;
+}
+
+.sliderDark {
+    -webkit-appearance: none;
+    width: 200px;
+    height: 10px;
+    background: var(--inputBackgroundColorDark);
+    outline: none;
+    border: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.sliderDark:hover {
+    opacity: 1;
+}
+.sliderDark::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorHover);
+    cursor: pointer;
+}
+.sliderDark::-moz-range-thumb {
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorHover);
+    cursor: pointer;
+}

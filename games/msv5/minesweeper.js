@@ -5,7 +5,8 @@ mines = 40;
 minesLeft = mines;
 
 scale = 40;
-
+time = 0;
+timeCounter = 0;
 borderWidth = 2;
 
 dark_mode = true;
@@ -17,10 +18,13 @@ playing = true;
 clearing = false;
 fastOpening = false;
 restartHover = false;
-
+keyDown = false;
+flagWarning = true;
 
 mx = -1;
 my = -1;
+peek_x = 0;
+peek_y = 0;
 
 clearList = [];
 
@@ -158,6 +162,7 @@ createGameGrid = function() {
     gameWindow.style.width = (width + 2*xOffset) * scale;
     gameWindow.style.height = (height + 2*yOffset + hOffset-1) * scale + parseInt(gameWindowBar.style.height) + 2*borderWidth; // 30 = window bar height
     gameWindowBar.style.width = (width + 2*xOffset) * scale;
+    // document.getElementById("gameTitle").style.left = gameWindow.style.width/2 - document.getElementById("gameTitle").offsetWidth/2;
 
     if (dark_mode) {
         gameWindow.style.backgroundColor = "#636363";
@@ -173,6 +178,14 @@ createGameGrid = function() {
 
         toggleDarkMode("dark", false);
     }
+    if (maybe) {
+        toggleMaybe(true);
+    }
+    if (flagWarning) {
+        toggleFlagWarning(true);
+    }
+    setTimerDisplay();
+    setMinesDisplay();
 }
 
 createGameTile = function(xx, yy, dx, dy, src) {
@@ -218,6 +231,10 @@ createGameTile = function(xx, yy, dx, dy, src) {
     
                 clickDown = true;
                 document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc["0-tile"]; 
+            }
+            else if (e.which == 1 && field[mx][my] != "tile" && grid[mx][my] > 0 && grid[mx][my] < 9) {
+
+                flagCount(mx, my);
             }
             else if (e.which == 3) {
     
@@ -328,7 +345,7 @@ createRestartButton = function() {
     restartButton.style.top = scale * 3/2;
     restartButton.src = imgSrc[restartButton_state];
 
-    restartButton.onmousedown = function() { restartButton.src = imgSrc[restartButton_state + "_pushed"]; restartHover = true;}
+    restartButton.onmousedown = function(e) { if (e.which == 1) { restartButton.src = imgSrc[restartButton_state + "_pushed"]; restartHover = true; }}
     restartButton.onmouseup = function() { restartButton.src = imgSrc[restartButton_state]; }
     restartButton.onmouseleave = function() { restartButton.src = imgSrc[restartButton_state]; }
     restartButton.onmouseover = function() { if (restartHover) { restartButton.src = imgSrc[restartButton_state + "_pushed"]; }}
@@ -336,57 +353,113 @@ createRestartButton = function() {
     return restartButton;
 }
 
-resizeGrid = function(ww, hh, mm) {
+resizeGrid = function() {
 
-    width = ww;
-    height = hh;
-    mines = mm;
+    if (document.getElementById("diffBeginner").checked) {
 
+        width = 9; height = 9; mines = 10;
+    }
+    else if (document.getElementById("diffIntermediate").checked) {
+
+        width = 16; height = 16; mines = 40;
+    }
+    else if (document.getElementById("diffExpert").checked) {
+
+        width = 30; height = 16; mines = 99;
+    }
+    else if (document.getElementById("diffCustom").checked) {
+
+        ww = parseInt(document.getElementById("customWidth").value);
+        hh = parseInt(document.getElementById("customHeight").value);
+        mm = parseInt(document.getElementById("customMines").value);
+
+        width = ww < 9 ? 9 : ww;
+        height = hh < 9 ? 9 : hh;
+        mines = mm < 1 ? 1 : mm;
+        mines = mines >= ww * hh ? ww * hh - 1 : mines;
+
+        document.getElementById("customWidth").value = width;
+        document.getElementById("customHeight").value = height;
+        document.getElementById("customMines").value = mines;
+    }
+
+    
     grid = new Array(width);
     field = new Array(width);
     for (i = 0; i < width; i++) {
-    grid[i] = new Array(height);
-    field[i] = new Array(height);
-    for (j = 0; j < height; j++) {
-        grid[i][j] = "tile";
-        field[i][j] = "tile";
+        grid[i] = new Array(height);
+        field[i] = new Array(height);
+        for (j = 0; j < height; j++) {
+            grid[i][j] = "tile";
+            field[i][j] = "tile";
+        }
     }
-}
 
     firstClick = true;
     playing = true;
+    minesLeft = mines;
+    time = 0;
+    clearInterval(timeCounter);
+    setTimerDisplay();
+    setMinesDisplay();
+    updateSmiley("happy");
 
     reRender();
-}
-
-resizeGridCustom = function() {
-
-    ww = parseInt(document.getElementById("customWidth").value);
-    hh = parseInt(document.getElementById("customHeight").value);
-    mm = parseInt(document.getElementById("customMines").value);
-
-    ww = ww < 9 ? 9 : ww;
-    hh = hh < 9 ? 9 : hh;
-    mm = mm < 1 ? 1 : mm;
     
-    document.getElementById("customWidth").value = ww;
-    document.getElementById("customHeight").value = hh;
-    document.getElementById("customMines").value = mm;
 
-    resizeGrid(ww,hh,mm);
+    // resizeGrid(ww,hh,mm);
 }
 
-openPeek = function(xx, yy) {
+openPeek = function(px, py) {
 
+    for (y = -1; y <= 1; y++) {
+        for (x = -1; x <= 1; x++) {
+
+            xx = px + x;
+            yy = py + y;
+            if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
+                
+                if (field[xx][yy] == "tile") {
+
+                    setTileImg(xx, yy, imgSrc["0-tile"]);
+                }
+            }
+        }
+    }
+    peek_x = px;
+    peek_y = py;
 }
 
-closePeek = function() {
+closePeek = function(px, py) {
 
+    for (y = -1; y <= 1; y++) {
+        for (x = -1; x <= 1; x++) {
+
+            xx = px + x;
+            yy = py + y;
+            if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
+                
+                updateTile(xx, yy);
+            }
+        }
+    }
 }
 
-openTile = function() {
+fastOpen = function(fx, fy) {
 
+    fastOpening = true;
+    for (y = -1; y <= 1; y++) {
+        for (x = -1; x <= 1; x++) {
 
+            xx = fx + x;
+            yy = fy + y;
+            if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
+                
+                leftAction(xx, yy);
+            }
+        }
+    }
+    fastOpening = false;
 }
 
 clearOpenTiles = function() {
@@ -414,33 +487,31 @@ clearOpenTiles = function() {
     }
 }
 
-fastOpen = function(fx, fy) {
+flagCount = function(fx, fy, doPeek = true) {
 
-    fastOpening = true;
-    flagCount = 0;
+    count = 0;
     
     for (y = -1; y <= 1; y++) {
         for (x = -1; x <= 1; x++) {
-            if ((x != 0 || y != 0) && (fx + x) >= 0 && (fx + x) < width && (fy + y) >= 0 && (fy + y) < height) {
-                if (field[fx + x][fy + y] == "flag") {
+            xx = fx + x;
+            yy = fy + y;
+            if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
+                if (field[xx][yy] == "flag") {
 
-                    flagCount++;
+                    count++;
                 }
             }
         }
     }
 
-    if (flagCount == grid[fx][fy]) {
-        for (y = -1; y <= 1; y++) {
-            for (x = -1; x <= 1; x++) {
-                if ((x != 0 || y != 0) && (fx + x) >= 0 && (fx + x) < width && (fy + y) >= 0 && (fy + y) < height) {
-                    
-                    leftAction(fx + x, fy + y);
-                }
-            }
-        }
+    if (count == grid[fx][fy]) {
+        
+        fastOpen(fx, fy);
+    } 
+    else if (doPeek) {
+
+        openPeek(fx, fy);
     }
-    fastOpening = false;
 }
 
 reRender = function() {
@@ -449,11 +520,21 @@ reRender = function() {
     createGameGrid();
 }
 
+updateSmiley = function(state) {
+
+    restartButton_state = state;
+    document.getElementById("restartButton").src = imgSrc[restartButton_state];
+}
+
 updateTile = function(ux, uy) {
 
     document.getElementById("gameTileImg_" + ux + "_" + uy).src = imgSrc[field[ux][uy]];
 }
 
+setTileImg = function(ix, iy, img) {
+
+    document.getElementById("gameTileImg_" + ix + "_" + iy).src = img 
+}
 
 leftAction = function(ax, ay) {
 
@@ -461,6 +542,7 @@ leftAction = function(ax, ay) {
 
         firstClick = false;
         shuffle(ax, ay);
+        timeCounter = setInterval(clock, 1000);
     }
 
     if (field[ax][ay] == "tile" && (clickDown || fastOpening)) {
@@ -482,12 +564,15 @@ leftAction = function(ax, ay) {
             field[ax][ay] = "exploded-" + grid[ax][ay];
             gameOver();
         }
-        updateTile(ax, ay);
     }
-    else if (grid[ax][ay] > 0 && field[ax][ay] != "tile" && !fastOpening && !clearing) {
+    // else if (grid[ax][ay] > 0 && field[ax][ay] != "tile" && !fastOpening && !clearing) {
         
-        fastOpen(ax, ay);
-    }
+        
+        // }
+        
+    updateTile(ax, ay);
+    setMinesDisplay();
+    checkWinCondition();
 } 
 
 rightAction = function(ax, ay) {
@@ -497,22 +582,92 @@ rightAction = function(ax, ay) {
     if (field[ax][ay] == "tile") {
 
         field[ax][ay] = "flag";
+        minesLeft--;
     }
     else if (maybe && field[ax][ay] == "flag") {
 
         field[ax][ay] = "maybe";
+        minesLeft++;
     } 
     else if (field[ax][ay] == "flag" || field[ax][ay] == "maybe"){
         
         field[ax][ay] = "tile";
+        if (!maybe) {
+            minesLeft++;
+        }
     }
     updateTile(ax, ay);
+    setMinesDisplay();
+    checkWinCondition();
+
+    if (flagWarning) {
+
+        checkFlagWarning(ax ,ay);
+    }
+}
+
+spaceAction = function(ax, ay) {
+
+    // console.log("space", ax, ay);
+    if (ax >= 0 && ax < width && ay >= 0 && ay < height) {
+
+        if (field[ax][ay] == "tile" || field[ax][ay] == "flag" || field[ax][ay] == "maybe") {
+            
+            rightAction(ax, ay);
+        }
+        else if (grid[ax][ay] > 0 && grid[ax][ay] < 9) {
+            
+            flagCount(ax, ay, false);
+        }
+        checkWinCondition();
+    }
+}
+
+checkFlagWarning = function(cx, cy) {
+
+    for (y = -1; y <= 1; y++) {
+        for (x = -1; x <= 1; x++) {
+            xx = cx + x;
+            yy = cy + y;
+            if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
+                if (field[xx][yy] != "flag" && field[xx][yy] != "tile" && field[xx][yy] != "maybe" && field[xx][yy] != "0-tile") {
+
+                    count = 0;
+                    for (i = -1; i <= 1; i++) {
+                        for (j = -1; j <= 1; j++) { 
+                            
+                            ii = xx + i;
+                            jj = yy + j;
+                            if ((i != 0 || j != 0) && ii >= 0 && ii < width && jj >= 0 && jj < height) {
+                                if (field[ii][jj] == "flag") {
+
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                    if (grid[xx][yy] < count) {
+
+                        field[xx][yy] = "error-" + grid[xx][yy];
+                    }
+                    else {
+                        
+                        field[xx][yy] = grid[xx][yy] + "-tile";
+                    }
+                    updateTile(xx, yy);
+                }
+            }
+        }
+    }
 }
 
 gameOver = function() {
 
-    console.error("game over");
+    // console.error("game over");
     playing = false;
+    clearInterval(timeCounter);
+    updateSmiley("dead");
+
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
 
@@ -529,12 +684,22 @@ gameOver = function() {
     }
 }
 
-spaceAction = function(ax ,ay) {
+wonGame = function() {
 
+    // console.warn("WIN");
+    clearInterval(timeCounter);
+    playing = false;
+
+    if (Math.random()*100 < 5) {
+
+        updateSmiley("kiss");
+    } else {
+
+        updateSmiley("cool");
+    }
 }
 
 toggleDarkMode = function(modeSelect = "light", doRerender = true) {
-
 
     if (dark_mode && modeSelect == "light") {
 
@@ -548,8 +713,16 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
         // document.getElementById("settings_button").src = imgSrc["settings"];
         document.getElementById("settings_button_1").className = "customButton";
         document.getElementById("settings_button_2").className = "customButton";
+        document.getElementById("scaleSlider").className = "slider";
+        document.body.style.color = "black";
+        
+        buttons = document.getElementsByTagName("button");
+        for (b = 0; b < buttons.length; b++) {
+            
+            buttons[b].className = "toggleButton";
+        }
     } else {
-
+        
         dark_mode = true;
         updateImgSrc();
         document.getElementById("game0").className = "window_dark";
@@ -560,7 +733,17 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
         // document.getElementById("settings_button").src = imgSrc["settings"];
         document.getElementById("settings_button_1").className = "customButton_dark";
         document.getElementById("settings_button_2").className = "customButton_dark";
+        document.getElementById("scaleSlider").className = "sliderDark";
+        document.body.style.color = "white";
+        
+        buttons = document.getElementsByTagName("button");
+        for (b = 0; b < buttons.length; b++) {
+
+            buttons[b].className = "toggleButtonDark";
+        }
     }
+
+    document.getElementById('toggleLightsCheck').checked = !dark_mode;
     
     if (doRerender) {
         
@@ -568,17 +751,97 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     }
 }
 
+toggleMaybe = function(start = false) {
+
+    if (maybe && !start) {
+
+        maybe = false;
+    } else {
+        maybe = true;
+    }
+    document.getElementById('toggleMaybeCheck').checked = maybe;
+}
+
+toggleFlagWarning = function(start = false) {
+
+    if (flagWarning && !start) {
+
+        flagWarning = false;
+
+        for (ty = 0; ty < height; ty++) {
+            for (tx = 0; tx < width; tx++) {
+                
+                if (field[tx][ty].split("-")[0] == "error") {
+
+                    field[tx][ty] = grid[tx][ty] + "-tile";
+                    updateTile(tx, ty);
+                }
+            }
+        }
+    } 
+    else if (!start) {
+
+        flagWarning = true;
+
+        for (ty = 0; ty < height; ty++) {
+            for (tx = 0; tx < width; tx++) {
+                
+                if (field[tx][ty] == "flag") {
+                    checkFlagWarning(tx, ty);
+                }
+            }
+        }
+    }
+    document.getElementById('toggleFlagWarningCheck').checked = flagWarning;
+}
+
 setTimerDisplay = function() {
 
-    // hundred = Math.floor(time / 100);
-    // ten = Math.floor((time % 100) / 10);
-    // one = Math.floor((time % 100) % 10);
+    hundred = Math.floor(time / 100);
+    ten = Math.floor((time % 100) / 10);
+    one = Math.floor((time % 100) % 10);
+
+    mode_path = dark_mode ? "dark_mode" : "light_mode";
+
+    if (time > 999) {
+
+        document.getElementById("timer0").src = "sprites/" + mode_path + "/digits/9-digit.png";
+        document.getElementById("timer1").src = "sprites/" + mode_path + "/digits/9-digit.png";
+        document.getElementById("timer2").src = "sprites/" + mode_path + "/digits/9-digit.png";
+    } else {
+        
+        document.getElementById("timer0").src = "sprites/" + mode_path + "/digits/" + hundred + "-digit.png";
+        document.getElementById("timer1").src = "sprites/" + mode_path + "/digits/" + ten + "-digit.png";
+        document.getElementById("timer2").src = "sprites/" + mode_path + "/digits/" + one + "-digit.png";
+    }
+}
+
+setMinesDisplay = function() {
+
+    minesLeftDisplay = Math.abs(minesLeft);
+
+    hundred = Math.floor(minesLeftDisplay/100);
+    ten = Math.floor((minesLeftDisplay % 100) / 10);
+    one = Math.floor((minesLeftDisplay % 100) % 10);
+
+    mode_path = dark_mode ? "dark_mode" : "light_mode";
+
+    if (minesLeft >= 0) {        
+
+        document.getElementById("mines0").src = "sprites/" + mode_path + "/digits/" + hundred + "-digit.png";
+    }
+    else {
+
+        document.getElementById("mines0").src = "sprites/" + mode_path + "/digits/digit-negative.png";
+    }
+
+    document.getElementById("mines1").src = "sprites/" + mode_path + "/digits/" + ten + "-digit.png";
+    document.getElementById("mines2").src = "sprites/" + mode_path + "/digits/" + one + "-digit.png";
 }
 
 shuffle = function(xx, yy) {
 
-    console.warn("shuffle", xx, yy);
-
+    // console.warn("shuffle", xx, yy);
     placeMines = mines;
     while (placeMines > 0) {
         for (y = 0; y < height; y++) {
@@ -614,11 +877,11 @@ shuffle = function(xx, yy) {
     }
 }
 
-
-
 restart = function() {
 
-    console.warn("restart");
+    // console.warn("restart");
+    clearInterval(timeCounter);
+
     for (i = 0; i < width; i++) {
         for (j = 0; j < height; j++) {
 
@@ -630,19 +893,47 @@ restart = function() {
     
     firstClick = true;
     playing = true;
+    time = 0;
+    minesLeft = mines;
+    setTimerDisplay();
+    setMinesDisplay();
+    updateSmiley("happy");
+}
+
+checkWinCondition = function() {
+
+    if (minesLeft == 0 && playing) {
+        win = true;
+        for (i = 0; i < height; i++) {
+            for (j = 0; j < width; j++) {
+                if ((field[i][j] == "flag" && grid[i][j] != "bomb") || field[i][j] == "tile") {
+                    win = false;
+                    return;
+                }
+            }
+        }
+        // WIN 
+        wonGame();  
+    }
 }
 
 main = function() {
     
-    referenceScale = parseInt(document.getElementById("sizeSlider").value);
+    referenceScale = parseInt(document.getElementById("scaleSlider").value);
     if (scale != referenceScale) {
 
         scale = referenceScale;
-        document.getElementById("sizeValue").innerHTML = scale;
+        document.getElementById("sizeValue").innerHTML = scale + "px scale";
         reRender();
     }
 }
 
+clock = function() {
 
-FPS = 1000/60;
-setInterval(main, FPS);
+    time++;
+    setTimerDisplay();    
+}
+
+
+UPS = 1000/60;
+setInterval(main, UPS);

@@ -2,7 +2,7 @@
 <head>
     <meta charset="utf-8" />
     <link href="https://kyriaelixia.github.io/server/main.css" rel="stylesheet" type="text/css" />
-    <!-- <link href="minesweeper.css" rel="stylesheet" type="text/css" /> -->
+    <link href="minesweeper.css" rel="stylesheet" type="text/css" />
     <link href="overlay.css" rel="stylesheet" type="text/css" />
     <link href="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/flag.png" rel="icon">    
     
@@ -23,25 +23,71 @@
 </body>
 
 <div id="settings_panel">
-    Size<input type="range" name="sizeSlider" id="sizeSlider" min="20" max="75" onchange=""> <span id="sizeValue">40</span><br>
-    <input type="button" value="Toggle lights" onclick="toggleDarkMode();"><br>
-    <span onclick="resizeGrid(9,9,10);">Beginner</span><br>
+    <!-- <span onclick="resizeGrid(9,9,10);">Beginner</span><br>
     <span onclick="resizeGrid(16,16,40);">Intermediate</span><br>
-    <span onclick="resizeGrid(30,16,99);">Expert</span><br>
-    <table>
+    <span onclick="resizeGrid(30,16,99);">Expert</span><br> -->
+    <table cellpadding="5" >
         <tr>
-            <td>Width</td>
-            <td>Height</td>
-            <td>Mines</td>
+            <td></td>
+            <td><strong>Width</strong></td>
+            <td><strong>Height</strong></td>
+            <td><strong>Mines</strong></td>
+           
+        </tr>
+        <tr>
+            <td><strong onclick="document.getElementById('diffBeginner').checked = true;"><input type="radio" name="diffForm" id="diffBeginner" value="test">Beginner</strong></td>
+            <td>9</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td><strong onclick="document.getElementById('diffIntermediate').checked = true;"><input type="radio" name="diffForm" id="diffIntermediate" checked>Intermediate</strong></td>
+            <td>16</td>
+            <td>16</td>
+            <td>40</td>
+        </tr>
+        <tr>
+            <td><strong onclick="document.getElementById('diffExpert').checked = true;"><input type="radio" name="diffForm" id="diffExpert">Expert</strong></td>
+            <td>30</td>
+            <td>16</td>
+            <td>99</td>
+        </tr>
+        <tr>
+            <td><strong onclick="document.getElementById('diffCustom').checked = true;"><input type="radio" name="diffForm" id="diffCustom">Custom</strong></td>
+            <td><input type="number" name="customWidth" id="customWidth" min="9" size="5"></td>
+            <td><input type="number" name="customHeight" id="customHeight" min="9" size="5"></td>
+            <td><input type="number" name="customMines" id="customMines" min="0" size="5"></td>
+        </tr>
+        <tr>
+            <td><button class="toggleButton" onclick="resizeGrid();">New game</button></td>
+            <td></td>
+            <td></td>
             <td></td>
         </tr>
+    </table>
+    <table align="center" style="text-align: center;">
         <tr>
-            <td><input type="number" name="customWidth" id="customWidth" min="9" size="6"></td>
-            <td><input type="number" name="customHeight" id="customHeight" min="9" size="6"></td>
-            <td><input type="number" name="customMines" id="customMines" min="0" size="6"></td>
-            <td><input type="button" value="Confirm" onclick="resizeGridCustom();"><br></td>
+            <td>
+
+                <input class="slider" type="range" name="scaleSlider" id="scaleSlider" min="20" max="75" onchange=""> <span id="sizeValue">40px scale</span><br>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                <button class="toggleButton" onclick="toggleDarkMode();"><input type="checkbox" id="toggleLightsCheck"> Lights</button>
+                <button class="toggleButton" onclick="toggleMaybe();"><input type="checkbox" id="toggleMaybeCheck"> Marks [?]</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+
+                <button class="toggleButton" onclick="toggleFlagWarning();"><input type="checkbox" id="toggleFlagWarningCheck"> Flag warnings</button>
+            </td>
         </tr>
     </table>
+    <!-- <input type="button" value="Toggle lights" onclick="toggleDarkMode();"><br> -->
+    <br>
 </div>
 
 

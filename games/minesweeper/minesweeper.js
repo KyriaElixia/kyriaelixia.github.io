@@ -572,7 +572,7 @@ createField = function () {
                                 shuffleField(this.x,this.y);
                             }
                             firstClick = false;
-                            theTimer = setInterval(updateTime,1000);
+                            theTimer = setInterval(updateTime, 1000);
                         }
 
                         if (recordGame && !gameEnd) {
