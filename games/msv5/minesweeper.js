@@ -9,7 +9,7 @@ time = 0;
 timeCounter = 0;
 borderWidth = 2;
 
-dark_mode = true;
+dark_mode = false;
 restartButton_state = "happy";
 clickDown = false;
 firstClick = true;
@@ -21,6 +21,7 @@ restartHover = false;
 keyDown = false;
 flagWarning = true;
 freeBorder = false;
+peeking = false;
 
 mx = -1;
 my = -1;
@@ -175,7 +176,6 @@ createGameGrid = function() {
 
     gameWindow.appendChild(gameDiv);
 
-    setSettings();
     setTimerDisplay();
     setMinesDisplay();
 }
@@ -211,7 +211,10 @@ createGameTile = function(xx, yy, dx, dy, src) {
     }
     tileImg.onmouseout = function() {
 
-        document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc[field[mx][my]];
+        if (!peeking) {
+            
+            document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc[field[mx][my]];
+        }
         mx = -1; 
         my = -1; 
     }
@@ -345,26 +348,26 @@ createRestartButton = function() {
     return restartButton;
 }
 
-resizeGrid = function() {
+resizeGrid = function(onlySized = false) {
 
     if (document.getElementById("diffBeginner").checked) {
 
         width = 9; height = 9; mines = 10;
-        setCookie("MS_difficulty", "Beginner", 30);
+        setCookie("MS5_difficulty", "Beginner", 30);
     }
     else if (document.getElementById("diffIntermediate").checked) {
         
         width = 16; height = 16; mines = 40;
-        setCookie("MS_difficulty", "Intermediate", 30);
+        setCookie("MS5_difficulty", "Intermediate", 30);
     }
     else if (document.getElementById("diffExpert").checked) {
         
         width = 30; height = 16; mines = 99;
-        setCookie("MS_difficulty", "Expert", 30);
+        setCookie("MS5_difficulty", "Expert", 30);
     }
     else if (document.getElementById("diffCustom").checked) {
         
-        setCookie("MS_difficulty", "Custom", 30);
+        setCookie("MS5_difficulty", "Custom", 30);
         ww = parseInt(document.getElementById("customWidth").value);
         hh = parseInt(document.getElementById("customHeight").value);
         mm = parseInt(document.getElementById("customMines").value);
@@ -380,27 +383,29 @@ resizeGrid = function() {
     }
 
     
-    grid = new Array(width);
-    field = new Array(width);
-    for (i = 0; i < width; i++) {
-        grid[i] = new Array(height);
-        field[i] = new Array(height);
-        for (j = 0; j < height; j++) {
-            grid[i][j] = "tile";
-            field[i][j] = "tile";
+    if (!onlySized) {
+        grid = new Array(width);
+        field = new Array(width);
+        for (i = 0; i < width; i++) {
+            grid[i] = new Array(height);
+            field[i] = new Array(height);
+            for (j = 0; j < height; j++) {
+                grid[i][j] = "tile";
+                field[i][j] = "tile";
+            }
         }
+
+        firstClick = true;
+        playing = true;
+        minesLeft = mines;
+        time = 0;
+        clearInterval(timeCounter);
+        setTimerDisplay();
+        setMinesDisplay();
+        updateSmiley("happy");
+
+        reRender();
     }
-
-    firstClick = true;
-    playing = true;
-    minesLeft = mines;
-    time = 0;
-    clearInterval(timeCounter);
-    setTimerDisplay();
-    setMinesDisplay();
-    updateSmiley("happy");
-
-    reRender();
     // resizeGrid(ww,hh,mm);
 }
 
@@ -422,10 +427,12 @@ openPeek = function(px, py) {
     }
     peek_x = px;
     peek_y = py;
+    peeking = true;
 }
 
 closePeek = function(px, py) {
 
+    peeking = false;
     for (y = -1; y <= 1; y++) {
         for (x = -1; x <= 1; x++) {
 
@@ -737,7 +744,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
         }
     }
 
-    setCookie("MS_dark_mode", dark_mode, 30);
+    setCookie("MS5_dark_mode", dark_mode, 30);
     document.getElementById('toggleLightsCheck').checked = !dark_mode;
     
     if (doRerender) {
@@ -754,7 +761,7 @@ toggleMaybe = function(start = false) {
     } else {
         maybe = true;
     }
-    setCookie("MS_maybe", maybe, 30);
+    setCookie("MS5_maybe", maybe, 30);
     document.getElementById('toggleMaybeCheck').checked = maybe;
 }
 
@@ -788,7 +795,7 @@ toggleFlagWarning = function(start = false) {
             }
         }
     }
-    setCookie("MS_flagWarning", flagWarning, 30);
+    setCookie("MS5_flagWarning", flagWarning, 30);
     document.getElementById('toggleFlagWarningCheck').checked = flagWarning;
 }
 
@@ -800,21 +807,22 @@ toggleFreeBorder = function(start = false) {
     } else {
         freeBorder = true;
     }
-    setCookie("MS_freeBoerder", freeBorder, 30);
+    setCookie("MS5_freeBorder", freeBorder, 30);
     document.getElementById('toggleFreeBorderCheck').checked = freeBorder;
 }
 
 loadCookies = function() {
 
-    dark_mode = checkCookie("MS_dark_mode", dark_mode);
-    maybe = checkCookie("MS_maybe", maybe);
-    flagWarning = checkCookie("MS_flagWarning". flagWarning);
-    freeBorder = checkCookie("MS_freeBorder", freeBorder);
-
-    scaleCookie = parseInt(checkCookie("MS_scale"));
-
+    dark_mode = checkCookie("MS5_dark_mode", "" + dark_mode) == "true" ? true : false;
+    maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
+    flagWarning = checkCookie("MS5_flagWarning", "" + flagWarning) == "true" ? true : false;
+    freeBorder = checkCookie("MS5_freeBorder", "" + freeBorder) == "true" ? true : false;
+    
+    scaleCookie = parseInt(checkCookie("MS5_scale"));
     scale = scaleCookie > 20 ? scaleCookie : scale;
-    document.getElementById("diff" + checkCookie("MS_difficulty", "Intermediate")).checked = true;
+    document.getElementById("scaleValue").innerHTML = scale + "px scale";
+
+    document.getElementById("diff" + checkCookie("MS5_difficulty", "Intermediate")).checked = true;
 }
 
 setSettings = function() {
@@ -973,7 +981,7 @@ main = function() {
 
         scale = referenceScale;
         document.getElementById("scaleValue").innerHTML = scale + "px scale";
-        setCookie("MS_scale", scale, 30);
+        setCookie("MS5_scale", scale, 30);
         reRender();
     }
 }
