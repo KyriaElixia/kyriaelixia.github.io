@@ -26,7 +26,7 @@
     <!-- <span onclick="resizeGrid(9,9,10);">Beginner</span><br>
     <span onclick="resizeGrid(16,16,40);">Intermediate</span><br>
     <span onclick="resizeGrid(30,16,99);">Expert</span><br> -->
-    <table cellpadding="5" >
+    <table cellpadding="5" title="Set the game difficulty">
         <tr>
             <td></td>
             <td><strong>Width</strong></td>
@@ -69,20 +69,21 @@
         <tr>
             <td>
 
-                <input class="slider" type="range" name="scaleSlider" id="scaleSlider" min="20" max="75" onchange=""> <span id="sizeValue">40px scale</span><br>
+                <input class="slider" type="range" name="scaleSlider" id="scaleSlider" min="20" max="75" onchange="" title="Set the game tile scale"> <span id="scaleValue">40px scale</span><br>
             </td>
         </tr>
         <tr>
             <td>
                 
-                <button class="toggleButton" onclick="toggleDarkMode();"><input type="checkbox" id="toggleLightsCheck"> Lights</button>
-                <button class="toggleButton" onclick="toggleMaybe();"><input type="checkbox" id="toggleMaybeCheck"> Marks [?]</button>
+                <button class="toggleButton" onclick="toggleDarkMode();" title="Enables or disables game lights for less eye strain"><input type="checkbox" id="toggleLightsCheck"> Lights</button>
+                <button class="toggleButton" onclick="toggleMaybe();" title="Enables or diables [?] tiles when placing flags"><input type="checkbox" id="toggleMaybeCheck" > Marks [?]</button>
             </td>
         </tr>
         <tr>
             <td>
 
-                <button class="toggleButton" onclick="toggleFlagWarning();"><input type="checkbox" id="toggleFlagWarningCheck"> Flag warnings</button>
+                <button class="toggleButton" onclick="toggleFlagWarning();" title="Shows warning tiles if too many flags are placed"><input type="checkbox" id="toggleFlagWarningCheck"> Flag warnings</button>
+                <button class="toggleButton" onclick="toggleFreeBorder();" title="Disables bomb placement around the game border"><input type="checkbox" id="toggleFreeBorderCheck"> Free border</button>
             </td>
         </tr>
     </table>
@@ -92,6 +93,7 @@
 
 
 <script src="../../libraries/window/window.js"></script>
+<script src="../../libraries/cookies.js"></script>
 <script src="window_setup.js"></script>
 <script src="minesweeper.js"></script>
-<script>createGameGrid();</script>
+<script> loadCookies(); createGameGrid();</script>
