@@ -9,36 +9,117 @@ cmp = function() {
 
     this.repeatShorten = true;
 
-    this.compress = function(str) {
+    this.compress = function(str, fb = this.radixFromBase, tb = this.radixToBase) {
 
-        
+        rc = this.radixCompress(str, fb, tb);
+        rcr = this.repeats(rc);
+        // console.warn("rc ", rc);
+        // console.warn("rcr", rcr);
+        return rcr;
     }
 
-    this.uncompress = function(str) {
+    this.uncompress = function(str, fb = this.radixFromBase, tb = this.radixToBase) {
 
+        ur = this.unrepeat(str); 
+        ruc = this.radixUncompress(ur, fb, tb);
+        // console.warn("ur ", ur);    
+        // console.warn("ruc", ruc);
+        return ruc;
     }
 
-    this.radixCompress = function(str) {
+    this.radixCompress = function(str, fb = this.radixFromBase, tb = this.radixToBase) {
 
-        loops = str.length/this.radixToBase;
+        loops = str.length/tb;
         cmpStr = "";
 
-        for (l = 0; l < loops; l++) {
+        for (i = 0; i < loops; i++) {
 
-            subStr = str.substring(l * this.radixToBase, (l + 1) * this.radixToBase);
-            cmpSubStr = radix.convert(subStr, Math.pow(2, this.radixFromBase), Math.pow(2, this.radixToBase));
+            subStr = str.substring(i * tb, (i + 1) * tb);
+            cmpSubStr = radix.convert(subStr, Math.pow(2, fb), Math.pow(2, tb));
             cmpStr += cmpSubStr;
+        }
+        return cmpStr;
+    }
 
-            // console.log(subStr, cmpSubStr, loops, l);
-            console.log(l, loops);
+    this.radixUncompress = function(str, fb = this.radixFromBase, tb = this.radixToBase) {
+
+        ucmp = "";
+        zeros = "00000";
+        for (i = 0; i < str.length; i++) {
+            
+            u = radix.convert(str[i], Math.pow(2, tb), Math.pow(2, fb));
+            s = zeros.substring(0, tb - u.length) + u;
+
+            ucmp += s;
+        }
+        return ucmp;
+    }
+
+    this.repeats = function(str) {
+
+        char = str[0];
+        rep = 1;
+        newStr = "";
+
+        for (i = 1; i <= str.length; i++) {
+
+            if (i < str.length && str[i] == char) {
+
+                rep++;     
+            }
+            else {
+
+                if (rep > 3) {
+
+                    newStr += radix.convert(rep, 10, 36) + "*" + char;
+                }
+                else {
+                    for (j = 0; j < rep; j++) {
+                        newStr += char;
+                    }
+                }
+                char = str[i];
+                rep = 1;
+            }
+            // console.log(i,char,str[i],rep)
+        }
+        return newStr;
+    }
+
+    this.unrepeat = function(str) {
+
+        repeats = [];
+        for (i = 0; i < str.length; i++) {
+
+            if (str[i] == "*") {
+                repeats.push(i);
+            }
         }
 
+        if (repeats.length > 0) {
 
-        // return cmpStr;
-    }
+            nr = str.substring(0, repeats[0] - 1)
+            for (i = 0; i < repeats.length; i++) {
+                times = radix.convert(str[repeats[i] - 1], 36, 10);
+                for (j = 0; j < times; j++) {
 
-    this.radixUncompress = function(str) {
+                    nr += str[repeats[i] + 1];
+                }
 
+                if (repeats[i] + 2 < str.length) {
+                    if (i < repeats.length - 1) {
 
+                        nr += str.substring(repeats[i] + 2, repeats[i + 1] - 1);
+                    }
+                    else {
+
+                        nr += str.substring(repeats[i] + 2, str.length);
+                    }
+                }   
+            }
+            return nr;
+        }
+        return str;
     }
 }
+a = new cmp();

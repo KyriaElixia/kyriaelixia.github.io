@@ -29,12 +29,14 @@ for (i = 0; i < 2; i++) {
 
 document.getElementById("game0_bar").appendChild(btns[0]);
 
-// windowTitle = document.createElement("div");
-// windowTitle.innerHTML = "Minesweeper";
-// windowTitle.style.position = "absolute";
-// windowTitle.style.top = 6;
-// windowTitle.id = "gameTitle";
-// document.getElementById("game0_bar").appendChild(windowTitle);
+gameTitle = document.createElement("div");
+gameTitle.innerHTML = "Minesweeper";
+gameTitle.style.position = "absolute";
+gameTitle.style.top = 7;
+gameTitle.className = "title";
+gameTitle.id = "gameTitle";
+gameTitle.style.userSelect = "none";
+document.getElementById("game0_bar").appendChild(gameTitle);
 
 
 // document.getElementById("settingss1_bar").appendChild(settingsBtn);
@@ -46,6 +48,16 @@ settings_bar = document.getElementById("settings1_bar");
 settingsWidth = 375;
 settingsWindow.style.width = settingsWidth;
 settings_bar.style.width = settingsWidth;
+
+settingsTitle = document.createElement("div");
+settingsTitle.innerHTML = "Settings";
+settingsTitle.style.position = "absolute";
+settingsTitle.style.top = 7;
+settingsTitle.style.left = (settingsWidth-77)/2;
+settingsTitle.className = "title";
+settingsTitle.id = "settingsTitle";
+settingsTitle.style.userSelect = "none";
+document.getElementById("settings1_bar").appendChild(settingsTitle);
 
 
 settingsWindow.appendChild(document.getElementById("settings_panel"));

@@ -26,7 +26,7 @@ createWindow = function(id, x, y, b = true, cb = false) {
     cBar.style.width = defaultWidth;
     cBar.style.height = defaultBarHeight;
     cBar.style.position = "relative";
-    
+    cBar.style.cursor = "move";
 
     cWindow.style.left = x;
     cWindow.style.top = y;

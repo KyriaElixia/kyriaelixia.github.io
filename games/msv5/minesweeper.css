@@ -43,7 +43,7 @@ body {
     background-color: var(--inputBackgroundColorHover);
 }
 
-.toggleButtonDark {
+.toggleButton_dark {
 
     /* font-family: "Roboto", monospace;; */
     border-radius: 8px;
@@ -64,7 +64,7 @@ body {
     font-family: menloFont;
     font-weight: bold;
 }
-.toggleButtonDark:hover {
+.toggleButton_dark:hover {
 
     background-color: var(--inputBackgroundColorHoverDark);
 }
@@ -104,7 +104,7 @@ body {
     cursor: pointer;
 }
 
-.sliderDark {
+.slider_dark {
     -webkit-appearance: none;
     width: 200px;
     height: 10px;
@@ -117,22 +117,33 @@ body {
     font-family: menloFont;
     font-weight: bold;
 }
-.sliderDark:hover {
+.slider_dark:hover {
     opacity: 1;
 }
-.sliderDark::-webkit-slider-thumb {
+.slider_dark::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 5px;
     height: 15px;
     border: none;
     background: var(--inputBackgroundColorHover);
-    cursor: pointer;
+    cursor: w-resize;
 }
-.sliderDark::-moz-range-thumb {
+.slider_dark::-moz-range-thumb {
     width: 5px;
     height: 15px;
     border: none;
     background: var(--inputBackgroundColorHover);
-    cursor: pointer;
+    cursor: w-resize;
+}
+
+
+
+.title {
+
+    color: white;
+}
+.title_dark {
+
+    color: #b3b3b3;
 }

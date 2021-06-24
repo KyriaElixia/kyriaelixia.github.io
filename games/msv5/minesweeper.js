@@ -41,6 +41,8 @@ for (i = 0; i < width; i++) {
     }
 }
 
+compressor = new cmp();
+
 imgSrc = {}
 updateImgSrc = function() {
 
@@ -164,7 +166,7 @@ createGameGrid = function() {
     gameWindow.style.width = (width + 2*xOffset) * scale;
     gameWindow.style.height = (height + 2*yOffset + hOffset-1) * scale + parseInt(gameWindowBar.style.height) + 2*borderWidth; // 30 = window bar height
     gameWindowBar.style.width = (width + 2*xOffset) * scale;
-    // document.getElementById("gameTitle").style.left = gameWindow.style.width/2 - document.getElementById("gameTitle").offsetWidth/2;
+    document.getElementById("gameTitle").style.left = parseInt(gameWindow.style.width)/2 - document.getElementById("gameTitle").offsetWidth/2;
 
     if (dark_mode) {
         gameWindow.style.backgroundColor = "#636363";
@@ -338,6 +340,7 @@ createRestartButton = function() {
     restartButton.style.left = width * scale/2; //- scale;
     restartButton.style.position = "absolute";
     restartButton.style.top = scale * 3/2;
+    restartButton.style.cursor = "pointer";
     restartButton.src = imgSrc[restartButton_state];
 
     restartButton.onmousedown = function(e) { if (e.which == 1) { restartButton.src = imgSrc[restartButton_state + "_pushed"]; restartHover = true; }}
@@ -705,43 +708,33 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     if (dark_mode && modeSelect == "light") {
 
         dark_mode = false;
-        updateImgSrc();
-        document.getElementById("game0").className = "window";
-        document.getElementById("game0_bar").className = "window_bar";
-        document.getElementById("settings1").className = "window";
-        document.getElementById("settings1_bar").className = "window_bar";
+ 
         document.getElementById("settings1").style.backgroundColor = "#ebebeb";
-        // document.getElementById("settings_button").src = imgSrc["settings"];
-        document.getElementById("settings_button_1").className = "customButton";
-        document.getElementById("settings_button_2").className = "customButton";
-        document.getElementById("scaleSlider").className = "slider";
         document.body.style.color = "black";
-        
-        buttons = document.getElementsByTagName("button");
-        for (b = 0; b < buttons.length; b++) {
-            
-            buttons[b].className = "toggleButton";
-        }
     } else {
         
         dark_mode = true;
-        updateImgSrc();
-        document.getElementById("game0").className = "window_dark";
-        document.getElementById("game0_bar").className = "window_bar_dark";
-        document.getElementById("settings1").className = "window_dark";
-        document.getElementById("settings1_bar").className = "window_bar_dark";
+    
         document.getElementById("settings1").style.backgroundColor = "#777777";
-        // document.getElementById("settings_button").src = imgSrc["settings"];
-        document.getElementById("settings_button_1").className = "customButton_dark";
-        document.getElementById("settings_button_2").className = "customButton_dark";
-        document.getElementById("scaleSlider").className = "sliderDark";
         document.body.style.color = "white";
-        
-        buttons = document.getElementsByTagName("button");
-        for (b = 0; b < buttons.length; b++) {
+    }
 
-            buttons[b].className = "toggleButtonDark";
-        }
+    updateImgSrc();
+    mode = dark_mode ? "_dark" : "";
+    document.getElementById("game0").className = "window" + mode;
+    document.getElementById("game0_bar").className = "window_bar" + mode;
+    document.getElementById("settings1").className = "window" + mode;
+    document.getElementById("settings1_bar").className = "window_bar" + mode;
+    document.getElementById("settings_button_1").className = "customButton" + mode;
+    document.getElementById("settings_button_2").className = "customButton" + mode;
+    document.getElementById("scaleSlider").className = "slider" + mode;
+    document.getElementById("gameTitle").className = "title" + mode;
+    document.getElementById("settingsTitle").className = "title" + mode;
+    
+    buttons = document.getElementsByTagName("button");
+    for (b = 0; b < buttons.length; b++) {
+        
+        buttons[b].className = "toggleButton" + mode;
     }
 
     setCookie("MS5_dark_mode", dark_mode, 30);
@@ -990,6 +983,28 @@ clock = function() {
 
     time++;
     setTimerDisplay();    
+}
+
+exportGrid = function() {
+
+    for (r = 5; r > 0; r--) {
+
+        if (width % r == 0) {
+            break;
+        }
+    }
+    
+    toCmp = "";
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+
+            toCmp += grid[x][y] == "bomb" ? 1 : 0;
+        }
+    }
+
+    toExp = compressor.compress(toCmp, 1, r);
+    // console.warn("cmp", compressor.uncompress(toExp,1,r))
+    return toExp;
 }
 
 
