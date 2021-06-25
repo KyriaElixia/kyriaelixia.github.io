@@ -823,6 +823,7 @@ loadCookies = function() {
     maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
     flagWarning = checkCookie("MS5_flagWarning", "" + flagWarning) == "true" ? true : false;
     freeBorder = checkCookie("MS5_freeBorder", "" + freeBorder) == "true" ? true : false;
+    displaySettings = checkCookie("MS5_displaySettings", "" + displaySettings) == "true" ? true : false;
     
     scaleCookie = parseInt(checkCookie("MS5_scale"));
     scale = scaleCookie > 20 ? scaleCookie : scale;
@@ -844,6 +845,10 @@ setSettings = function() {
     }
     if (freeBorder) {
         toggleFreeBorder(true);
+    }
+    if (displaySettings) {
+        displaySettings = false;
+        settingsToggle();
     }
 
     document.getElementById('toggleLightsCheck').checked = !dark_mode;

@@ -98,6 +98,7 @@ settingsToggle = function() {
         settingsWindow.style.display = "";
         displaySettings = true;
     }
+    setCookie("MS5_displaySettings", displaySettings, 30);
 }
 
 
