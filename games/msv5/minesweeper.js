@@ -22,6 +22,7 @@ keyDown = false;
 flagWarning = true;
 freeBorder = false;
 peeking = false;
+retrying = false
 
 mx = -1;
 my = -1;
@@ -180,6 +181,10 @@ createGameGrid = function() {
 
     setTimerDisplay();
     setMinesDisplay();
+    gameWindow.style.left = gameWindow_x;
+    gameWindow.style.top =  gameWindow_y;
+    settingsWindow.style.left = settingsWindow_x;
+    settingsWindow.style.top =  settingsWindow_y;
 }
 
 createGameTile = function(xx, yy, dx, dy, src) {
@@ -545,8 +550,11 @@ leftAction = function(ax, ay) {
     if (firstClick && clickDown) {
 
         firstClick = false;
-        shuffle(ax, ay);
         timeCounter = setInterval(clock, 1000);
+
+        if (!retrying) {
+            shuffle(ax, ay);
+        }
     }
 
     if (field[ax][ay] == "tile" && (clickDown || fastOpening)) {
@@ -806,6 +814,11 @@ toggleFreeBorder = function(start = false) {
 
 loadCookies = function() {
 
+    gameWindow_x = parseInt(checkCookie("MS5_game_x", gameWindow_x));
+    gameWindow_y = parseInt(checkCookie("MS5_game_y", gameWindow_y));
+    settingsWindow_x = parseInt(checkCookie("MS5_settings_x", settingsWindow_x));
+    settingsWindow_y = parseInt(checkCookie("MS5_settings_y", settingsWindow_y));
+
     dark_mode = checkCookie("MS5_dark_mode", "" + dark_mode) == "true" ? true : false;
     maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
     flagWarning = checkCookie("MS5_flagWarning", "" + flagWarning) == "true" ? true : false;
@@ -904,6 +917,11 @@ shuffle = function(xx, yy) {
             }
         }
     }
+    placeNumbers();
+}
+
+placeNumbers = function() {
+
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
 
@@ -939,10 +957,34 @@ restart = function() {
         }
     }
     
+    retrying = false;
     firstClick = true;
     playing = true;
     time = 0;
     minesLeft = mines;
+    setTimerDisplay();
+    setMinesDisplay();
+    updateSmiley("happy");
+}
+
+retry = function() {
+
+    clearInterval(timeCounter);
+
+    for (i = 0; i < width; i++) {
+        for (j = 0; j < height; j++) {
+
+            field[i][j] = "tile";
+            updateTile(i, j);
+        }
+    }
+
+    retrying = true;
+    firstClick = true;
+    playing = true;
+    time = 0;
+    minesLeft = mines;
+
     setTimerDisplay();
     setMinesDisplay();
     updateSmiley("happy");
@@ -985,6 +1027,33 @@ clock = function() {
     setTimerDisplay();    
 }
 
+importGrid = function(importCode) {
+
+    split = importCode.split("-");
+    w = parseInt(radix.convert(split[0], 36, 10));
+    console.warn(w, split);
+    for (r = 5; r > 0; r--) {
+        if (w % r == 0) {
+            break;
+        }
+    }
+
+    code = compressor.uncompress(split[1], 1, r);
+
+    for (i = 0; i < code.length; i++) {
+        
+        x = i % w;
+        y = Math.floor(i/w);
+        
+        grid[x][y] = code[i] == "1" ? "bomb" : "tile";
+    }
+
+    placeNumbers();
+    retry();
+    // console.warn(r,split)
+    // console.log(code)
+}
+
 exportGrid = function() {
 
     for (r = 5; r > 0; r--) {
@@ -1002,7 +1071,7 @@ exportGrid = function() {
         }
     }
 
-    toExp = compressor.compress(toCmp, 1, r);
+    toExp = radix.convert(width, 10, 36) + "-" + compressor.compress(toCmp, 1, r);
     // console.warn("cmp", compressor.uncompress(toExp,1,r))
     return toExp;
 }

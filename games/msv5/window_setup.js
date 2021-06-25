@@ -1,4 +1,8 @@
-gameWindow = createWindow('game' + totalWindows, 50, 50, false, false); 
+gameWindow_x = 50;
+gameWindow_y = 50;
+
+
+gameWindow = createWindow('game' + totalWindows, gameWindow_x, gameWindow_y, false, false); 
 gameWindow.style.backgroundColor = "#bdbdbd";
 
 // settingsImg = document.createElement("img");
@@ -38,10 +42,20 @@ gameTitle.id = "gameTitle";
 gameTitle.style.userSelect = "none";
 document.getElementById("game0_bar").appendChild(gameTitle);
 
+document.getElementById("game0_bar").onclick = function() {
+
+    gameWindow_x = parseInt(gameWindow.style.left);
+    gameWindow_y = parseInt(gameWindow.style.top);
+    setCookie("MS5_game_x", parseInt(gameWindow_x), 30);
+    setCookie("MS5_game_y", parseInt(gameWindow_y), 30);
+}
+
 
 // document.getElementById("settingss1_bar").appendChild(settingsBtn);
+settingsWindow_x = 150;
+settingsWindow_y = 100;
 
-settingsWindow = createWindow('settings' + totalWindows, 150, 100, false, false);
+settingsWindow = createWindow('settings' + totalWindows, settingsWindow_x, settingsWindow_y, false, false);
 settingsWindow.style.display = "none";
 
 settings_bar = document.getElementById("settings1_bar");
@@ -58,6 +72,14 @@ settingsTitle.className = "title";
 settingsTitle.id = "settingsTitle";
 settingsTitle.style.userSelect = "none";
 document.getElementById("settings1_bar").appendChild(settingsTitle);
+
+settings_bar.onclick = function() {
+    
+    settingsWindow_x = parseInt(settingsWindow.style.left);
+    settingsWindow_y = parseInt(settingsWindow.style.top);
+    setCookie("MS5_settings_x", parseInt(settingsWindow_x), 30);
+    setCookie("MS5_settings_y", parseInt(settingsWindow_y), 30);
+}
 
 
 settingsWindow.appendChild(document.getElementById("settings_panel"));
