@@ -112,7 +112,7 @@ share_bar.onclick = function() {
 
 shareWindow.appendChild(document.getElementById("share_panel"));
 document.getElementById("share_bar").appendChild(shareBtns[1]);
-
+document.getElementById("share_panel").style.display = "";
 
 
 
@@ -154,7 +154,7 @@ settings_bar.onclick = function() {
 
 settingsWindow.appendChild(document.getElementById("settings_panel"));
 document.getElementById("settings_bar").appendChild(settingsBtns[1]);
-
+document.getElementById("settings_panel").style.display = "";
 
 
 
