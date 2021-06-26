@@ -54,9 +54,9 @@
         </tr>
         <tr>
             <td><strong style="cursor: pointer;" onclick="document.getElementById('diffCustom').checked = true;"><input style="cursor: pointer;" type="radio" name="diffForm" id="diffCustom">Custom</strong></td>
-            <td><input type="number" name="customWidth" id="customWidth" min="9" size="5"></td>
-            <td><input type="number" name="customHeight" id="customHeight" min="9" size="5"></td>
-            <td><input type="number" name="customMines" id="customMines" min="0" size="5"></td>
+            <td><input class="io" type="number" name="customWidth" id="customWidth" min="9" size="5"></td>
+            <td><input class="io" type="number" name="customHeight" id="customHeight" min="9" size="5"></td>
+            <td><input class="io" type="number" name="customMines" id="customMines" min="0" size="5"></td>
         </tr>
         <tr>
             <td><button class="toggleButton" onclick="resizeGrid();">New game</button></td>
@@ -93,13 +93,14 @@
 
 <div id="share_panel">
 
-    <table style="text-align: center;">
+    <table style="text-align: center;" border="0">
+        
         <tr>
+            <td>
+                <textarea class="io" id="shareURL" cols="68" rows="2" style="resize: none; border: 0px; font-weight: bold;" readonly placeholder="Start a game to generate link"></textarea>
+            </td>
             <td style="width: 100%;">
                 <button style="width: 80%;" onclick="copyGameURL();" class="toggleButton" id="shareURLbtn" onmouseout="this.innerHTML='Copy game link'">Copy game link</button>
-            </td>
-            <td>
-                <textarea id="shareURL" cols="68" rows="3" style="resize: none;" readonly placeholder="Start a game to generate link"></textarea>
             </td>
         </tr>
     </table>

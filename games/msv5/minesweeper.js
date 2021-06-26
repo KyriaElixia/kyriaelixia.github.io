@@ -421,7 +421,7 @@ resizeGrid = function(onlySized = false) {
     setMinesDisplay();
     updateSmiley("happy");
     reRender();
-    // resizeGrid(ww,hh,mm);
+    document.getElementById("shareURL").value = "";
 }
 
 openPeek = function(px, py) {
@@ -753,6 +753,10 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     document.getElementById("gameTitle").className = "title" + mode;
     document.getElementById("settingsTitle").className = "title" + mode;
     document.getElementById("shareTitle").className = "title" + mode;
+    document.getElementById("customWidth").className = "io" + mode;
+    document.getElementById("customHeight").className = "io" + mode;
+    document.getElementById("customMines").className = "io" + mode;
+    document.getElementById("shareURL").className = "io" + mode;
     
     buttons = document.getElementsByTagName("button");
     for (b = 0; b < buttons.length; b++) {
@@ -888,6 +892,7 @@ loadGameFromURL = function() {
         
         // console.warn("loading game from url", URLgame[1]);
         importGrid(URLgame[1]);
+        generateLink();
     }
 }
 

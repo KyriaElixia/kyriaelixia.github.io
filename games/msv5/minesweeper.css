@@ -137,7 +137,18 @@ body {
     cursor: w-resize;
 }
 
+.io {
 
+    background-color: var(--inputBackgroundColor);
+    color: black;
+    border: 0px;
+}
+.io_dark {
+
+    background-color: var(--inputBackgroundColorDark);
+    color: white;
+    border: 0px;
+}
 
 .title {
 
