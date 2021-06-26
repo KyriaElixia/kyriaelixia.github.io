@@ -1,89 +1,161 @@
-.playField {
 
-    padding: 0px;
-    background-color: rgb(189, 189, 189)
+@font-face {
+    font-family: menloFont;
+    src: url(https://kyriaelixia.github.io/fonts/Menlo.ttf);
 }
-.playFieldDark {
-
-    padding: 0px;
-    background-color: #636363
-}
-.difficulty {
-
-    color: white;
-    /* background-image: url("sprites/tiles/tile.png");
-    background-repeat: no-repeat; */
+body {
+    font-family: menloFont;
+    /* font-weight: bold; */
 }
 
-input {
-    background-color: rgb(220, 220, 220); 
+:root {
+    
+    --inputBackgroundColor: #dadada;
+    --inputBackgroundColorHover: #bdbdbd;
+
+    
+    --inputBackgroundColorDark: #646464;
+    --inputBackgroundColorHoverDark: #3c3c3c;
+}
+
+
+.toggleButton {
+
+    /* font-family: "Roboto", monospace;; */
+    border-radius: 8px;
     border: none;
-    border-bottom: solid lightseagreen;
-    border-width: 1px;
+    padding: 6px;
     text-align: center;
-}  
-.pbar {
-    -webkit-appearance: none;
-    border: none;
-    height: 25px;            
-    background: rgb(25,3,2);
-    outline: none;
-    /* opacity: 0.7; */
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-    
-    /* background-image: linear-gradient(to right, rgb(86,23,14), rgb(86,23,14) 0%, rgb(25,3,2) 0%, rgb(25,3,2)); */
-}
-.pbar::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    border: none;
-    width: 0px;
-    height: 25px;
-    background: yellow;
+    text-decoration: none;
+    display: inline-block;
+    /* font-size: 16px; */
+    margin: 4px 2px;
     cursor: pointer;
+    background-color: var(--inputBackgroundColor);
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    font-family: menloFont;
+    font-weight: bold;
 }
-.pbar::-moz-range-thumb {
-    width: 0px;
-    border: none;
-    height: 25px;
-    background: yellow;
-    cursor: pointer;
+.toggleButton:hover {
+
+    background-color: var(--inputBackgroundColorHover);
 }
 
+.toggleButton_dark {
 
-.pbar2 {
-    -webkit-appearance: none;
+    /* font-family: "Roboto", monospace;; */
+    border-radius: 8px;
     border: none;
-    height: 25px;            
-    background: rgb(25,3,2);
-    outline: none;
-    /* opacity: 0.7; */
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-    
-    /* background-image: linear-gradient(to right, rgb(86,23,14), rgb(86,23,14) 0%, rgb(25,3,2) 0%, rgb(25,3,2)); */
-}
-.pbar2::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    border: none;
-    width: 5px;
-    height: 25px;
-    background: rgb(86,23,14);
+    padding: 6px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    /* font-size: 16px; */
+    margin: 4px 2px;
     cursor: pointer;
-}
-.pbar2::-moz-range-thumb {
-    width: 5px;
-    border: none;
-    height: 25px;
-    background: rgb(86,23,14);
-    cursor: pointer;
-}
-
-.playPauseBtn {
-
-    background: rgb(86,23,14);
+    background-color: var(--inputBackgroundColorDark);
+    /* color: var(--inputBackgroundColor); */
     color: white;
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.toggleButton_dark:hover {
+
+    background-color: var(--inputBackgroundColorHoverDark);
+}
+
+
+
+.slider {
+    -webkit-appearance: none;
+    width: 200px;
+    height: 10px;
+    background: var(--inputBackgroundColor);
+    outline: none;
     border: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.slider:hover {
+    opacity: 1;
+}
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorDark);
+    cursor: pointer;
+}
+.slider::-moz-range-thumb {
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorDark);
+    cursor: pointer;
+}
+
+.slider_dark {
+    -webkit-appearance: none;
+    width: 200px;
+    height: 10px;
+    background: var(--inputBackgroundColorDark);
+    outline: none;
+    border: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    font-family: menloFont;
+    font-weight: bold;
+}
+.slider_dark:hover {
+    opacity: 1;
+}
+.slider_dark::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorHover);
+    cursor: w-resize;
+}
+.slider_dark::-moz-range-thumb {
+    width: 5px;
+    height: 15px;
+    border: none;
+    background: var(--inputBackgroundColorHover);
+    cursor: w-resize;
+}
+
+/* input output */
+.io {
+
+    background-color: var(--inputBackgroundColor);
+    color: black;
+    border: 0px;
+}
+.io_dark {
+
+    background-color: var(--inputBackgroundColorDark);
+    color: white;
+    border: 0px;
+}
+
+.title {
+
+    color: white;
+}
+.title_dark {
+
+    color: #b3b3b3;
 }
