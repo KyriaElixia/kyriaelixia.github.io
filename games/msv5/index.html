@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
     <link href="https://kyriaelixia.github.io/server/main.css" rel="stylesheet" type="text/css" />
     <link href="minesweeper.css" rel="stylesheet" type="text/css" />
-    <link href="overlay.css" rel="stylesheet" type="text/css" />
+    <!-- <link href="overlay.css" rel="stylesheet" type="text/css" /> -->
     <link href="https://kyriaelixia.github.io/server/games/minesweeper/sprites/light_mode/tiles/flag.png" rel="icon">    
     
     <title>Elixia's Minesweeper</title>
@@ -91,6 +91,19 @@
     <br>
 </div>
 
+<div id="share_panel">
+
+    <table style="text-align: center;">
+        <tr>
+            <td style="width: 100%;">
+                <button style="width: 80%;" onclick="copyGameURL();" class="toggleButton" id="shareURLbtn" onmouseout="this.innerHTML='Copy game link'">Copy game link</button>
+            </td>
+            <td>
+                <textarea id="shareURL" cols="68" rows="3" style="resize: none;" readonly placeholder="Start a game to generate link"></textarea>
+            </td>
+        </tr>
+    </table>
+</div>
 
 <script src="../../libraries/window/window.js"></script>
 <script src="../../libraries/cookies.js"></script>
@@ -103,4 +116,5 @@
     setSettings(); 
     createGameGrid(); 
     resizeGrid();
+    loadGameFromURL();
 </script>
