@@ -137,6 +137,7 @@ body {
     cursor: w-resize;
 }
 
+/* input output */
 .io {
 
     background-color: var(--inputBackgroundColor);
