@@ -6,12 +6,14 @@ cmp = function() {
     this.radixConvert = true;
     this.radixToBase = 5; // Integers between 1 and 5 works best (2^5 = 32, radix convert only goes up to base 36)
     this.radixFromBase = 1; // 2^x
+    this.maxConvert = 36;
 
     this.repeatShorten = true;
 
     this.compress = function(str, fb = this.radixFromBase, tb = this.radixToBase) {
 
-        rc = this.radixCompress(str, fb, tb);
+        
+        rc = fb != tb ? this.radixCompress(str, fb, tb) : str;
         rcr = this.repeats(rc);
         // console.warn("rc ", rc);
         // console.warn("rcr", rcr);
@@ -21,7 +23,7 @@ cmp = function() {
     this.uncompress = function(str, fb = this.radixFromBase, tb = this.radixToBase) {
 
         ur = this.unrepeat(str); 
-        ruc = this.radixUncompress(ur, fb, tb);
+        ruc = fb != tb ? this.radixUncompress(ur, fb, tb) : ur;
         // console.warn("ur ", ur);    
         // console.warn("ruc", ruc);
         return ruc;
@@ -45,10 +47,13 @@ cmp = function() {
 
         ucmp = "";
         zeros = "00000";
+        diff = fb / tb;
         for (i = 0; i < str.length; i++) {
             
-            u = radix.convert(str[i], Math.pow(2, tb), Math.pow(2, fb));
-            s = zeros.substring(0, tb - u.length) + u;
+            u = radix.convert(str[i], Math.pow(2, fb), Math.pow(2, tb));
+            fill = zeros.substring(0, diff - u.length);
+            // console.error(fill, u, i);
+            s =  fill + u;
 
             ucmp += s;
         }
@@ -63,7 +68,7 @@ cmp = function() {
 
         for (i = 1; i <= str.length; i++) {
 
-            if (i < str.length && str[i] == char) {
+            if (i < str.length && str[i] == char && rep < (this.maxConvert - 1)) {
 
                 rep++;     
             }
@@ -71,7 +76,7 @@ cmp = function() {
 
                 if (rep > 3) {
 
-                    newStr += radix.convert(rep, 10, 36) + "*" + char;
+                    newStr += radix.convert(rep, 10, this.maxConvert) + "*" + char;
                 }
                 else {
                     for (j = 0; j < rep; j++) {

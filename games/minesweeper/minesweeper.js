@@ -252,6 +252,11 @@ createGameTile = function(xx, yy, dx, dy, src) {
             if (e.which == 1) {
     
                 leftAction(mx, my);
+
+                if (displayShare) {
+                    document.getElementById("shareState").value = exportState();
+                    console.log("game state exported")
+                }
             }
         }
     }
@@ -422,6 +427,10 @@ resizeGrid = function(onlySized = false) {
     updateSmiley("happy");
     reRender();
     document.getElementById("shareURL").value = "";
+    if (displayShare) {
+
+        document.getElementById("shareState").value = exportState();
+    }
 }
 
 openPeek = function(px, py) {
@@ -623,6 +632,9 @@ rightAction = function(ax, ay) {
     if (flagWarning) {
 
         checkFlagWarning(ax ,ay);
+    }
+    if (displayShare) {
+        document.getElementById("shareState").value = exportState();
     }
 }
 
@@ -850,6 +862,7 @@ loadCookies = function() {
     scaleCookie = parseInt(checkCookie("MS5_scale"));
     scale = scaleCookie > 20 ? scaleCookie : scale;
     document.getElementById("scaleValue").innerHTML = scale + "px scale";
+    document.getElementById("scaleSlider").value = scale;
 
     document.getElementById("diff" + checkCookie("MS5_difficulty", "Intermediate")).checked = true;
 }
@@ -1015,6 +1028,10 @@ restart = function() {
     setMinesDisplay();
     updateSmiley("happy");
     document.getElementById("shareURL").value = "";
+    if (displayShare) {
+
+        document.getElementById("shareState").value = exportState();
+    }
 }
 
 retry = function() {
@@ -1140,11 +1157,69 @@ exportGrid = function() {
         }
     }
 
-    toExp = radix.convert(width, 10, 36) + "-" + compressor.compress(toCmp, 1, r);
+    toExp = radix.convert(width, 10, 36) + "-" + compressor.compress(toCmp, r, 1);
     // console.warn("cmp", compressor.uncompress(toExp,1,r))
     return toExp;
 }
 
+exportState = function() {
+
+    for (q = 2; q > 0; q--) {
+        
+        if (width % q == 0) {
+            break;
+        }
+    }
+    
+    cmpState = "";
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            
+            switch(field[x][y]) {
+
+                case "0-tile":
+                case "1-tile":
+                case "2-tile":
+                case "3-tile":
+                case "4-tile":
+                case "5-tile":
+                case "6-tile":
+                case "7-tile":
+                case "8-tile":
+                    cmpState += "0";
+                break;
+                case "tile":
+                case "bomb":
+                case "not-bomb":
+                case "exploded-bomb":
+                    cmpState += "1";
+                break;
+                case "flag":
+                    cmpState += "2";
+                break;
+                case "maybe":
+                    cmpState += "3";
+                break;
+            }
+        }
+    }
+    exState = compressor.compress(cmpState, 2, (2*q))
+    // console.warn(q, cmpState)
+    // console.warn(cmpState)
+    // console.error(2, 2*q,compressor.radixCompress(cmpState,2,4))
+    // console.warn(exState)
+    // console.error(compressor.radixUncompress(compressor.radixCompress(cmpState,2,2*q),2*q,2));
+    toExp = exportGrid() + "-" + exState;
+    return toExp;
+}
+
+importState = function(str = "") {
+
+    if (str == "") {
+        str = document.getElementById("State")
+    }
+
+}
 
 UPS = 1000/60;
 setInterval(main, UPS);
