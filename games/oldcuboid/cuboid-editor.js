@@ -457,29 +457,29 @@ game.render = function() {
         for (y = 0; y < height; y++) {
             
             if (grid[y][x] == "t" || grid[y][x] == "s") {
-                game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/tile.png",size,size);
+                game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/tile.png",size,size);
 
                 if (grid[y][x] == "s" && playTest == false) {
-                    game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/player-top.png",size,size);
+                    game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/player-top.png",size,size);
                 }
             }
             else if (grid[y][x] == "e") {
-                game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/end-tile.png",size,size);
+                game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/end-tile.png",size,size);
             }
             else if (grid[y][x] == "w") {
-                game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/weak-tile.png",size,size);
+                game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/weak-tile.png",size,size);
             }
             else if (grid[y][x].substring(0,2) == "do") {
-                game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/open-door.png",size,size);
+                game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/open-door.png",size,size);
             }
             else if (grid[y][x].substring(0,2) == "dc") {
-                game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/closed-door.png",size,size);
+                game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/closed-door.png",size,size);
             }
             else if (grid[y][x].substring(0,2) == "bb") {
-                game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/blue-button.png",size,size);
+                game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/blue-button.png",size,size);
             }
             else if (grid[y][x].substring(0,2) == "bg") {
-                game.picture(x*size,y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/green-button.png",size,size);
+                game.picture(x*size,y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/green-button.png",size,size);
             }
             else {
                 //just here for aesthetics
@@ -512,17 +512,17 @@ game.render = function() {
 
         if (status == 0) {
 
-            game.picture(p1x*size,p1y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/player-top.png",size,size);
+            game.picture(p1x*size,p1y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/player-top.png",size,size);
         }
         else if (status == 1) {
 
-            game.picture(p1x*size,p1y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/player-up.png",size,size);
-            game.picture(p2x*size,p2y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/player-down.png",size,size);
+            game.picture(p1x*size,p1y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/player-up.png",size,size);
+            game.picture(p2x*size,p2y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/player-down.png",size,size);
         }
         else {
 
-            game.picture(p1x*size,p1y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/player-left.png",size,size);
-            game.picture(p2x*size,p2y*size,"https://kyriaelixia.github.io/server/spel/sprites/cuboid/player-right.png",size,size);
+            game.picture(p1x*size,p1y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/player-left.png",size,size);
+            game.picture(p2x*size,p2y*size,"https://kyriaelixia.github.io/spel/sprites/cuboid/player-right.png",size,size);
         }
     }
 };

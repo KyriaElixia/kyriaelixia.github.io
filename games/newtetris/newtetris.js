@@ -265,7 +265,7 @@ setupRender = function () {
             for (h = 0; h < playHeight; h++) {
 
                 pxImg = document.createElement("img");
-                pxImg.src = "http://elixia.spelar.se/games/minesweeper/sprites/tiles/open-tile.png";
+                pxImg.src = "https://kyriaelixia.github.io/games/minesweeper/sprites/tiles/open-tile.png";
                 pxImg.width = players[s].zoom;
                 pxImg.height = players[s].zoom;
                 pxImg.style.left = players[s].x + w * players[s].zoom;
@@ -312,26 +312,26 @@ setupRender = function () {
 
                     if (n == 0) {
 
-                        pxImg.src = "http://elixia.spelar.se/games/minesweeper/sprites/frame/corner-es";
+                        pxImg.src = "https://kyriaelixia.github.io/games/minesweeper/sprites/frame/corner-es";
                     }
                     else {
 
-                        pxImg.src = "http://elixia.spelar.se/games/minesweeper/sprites/frame/corner-ne";
+                        pxImg.src = "https://kyriaelixia.github.io/games/minesweeper/sprites/frame/corner-ne";
                     }
                 }
                 else if (w == playWidth) {
 
                     if (n == 0) {
 
-                        pxImg.src = "http://elixia.spelar.se/games/minesweeper/sprites/frame/corner-sw";
+                        pxImg.src = "https://kyriaelixia.github.io/games/minesweeper/sprites/frame/corner-sw";
                     }
                     else {
 
-                        pxImg.src = "http://elixia.spelar.se/games/minesweeper/sprites/frame/corner-nw";
+                        pxImg.src = "https://kyriaelixia.github.io/games/minesweeper/sprites/frame/corner-nw";
                     }
                 }
                 else {
-                    pxImg.src = "http://elixia.spelar.se/games/minesweeper/sprites/frame/line-h";
+                    pxImg.src = "https://kyriaelixia.github.io/games/minesweeper/sprites/frame/line-h";
                 }
 
                 theGame.appendChild(pxImg);
@@ -339,7 +339,7 @@ setupRender = function () {
             for (h = 0; h < playHeight; h++) {
 
                 pxImg = document.createElement("img");
-                pxImg.src = "http://elixia.spelar.se/games/minesweeper/sprites/frame/line-v";
+                pxImg.src = "https://kyriaelixia.github.io/games/minesweeper/sprites/frame/line-v";
                 pxImg.width = players[s].zoom;
                 pxImg.height = players[s].zoom;
                 pxImg.style.left = players[s].x + (n * (playWidth + 1) - 1) * players[s].zoom;
@@ -362,7 +362,7 @@ setupRender = function () {
             for (h = 0; h < 11; h++) {
 
                 ppImg = document.createElement("img");
-                ppImg.src = "http://elixia.spelar.se/games/newtetris/sprites/transparent.png";
+                ppImg.src = "https://kyriaelixia.github.io/games/newtetris/sprites/transparent.png";
                 ppImg.width = players[s].zoom / deScale;
                 ppImg.height = players[s].zoom / deScale;
                 ppImg.style.left = players[s].x + (playWidth + offset) * players[s].zoom + w * players[s].zoom / deScale;
@@ -395,7 +395,7 @@ setupRender = function () {
             for (h = 0; h < 2; h++) {
 
                 hpImg = document.createElement("img");
-                hpImg.src = "http://elixia.spelar.se/games/newtetris/sprites/transparent.png";
+                hpImg.src = "https://kyriaelixia.github.io/games/newtetris/sprites/transparent.png";
                 hpImg.width = players[s].zoom / deScale;
                 hpImg.height = players[s].zoom / deScale;
                 hpImg.style.left = players[s].x + (playWidth + offset) * players[s].zoom + w * players[s].zoom / deScale;
@@ -644,7 +644,7 @@ player = function (px, py, zoom, id) {
 
                     case 0:
 
-                        document.getElementById("game_" + this.id + "_" + x + "_" + y).src = "http://elixia.spelar.se/games/minesweeper/sprites/tiles/open-tile.png";
+                        document.getElementById("game_" + this.id + "_" + x + "_" + y).src = "https://kyriaelixia.github.io/games/minesweeper/sprites/tiles/open-tile.png";
                         break;
 
                     case "I":
@@ -655,7 +655,7 @@ player = function (px, py, zoom, id) {
                     case "S":
                     case "Z":
 
-                        document.getElementById("game_" + this.id + "_" + x + "_" + y).src = "http://elixia.spelar.se/games/newtetris/sprites/" + this.grid[x][y + playHidden] + ".png";
+                        document.getElementById("game_" + this.id + "_" + x + "_" + y).src = "https://kyriaelixia.github.io/games/newtetris/sprites/" + this.grid[x][y + playHidden] + ".png";
                         break;
                 }
             }
@@ -671,7 +671,7 @@ player = function (px, py, zoom, id) {
 
                 if (this.pieces[k].ox[j] >= 0 && this.pieces[k].oy[j] >= 0) {
 
-                    document.getElementById("game_" + this.id + "_" + this.pieces[k].ox[j] + "_" + this.pieces[k].oy[j]).src = "http://elixia.spelar.se/games/newtetris/sprites/" + this.pieces[k].shape + ".png";
+                    document.getElementById("game_" + this.id + "_" + this.pieces[k].ox[j] + "_" + this.pieces[k].oy[j]).src = "https://kyriaelixia.github.io/games/newtetris/sprites/" + this.pieces[k].shape + ".png";
                 }
             }
         }
@@ -737,11 +737,11 @@ player = function (px, py, zoom, id) {
 
                     if (this.clearTimer < updatesPerSecond / lineClearTimeDiv / 3 || this.clearTimer > updatesPerSecond / lineClearTimeDiv * 2 / 3) {
 
-                        document.getElementById("game_" + this.id + "_" + xu + "_" + this.lineQueue[qu]).src = "http://elixia.spelar.se/games/newtetris/sprites/clear.png";
+                        document.getElementById("game_" + this.id + "_" + xu + "_" + this.lineQueue[qu]).src = "https://kyriaelixia.github.io/games/newtetris/sprites/clear.png";
                     }
                     else {
 
-                        document.getElementById("game_" + this.id + "_" + xu + "_" + this.lineQueue[qu]).src = "http://elixia.spelar.se/games/newtetris/sprites/" + this.grid[xu][this.lineQueue[qu] + playHidden] + ".png";
+                        document.getElementById("game_" + this.id + "_" + xu + "_" + this.lineQueue[qu]).src = "https://kyriaelixia.github.io/games/newtetris/sprites/" + this.grid[xu][this.lineQueue[qu] + playHidden] + ".png";
                     }
                 }
             }
@@ -818,13 +818,13 @@ player = function (px, py, zoom, id) {
         for (hy = 0; hy < 2; hy++) {
             for (hx = 0; hx < 4; hx++) {
 
-                document.getElementById("holding_" + this.id + "_" + hx + "_" + hy).src = "http://elixia.spelar.se/games/newtetris/sprites/transparent.png";
+                document.getElementById("holding_" + this.id + "_" + hx + "_" + hy).src = "https://kyriaelixia.github.io/games/newtetris/sprites/transparent.png";
             }
         }
 
         for (pc = 0; pc < 4; pc++) {
 
-            document.getElementById("holding_" + this.id + "_" + this.holdPreview.ox[pc] + "_" + this.holdPreview.oy[pc]).src = "http://elixia.spelar.se/games/newtetris/sprites/" + this.holding + ".png";
+            document.getElementById("holding_" + this.id + "_" + this.holdPreview.ox[pc] + "_" + this.holdPreview.oy[pc]).src = "https://kyriaelixia.github.io/games/newtetris/sprites/" + this.holding + ".png";
         }
     }
 
@@ -835,7 +835,7 @@ player = function (px, py, zoom, id) {
         for (hy = 0; hy < 11; hy++) {
             for (hx = 0; hx < 4; hx++) {
 
-                document.getElementById("preview_" + this.id + "_" + hx + "_" + hy).src = "http://elixia.spelar.se/games/newtetris/sprites/transparent.png";
+                document.getElementById("preview_" + this.id + "_" + hx + "_" + hy).src = "https://kyriaelixia.github.io/games/newtetris/sprites/transparent.png";
             }
         }
 
@@ -845,7 +845,7 @@ player = function (px, py, zoom, id) {
 
             for (pc = 0; pc < 4; pc++) {
 
-                document.getElementById("preview_" + this.id + "_" + upp.ox[pc] + "_" + upp.oy[pc]).src = "http://elixia.spelar.se/games/newtetris/sprites/" + this.pieceList[opp] + ".png";
+                document.getElementById("preview_" + this.id + "_" + upp.ox[pc] + "_" + upp.oy[pc]).src = "https://kyriaelixia.github.io/games/newtetris/sprites/" + this.pieceList[opp] + ".png";
             }
         }
     }
@@ -907,7 +907,7 @@ player = function (px, py, zoom, id) {
 
                 for (gp = 0; gp < 4; gp++) {
 
-                    document.getElementById("game_" + this.id + "_" + this.pieces[0].ox[gp] + "_" + [gy - (this.pieces[0].oy[0] - this.pieces[0].oy[gp])]).src = "http://elixia.spelar.se/games/newtetris/sprites/ghost.png";
+                    document.getElementById("game_" + this.id + "_" + this.pieces[0].ox[gp] + "_" + [gy - (this.pieces[0].oy[0] - this.pieces[0].oy[gp])]).src = "https://kyriaelixia.github.io/games/newtetris/sprites/ghost.png";
                 }
                 break;
             }

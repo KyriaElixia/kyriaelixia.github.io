@@ -19,7 +19,7 @@ function testDebug() {
     
     testImg = newElement("img",document.getElementById("element"));
 
-    newAttribute(testImg,"src","https://kyriaelixia.github.com/server/games/minesweeper/sprites/tiles/tile.png");
+    newAttribute(testImg,"src","https://kyriaelixia.github.io/games/minesweeper/sprites/tiles/tile.png");
     newAttribute(testImg,"width","150");
     newAttribute(testImg,"height","150");
     newAttribute(document.getElementById("element"),"align","center")

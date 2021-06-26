@@ -15,7 +15,7 @@
 
     AllySize = 15;
 
-    preloadSound("https://kyriaelixia.github.io/server/games/sounds/Death.mp3");
+    preloadSound("https://kyriaelixia.github.io/games/sounds/Death.mp3");
 
     Spread = 999;
 
@@ -110,10 +110,10 @@
 
         PlayMusic("Hangar");
 
-        preloadSound("https://kyriaelixia.github.io/server/games/sounds/Death.mp3");
-        preloadSound("https://kyriaelixia.github.io/server/games/sounds/pang0.mp3");
-        preloadSound("https://kyriaelixia.github.io/server/games/sounds/pang1.mp3");
-        preloadSound("https://kyriaelixia.github.io/server/games/sounds/pang2.mp3");
+        preloadSound("https://kyriaelixia.github.io/games/sounds/Death.mp3");
+        preloadSound("https://kyriaelixia.github.io/games/sounds/pang0.mp3");
+        preloadSound("https://kyriaelixia.github.io/games/sounds/pang1.mp3");
+        preloadSound("https://kyriaelixia.github.io/games/sounds/pang2.mp3");
 
         pBullet = [];
 
@@ -421,7 +421,7 @@
 
     function Meny(){
 
-        picture(0,0,"https://kyriaelixia.github.io/server/games/cube/sprites/preview.png");
+        picture(0,0,"https://kyriaelixia.github.io/games/cube/sprites/preview.png");
 
         if(LevelTimer >= 295 && keyboard.ctrl == false){
 
@@ -1188,7 +1188,7 @@
 
         if(timer % 24 == 0){
 
-            playSound("https://kyriaelixia.github.io/server/games/sounds/pang"+random(3)+".mp3", 0.1);
+            playSound("https://kyriaelixia.github.io/games/sounds/pang"+random(3)+".mp3", 0.1);
 
         }
 
@@ -1488,7 +1488,7 @@
 
         }
 
-        playSound("https://kyriaelixia.github.io/server/games/sounds/Death.mp3",1);
+        playSound("https://kyriaelixia.github.io/games/sounds/Death.mp3",1);
 
         temp = floor(Allies.length/2)
 
@@ -2977,7 +2977,7 @@
 
     function PlayMusic(Song){
 
-        document.getElementById('The music').src = "https://kyriaelixia.github.io/server/games/music/" + Song + ".mp3";
+        document.getElementById('The music').src = "https://kyriaelixia.github.io/games/music/" + Song + ".mp3";
 
     }
 
@@ -2992,6 +2992,6 @@
 
 <audio id = "The music" autoplay="autoplay" loop="true">
 
-    <source src = "https://kyriaelixia.github.io/server/games/music/Hangar.mp3" />     
+    <source src = "https://kyriaelixia.github.io/games/music/Hangar.mp3" />     
 
 </audio>
