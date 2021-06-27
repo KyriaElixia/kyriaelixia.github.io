@@ -253,10 +253,7 @@ createGameTile = function(xx, yy, dx, dy, src) {
     
                 leftAction(mx, my);
 
-                if (displayShare) {
-                    document.getElementById("shareState").value = exportState();
-                    console.log("game state exported")
-                }
+                showExportedState();
             }
         }
     }
@@ -427,10 +424,8 @@ resizeGrid = function(onlySized = false) {
     updateSmiley("happy");
     reRender();
     document.getElementById("shareURL").value = "";
-    if (displayShare) {
-
-        document.getElementById("shareState").value = exportState();
-    }
+    document.getElementById("shareState").value = "";
+    showExportedState();
 }
 
 openPeek = function(px, py) {
@@ -620,10 +615,10 @@ rightAction = function(ax, ay) {
     } 
     else if (field[ax][ay] == "flag" || field[ax][ay] == "maybe"){
         
-        field[ax][ay] = "tile";
-        if (!maybe) {
+        if (!maybe && field[ax][ay] != "maybe") {
             minesLeft++;
         }
+        field[ax][ay] = "tile";
     }
     updateTile(ax, ay);
     setMinesDisplay();
@@ -633,9 +628,7 @@ rightAction = function(ax, ay) {
 
         checkFlagWarning(ax ,ay);
     }
-    if (displayShare) {
-        document.getElementById("shareState").value = exportState();
-    }
+    showExportedState();
 }
 
 spaceAction = function(ax, ay) {
@@ -769,6 +762,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     document.getElementById("customHeight").className = "io" + mode;
     document.getElementById("customMines").className = "io" + mode;
     document.getElementById("shareURL").className = "io" + mode;
+    document.getElementById("shareState").className = "io" + mode;
     
     buttons = document.getElementsByTagName("button");
     for (b = 0; b < buttons.length; b++) {
@@ -912,6 +906,7 @@ loadGameFromURL = function() {
 generateLink = function() {
 
     document.getElementById("shareURL").value = window.location.href.split("?")[0] + "?" + exportGrid();
+    showExportedState();
 }
 
 setTimerDisplay = function() {
@@ -1028,10 +1023,8 @@ restart = function() {
     setMinesDisplay();
     updateSmiley("happy");
     document.getElementById("shareURL").value = "";
-    if (displayShare) {
-
-        document.getElementById("shareState").value = exportState();
-    }
+    document.getElementById("shareState").value = "";
+    showExportedState();
 }
 
 retry = function() {
@@ -1083,6 +1076,13 @@ copyGameURL = function() {
     document.getElementById("shareURLbtn").innerHTML = "Link copied!";
 }
 
+copyGameStateURL = function() {
+
+    document.getElementById("shareState").select();
+    document.execCommand("copy");
+    document.getElementById("shareStateBtn").innerHTML = "Link copied!";
+}
+
 main = function() {
     
     referenceScale = parseInt(document.getElementById("scaleSlider").value);
@@ -1112,7 +1112,7 @@ importGrid = function(importCode) {
         }
     }
 
-    code = compressor.uncompress(split[1], 1, r);
+    code = compressor.uncompress(split[1], r, 1);
     
     mineCount = 0;
     for (i = 0; i < code.length; i++) {
@@ -1136,8 +1136,10 @@ importGrid = function(importCode) {
     
     placeNumbers();
     retry();
-    // console.warn(r,split)
-    // console.log(code)
+    
+    if (split.length == 3) {
+        importState(split[2]);
+    }
 }
 
 exportGrid = function() {
@@ -1157,7 +1159,7 @@ exportGrid = function() {
         }
     }
 
-    toExp = radix.convert(width, 10, 36) + "-" + compressor.compress(toCmp, r, 1);
+    toExp = radix.convert(width, 10, 36) + "-" + compressor.compress(toCmp, 1, r);
     // console.warn("cmp", compressor.uncompress(toExp,1,r))
     return toExp;
 }
@@ -1190,11 +1192,11 @@ exportState = function() {
                 break;
                 case "tile":
                 case "bomb":
-                case "not-bomb":
                 case "exploded-bomb":
-                    cmpState += "1";
+                        cmpState += "1";
                 break;
                 case "flag":
+                case "not-bomb":
                     cmpState += "2";
                 break;
                 case "maybe":
@@ -1203,22 +1205,56 @@ exportState = function() {
             }
         }
     }
-    exState = compressor.compress(cmpState, 2, (2*q))
+    exState = compressor.compress(cmpState, 2, 2*q)
     // console.warn(q, cmpState)
-    // console.warn(cmpState)
+    // console.warn(cmpState, "//cmpState");
     // console.error(2, 2*q,compressor.radixCompress(cmpState,2,4))
-    // console.warn(exState)
+    // console.warn(exState, "//exState");
     // console.error(compressor.radixUncompress(compressor.radixCompress(cmpState,2,2*q),2*q,2));
-    toExp = exportGrid() + "-" + exState;
+    toExp = document.getElementById("shareURL").value + "-" + exState;
     return toExp;
 }
 
-importState = function(str = "") {
+importState = function(str) {
 
-    if (str == "") {
-        str = document.getElementById("State")
+    for (q = 2; q > 0; q--) {
+        
+        if (width % q == 0) {
+            break;
+        }
+    }
+    
+    impState = compressor.uncompress(str, 2*q, 2);
+    console.warn(impState);
+    for (i = 0; i < impState.length; i++) {
+
+        x = i % width;
+        y = Math.floor(i/width);
+
+        if (impState[i] == "0") {
+
+            field[x][y] = grid[x][y] + "-tile";
+        }
+        else if (impState[i] == "2") {
+            
+            field[x][y] = "flag";
+            minesLeft--;
+        }
+        else if (impState[i] == "3") {
+            
+            field[x][y] = "maybe";
+        }
+        updateTile(x,y);
     }
 
+    setMinesDisplay();
+}
+
+showExportedState = function() {
+
+    if (displayShare && document.getElementById("shareURL").value != "") {
+        document.getElementById("shareState").value = exportState();
+    }
 }
 
 UPS = 1000/60;

@@ -33,12 +33,15 @@ cmp = function() {
 
         loops = str.length/tb;
         cmpStr = "";
+        zeros = "00000";
 
         for (i = 0; i < loops; i++) {
-
+            
             subStr = str.substring(i * tb, (i + 1) * tb);
             cmpSubStr = radix.convert(subStr, Math.pow(2, fb), Math.pow(2, tb));
-            cmpStr += cmpSubStr;
+            fill = zeros.substring(0, fb - cmpSubStr.length);
+
+            cmpStr += fill + cmpSubStr;
         }
         return cmpStr;
     }
@@ -127,4 +130,4 @@ cmp = function() {
         return str;
     }
 }
-a = new cmp();
+// a = new cmp();   
