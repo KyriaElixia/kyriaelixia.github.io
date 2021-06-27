@@ -425,7 +425,9 @@ resizeGrid = function(onlySized = false) {
     reRender();
     document.getElementById("shareURL").value = "";
     document.getElementById("shareState").value = "";
+    
     showExportedState();
+    document.getElementById("gameTitle").style.left = parseInt(gameWindow.style.width)/2 - document.getElementById("gameTitle").offsetWidth/2;
 }
 
 openPeek = function(px, py) {
