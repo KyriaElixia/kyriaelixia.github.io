@@ -236,7 +236,7 @@ createGameTile = function(xx, yy, dx, dy, src) {
                 clickDown = true;
                 document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc["0-tile"]; 
             }
-            else if (e.which == 1 && field[mx][my] != "tile" && grid[mx][my] > 0 && grid[mx][my] < 9) {
+            else if (e.which == 1 && field[mx][my] != "tile" && field[mx][my] != "flag" && field[mx][my] != "maybe" && grid[mx][my] > 0 && grid[mx][my] < 9) {
 
                 flagCount(mx, my);
             }
