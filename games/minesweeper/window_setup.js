@@ -189,7 +189,7 @@ shareToggle = function() {
 
         shareWindow.style.display = "";
         displayShare = true;    
-        document.getElementById("shareState").value = exportState();
+        showExportedState();
         
     }
     setCookie("MS5_displayShare", displayShare, 30);
