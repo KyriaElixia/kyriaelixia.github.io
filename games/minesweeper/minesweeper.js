@@ -1140,6 +1140,7 @@ importGrid = function(importCode) {
     if (split.length == 3) {
         importState(split[2]);
     }
+    document.getElementById("gameTitle").style.left = parseInt(gameWindow.style.width)/2 - document.getElementById("gameTitle").offsetWidth/2;
 }
 
 exportGrid = function() {
