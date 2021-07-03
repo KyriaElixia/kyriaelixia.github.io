@@ -126,6 +126,7 @@ function init()
        "randomAlternative",
        "shuffle",
        "promptNumber",
+       "alertObject",
        "picture",
        "clearScreen",
        "fill",
@@ -239,7 +240,7 @@ function init()
   };
   
   loadErrorConsole();
-  loadScript("https://www.koda.nu/advanced.js", simplify);
+  loadScript("https://kyriaelixia.github.io/libraries/spelprogrammering.nu/advanced-backup.js", simplify);
 }
 
 function loadErrorConsole() {
