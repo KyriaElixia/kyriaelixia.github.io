@@ -104,6 +104,7 @@ function dragElement(elmnt) {
         document.onmouseup = closeDragElement;
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
+
     }
 
     function elementDrag(e) {
@@ -131,7 +132,7 @@ function dragElement(elmnt) {
         /* stop moving when mouse button is released:*/
         document.onmouseup = null;
         document.onmousemove = null;
-        elmnt.onmousedown = null; // Added by me
+        elmnt.onmousedown = null; // Added by me to only allow dragging if bar is clicked
     }
 }
 

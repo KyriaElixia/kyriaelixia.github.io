@@ -7,6 +7,11 @@ body {
     font-family: menloFont;
     /* font-weight: bold; */
 }
+input {
+    font-family: menloFont;
+}
+
+
 
 :root {
     
@@ -158,4 +163,31 @@ body {
 .title_dark {
 
     color: #b3b3b3;
+}
+
+
+
+.cookie {
+
+    /* width: 50%; */
+    border: 2px solid #0080ff;
+    border-radius: 7px;
+    background-color: #ebebeb;
+    padding: 10px;
+    position: absolute;
+    left: 20%;
+    height: 50px;
+    z-index: 10;
+}
+.cookie_dark {
+
+    /* width: 50%; */
+    border: 2px solid #004386;
+    border-radius: 7px;
+    background-color: #777777;
+    padding: 10px;
+    position: absolute;
+    left: 20%;
+    height: 50px;
+    z-index: 10;
 }

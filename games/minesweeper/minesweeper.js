@@ -765,6 +765,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     document.getElementById("customMines").className = "io" + mode;
     document.getElementById("shareURL").className = "io" + mode;
     document.getElementById("shareState").className = "io" + mode;
+    document.getElementById("cookie_disclaimer").className = "cookie" + mode;
     
     buttons = document.getElementsByTagName("button");
     for (b = 0; b < buttons.length; b++) {
@@ -845,8 +846,11 @@ loadCookies = function() {
     gameWindow_y = parseInt(checkCookie("MS5_game_y", gameWindow_y));
     settingsWindow_x = parseInt(checkCookie("MS5_settings_x", settingsWindow_x));
     settingsWindow_y = parseInt(checkCookie("MS5_settings_y", settingsWindow_y));
+    settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 2));
     shareWindow_x = parseInt(checkCookie("MS5_share_x", shareWindow_x));
     shareWindow_y = parseInt(checkCookie("MS5_share_y", shareWindow_y));
+    shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 1));
+    
 
     dark_mode = checkCookie("MS5_dark_mode", "" + dark_mode) == "true" ? true : false;
     maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
@@ -859,8 +863,23 @@ loadCookies = function() {
     scale = scaleCookie > 20 ? scaleCookie : scale;
     document.getElementById("scaleValue").innerHTML = scale + "px scale";
     document.getElementById("scaleSlider").value = scale;
-
+    
     document.getElementById("diff" + checkCookie("MS5_difficulty", "Intermediate")).checked = true;
+
+
+    showedCookies = checkCookie("MS5_showedCookies", "false") == "true" ? true : false;
+    if (!showedCookies) {
+
+        cd = document.getElementById("cookie_disclaimer");
+        cd.style.display = "";
+        cd.style.left = (document.body.clientWidth - cd.offsetWidth)/2;
+    }
+}
+
+closeCookies = function() {
+
+    document.getElementById('cookie_disclaimer').style.display = "none";
+    setCookie("MS5_showedCookies", true, 30);
 }
 
 setSettings = function() {
