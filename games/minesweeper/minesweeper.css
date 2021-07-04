@@ -62,7 +62,7 @@ input {
     cursor: pointer;
     background-color: var(--inputBackgroundColorDark);
     /* color: var(--inputBackgroundColor); */
-    color: white;
+    color: #cfcfcf;
 
     -webkit-transition-duration: 0.4s; /* Safari */
     transition-duration: 0.4s;
@@ -152,7 +152,7 @@ input {
 .io_dark {
 
     background-color: var(--inputBackgroundColorDark);
-    color: white;
+    color: #cfcfcf;
     border: 0px;
 }
 

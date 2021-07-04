@@ -282,6 +282,8 @@ window.onkeyup = function(e) {
         
         keyDown = false;
     }
+    settingsWindow.onmousedown = settingsWindowFocus;
+    shareWindow.onmousedown = shareWindowFocus;
 }
 
 function dragElement(elmnt) {

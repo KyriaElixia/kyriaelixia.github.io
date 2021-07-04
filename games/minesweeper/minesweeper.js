@@ -30,6 +30,7 @@ peek_x = 0;
 peek_y = 0;
 
 clearList = [];
+recordedGame = [];
 
 grid = new Array(width);
 field = new Array(width);
@@ -243,6 +244,7 @@ createGameTile = function(xx, yy, dx, dy, src) {
             else if (e.which == 3) {
     
                 rightAction(mx, my); 
+                recordedGame.push("R"+time);
             }
         }
     }
@@ -252,7 +254,7 @@ createGameTile = function(xx, yy, dx, dy, src) {
             if (e.which == 1) {
     
                 leftAction(mx, my);
-
+                recordedGame.push("L"+time);
                 showExportedState();
             }
         }
@@ -529,10 +531,12 @@ flagCount = function(fx, fy, doPeek = true) {
     if (count == grid[fx][fy]) {
         
         fastOpen(fx, fy);
+        recordedGame.push("F"+time);
     } 
     else if (doPeek) {
 
         openPeek(fx, fy);
+        recordedGame.push("P"+time);
     }
 }
 
@@ -741,7 +745,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     
         document.getElementById("settings").style.backgroundColor = "#777777";
         document.getElementById("share").style.backgroundColor = "#777777";
-        document.body.style.color = "white";
+        document.body.style.color = "#cfcfcf";
     }
 
     updateImgSrc();
