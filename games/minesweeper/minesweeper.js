@@ -88,6 +88,7 @@ updateImgSrc = function() {
         "cool":             "sprites/" + mode + "/buttons/cool.png",
         "kiss":             "sprites/" + mode + "/buttons/kiss.png",
         "settings":         "sprites/" + mode + "/buttons/settings.png",
+        "retry":            "sprites/" + mode + "/buttons/retry-overlay.png",
         "happy_pushed":     "sprites/" + mode + "/buttons/happy_pushed.png",
         "dead_pushed":      "sprites/" + mode + "/buttons/dead_pushed.png",
         "cool_pushed":      "sprites/" + mode + "/buttons/cool_pushed.png",
@@ -162,14 +163,15 @@ createGameGrid = function() {
 
     //
     gameDiv.appendChild(createRestartButton());
+    gameDiv.appendChild(createRetryOverlay());
 
-
+    
     // RESIZING THE WINDOW
     gameWindow.style.width = (width + 2*xOffset) * scale;
     gameWindow.style.height = (height + 2*yOffset + hOffset-1) * scale + parseInt(gameWindowBar.style.height) + 2*borderWidth; // 30 = window bar height
     gameWindowBar.style.width = (width + 2*xOffset) * scale;
     document.getElementById("gameTitle").style.left = parseInt(gameWindow.style.width)/2 - document.getElementById("gameTitle").offsetWidth/2;
-
+    
     if (dark_mode) {
         gameWindow.style.backgroundColor = "#636363";
         document.body.style.backgroundColor = "#777777";
@@ -177,9 +179,9 @@ createGameGrid = function() {
         gameWindow.style.backgroundColor = "#bdbdbd";
         document.body.style.backgroundColor = "#ebebeb";
     }
-
+    
     gameWindow.appendChild(gameDiv);
-
+    
     setTimerDisplay();
     setMinesDisplay();
     gameWindow.style.left = gameWindow_x;
@@ -188,6 +190,11 @@ createGameGrid = function() {
     settingsWindow.style.top =  settingsWindow_y;
     shareWindow.style.left = shareWindow_x;
     shareWindow.style.top =  shareWindow_y;
+    
+    
+    if (retrying) {
+        toggleRetry(true);
+    }
 }
 
 createGameTile = function(xx, yy, dx, dy, src) {
@@ -353,7 +360,7 @@ createRestartButton = function() {
     restartButton.style.top = scale * 3/2;
     restartButton.style.cursor = "pointer";
     restartButton.src = imgSrc[restartButton_state];
-    restartButton.title = "Start a new game"
+    restartButton.title = "Start a new game";
 
     restartButton.onmousedown = function(e) { if (e.which == 1) { restartButton.src = imgSrc[restartButton_state + "_pushed"]; restartHover = true; }}
     restartButton.onmouseup = function() { restartButton.src = imgSrc[restartButton_state]; }
@@ -361,6 +368,21 @@ createRestartButton = function() {
     restartButton.onmouseover = function() { if (restartHover) { restartButton.src = imgSrc[restartButton_state + "_pushed"]; }}
 
     return restartButton;
+}
+
+createRetryOverlay = function() {
+
+    retryOverlay = document.createElement("img");
+    retryOverlay.style.pointerEvents = "none";
+    retryOverlay.style.display = "none";
+    retryOverlay.id = "retry-overlay";
+    retryOverlay.style.width = 2 * scale;
+    retryOverlay.style.left = width * scale/2; //- scale;
+    retryOverlay.style.position = "absolute";
+    retryOverlay.style.top = scale * 3/2;
+    retryOverlay.src = imgSrc["retry"];
+
+    return retryOverlay;
 }
 
 resizeGrid = function(onlySized = false) {
@@ -415,7 +437,8 @@ resizeGrid = function(onlySized = false) {
             }
         }
     }
-    retrying = false;
+    retrying = true;
+    toggleRetry();
     firstClick = true;
     playing = true;
     minesLeft = mines;
@@ -844,6 +867,22 @@ toggleFreeBorder = function(start = false) {
     document.getElementById('toggleFreeBorderCheck').checked = freeBorder;
 }
 
+toggleRetry = function(start = false) {
+
+    if (retrying && !start) {
+        retrying = false;
+        document.getElementById("retry-overlay").style.display = "none";
+        document.getElementById("restartButton").onclick = function() { restart(); }
+        document.getElementById("retryButton").disabled = true;
+    }
+    else {
+        retrying = true;
+        document.getElementById("retry-overlay").style.display = "";
+        document.getElementById("restartButton").onclick = function() { retry(); }
+        document.getElementById("retryButton").disabled = false;
+    }
+}
+
 loadCookies = function() {
 
     gameWindow_x = parseInt(checkCookie("MS5_game_x", gameWindow_x));
@@ -999,6 +1038,7 @@ shuffle = function(xx, yy) {
             }
         }
     }
+    document.getElementById("retryButton").disabled = false;
     placeNumbers();
 }
 
@@ -1039,7 +1079,9 @@ restart = function() {
         }
     }
     
-    retrying = false;
+    retrying = true;
+    toggleRetry();
+    document.getElementById("retryButton").disabled = true;
     firstClick = true;
     playing = true;
     time = 0;
@@ -1064,11 +1106,13 @@ retry = function() {
         }
     }
 
-    retrying = true;
     firstClick = true;
     playing = true;
     time = 0;
     minesLeft = mines;
+
+    retrying = false;
+    toggleRetry();
 
     setTimerDisplay();
     setMinesDisplay();
@@ -1160,6 +1204,7 @@ importGrid = function(importCode) {
     }
     
     placeNumbers();
+    toggleRetry(true);
     retry();
     
     if (split.length == 3) {
@@ -1285,3 +1330,5 @@ showExportedState = function() {
 
 UPS = 1000/60;
 setInterval(main, UPS);
+
+
