@@ -1,16 +1,16 @@
 @font-face {
-    font-family: potraFont;
+    font-family: menloFont;
     src: url(https://kyriaelixia.github.io/fonts/Menlo.ttf);
 } 
-.potra {
-    font-family: potraFont;
+.menlo {
+    font-family: menloFont;
 }
 
 body {
 
     background-color: rgb(235, 235, 235);
     color: black;
-    font-family: potraFont;
+    font-family: menloFont;
     /* font-family: Arial, Helvetica, sans-serif; */
     text-align: center;
 }
@@ -36,7 +36,7 @@ p {
     text-align: center;
 }
 button {
-    font-family: potraFont;
+    font-family: menloFont;
 }
 
 .spec {

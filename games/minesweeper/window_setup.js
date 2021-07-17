@@ -1,5 +1,6 @@
 
 
+
 windowShadow = "0px 2px 8px 0px #3c3c3c";
 document.getElementById("cookie_disclaimer").style.boxShadow = windowShadow;
 ///////////////////////////////////////////////////////////////////
@@ -259,7 +260,12 @@ window.onmouseup = function() {
     }
     clickDown = false;
     restartHover = false;
-    closePeek(peek_x, peek_y);
+    
+    if (peeking) {
+        closePeek(peek_x, peek_y);
+        recordedGame.push("C_"+ time + "_" + peek_x + "_" + peek_y);
+        console.info("C_"+ time + "_" + peek_x + "_" + peek_y);
+    }
 }
 
 window.onkeydown = function(e) { // disable scroll on spacebar
@@ -268,7 +274,7 @@ window.onkeydown = function(e) { // disable scroll on spacebar
         
         e.preventDefault();
         
-        if (!keyDown && playing) {
+        if (!keyDown && playing && !editing) {
             
             spaceAction(mx, my);
             keyDown = true;
