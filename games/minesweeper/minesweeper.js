@@ -1079,13 +1079,19 @@ setSettings = function() {
 
 loadGameFromURL = function() {
 
-    URLgame = window.location.href.split("?");
+    URLgame = window.location.href.split("?")
+    cookieGame = checkCookie("MS5_lastGameState", "");
 
     if (URLgame.length > 1) {
         
         // console.warn("loading game from url", URLgame[1]);
         importGrid(URLgame[1]);
         generateLink();
+    }
+    else if (cookieGame.length != 0) {
+        
+        console.error(cookieGame)
+        importGrid(cookieGame);
     }
 }
 

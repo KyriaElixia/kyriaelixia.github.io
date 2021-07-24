@@ -292,6 +292,29 @@ window.onkeyup = function(e) {
     shareWindow.onmousedown = shareWindowFocus;
 }
 
+// window.onbeforeunload = function() {
+
+//     generateLink();
+//     setCookie("MS5_lastGameState", document.getElementById("shareState").value);
+//     alert("test");
+//     return 'Are you sure you want to leave? BANANA';
+// }
+
+window.onunload = function() {
+    
+    
+    if (playing && time != 0) {
+        
+        quitState = exportState().split("?")[1];
+    }
+    else {
+        
+        quitState = "";
+    }
+    
+    setCookie("MS5_lastGameState", quitState);
+}
+
 function dragElement(elmnt) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     if (document.getElementById(elmnt.id)) {
