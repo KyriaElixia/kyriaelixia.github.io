@@ -1,3 +1,12 @@
+// TODO:
+// - game recording and playback
+// - savestate when switching between game and editor / when leaving and reloading page
+// - cookie information display
+// - statistics (wins, losses, flags placed, bombs marked, incorrectly flagged, fastest wins)
+// - how to play / controls explanation
+// - separate this file (minesweeper.js) into more files
+// - 50/50% detection and exclusion?
+
 
 width = 16;
 height = 16;
