@@ -6,7 +6,9 @@
 // - how to play / controls explanation
 // - separate this file (minesweeper.js) into more files
 // - 50/50% detection and exclusion?
-
+// - better shuffle spread
+// - inverted mouse controls option
+// - different/custom sprite packs option?
 
 width = 16;
 height = 16;
