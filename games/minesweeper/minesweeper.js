@@ -458,7 +458,7 @@ resizeGrid = function(onlySized = false) {
         width = ww < 9 ? 9 : ww;
         height = hh < 9 ? 9 : hh;
         mines = mm < 1 ? 1 : mm;
-        mines = mines >= ww * hh ? ww * hh - 1 : mines;
+        mines = mines >= ww * hh ? ww * hh - 9 : mines;
         
         document.getElementById("customWidth").value = width;
         document.getElementById("customHeight").value = height;
@@ -1159,7 +1159,8 @@ shuffle = function(xx, yy) {
 
                 place = Math.floor(Math.random()*100);
                 
-                if (place < 5 && (x != xx || y != yy) && placeMines > 0 && grid[x][y] != "bomb") {
+                if (place < 5 && (Math.abs(xx - x) > 1 || Math.abs(yy - y) > 1) && placeMines > 0 && grid[x][y] != "bomb") {
+                // if (place < 5 && (x != xx || y != yy) && placeMines > 0 && grid[x][y] != "bomb") {
                     grid[x][y] = "bomb";
                     placeMines--;
                 }
