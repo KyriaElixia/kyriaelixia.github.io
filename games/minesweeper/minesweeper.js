@@ -9,6 +9,9 @@
 // - better shuffle spread
 // - inverted mouse controls option
 // - different/custom sprite packs option?
+// - Less hardcoded dark mode switch
+// - game history with win/loss, time, game+recording link
+
 
 width = 16;
 height = 16;
