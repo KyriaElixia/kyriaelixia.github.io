@@ -1,12 +1,18 @@
 
 
-
+extraWindows = [];
 windowShadow = "0px 2px 8px 0px #3c3c3c";
 document.getElementById("cookie_disclaimer").style.boxShadow = windowShadow;
 ///////////////////////////////////////////////////////////////////
+
+start_game_x = 50;
+start_game_y = 50;
+start_extra_x = 150;
+start_extra_y = 100;
+
 // Game window
-gameWindow_x = 50;
-gameWindow_y = 50;
+gameWindow_x = start_game_x;
+gameWindow_y = start_game_y;
 
 gameWindow = createWindow('game', gameWindow_x, gameWindow_y, false, false); 
 gameWindow.style.backgroundColor = "#bdbdbd";
@@ -64,6 +70,31 @@ for (i = 0; i < 2; i++) {
 }
 document.getElementById("game_bar").appendChild(shareBtns[0]);
 
+statsBtns = [];
+for (i = 0; i < 2; i++) {
+
+    statsBtn = document.createElement("div");
+    statsBtn.style.width = 30;
+    statsBtn.style.height = 30;
+    statsBtn.style.fontSize = 25;
+    statsBtn.style.position = "absolute";
+    statsBtn.style.left = 60 *(1-i);
+    statsBtn.style.top = 0;
+    statsBtn.innerHTML = "&#8904;";
+    statsBtn.className = "customButton";
+    statsBtn.style.verticalAlign = "text-bottom";
+    statsBtn.style.textAlign = "center";
+    statsBtn.id = "stats_button_" + (i+1);
+    statsBtn.style.userSelect = "none";
+    statsBtn.onclick = function() { statsToggle(); }
+    statsBtn.title = "Open/close stats window";
+    
+    statsBtns.push(statsBtn);
+}
+document.getElementById("game_bar").appendChild(statsBtns[0]);
+ 
+
+
 gameTitle = document.createElement("div");
 gameTitle.innerHTML = "Minesweeper";
 gameTitle.style.position = "absolute";
@@ -81,74 +112,18 @@ document.getElementById("game_bar").onclick = function() {
     setCookie("MS5_game_y", parseInt(gameWindow_y), 30);
 }
 
-
-///////////////////////////////////////////////////////////////////
-// Share window
-
-
-shareWindow_x = 150;
-shareWindow_y = 100;
-
-shareWindow = createWindow('share', shareWindow_x, shareWindow_y, false, false);
-shareWindow.style.display = "none";
-shareWindow.style.boxShadow = windowShadow;
-shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 1));
-
-
-share_bar = document.getElementById("share_bar");
-shareWidth = 700;
-shareWindow.style.width = shareWidth;
-share_bar.style.width = shareWidth;
-
-shareTitle = document.createElement("div");
-shareTitle.innerHTML = "Share";
-shareTitle.style.position = "absolute";
-shareTitle.style.top = 7;
-shareTitle.style.left = (shareWidth-48)/2;
-shareTitle.className = "title";
-shareTitle.id = "shareTitle";
-shareTitle.style.userSelect = "none";
-document.getElementById("share_bar").appendChild(shareTitle);
-
-share_bar.onclick = function() {
-    
-    shareWindow_x = parseInt(shareWindow.style.left);
-    shareWindow_y = parseInt(shareWindow.style.top);
-    setCookie("MS5_share_x", parseInt(shareWindow_x), 30);
-    setCookie("MS5_share_y", parseInt(shareWindow_y), 30);
-}
-
-shareWindowFocus = function() {
-
-    shareWindow.style.zIndex = 2;
-    settingsWindow.style.zIndex = 1;
-    zIndexCookieSave();
-}
-shareWindow.onclick = shareWindowFocus;
-shareWindow.onmousedown = shareWindowFocus;
-
-
-
-shareWindow.appendChild(document.getElementById("share_panel"));
-document.getElementById("share_bar").appendChild(shareBtns[1]);
-document.getElementById("share_panel").style.display = "";
-
-
-
-
-
 ///////////////////////////////////////////////////////////////////
 // Settings window
 
 // document.getElementById("settingss1_bar").appendChild(settingsBtn);
-settingsWindow_x = 150;
-settingsWindow_y = 100;
+settingsWindow_x = start_extra_x;
+settingsWindow_y = start_extra_y;
 
 settingsWindow = createWindow('settings', settingsWindow_x, settingsWindow_y, false, false);
 settingsWindow.style.display = "none";
 settingsWindow.style.boxShadow = windowShadow;
 settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 2));
-
+extraWindows.push(settingsWindow);
 
 settings_bar = document.getElementById("settings_bar");
 settingsWidth = 375;
@@ -175,9 +150,7 @@ settings_bar.onclick = function() {
 
 settingsWindowFocus = function() {
 
-    shareWindow.style.zIndex = 1;
-    settingsWindow.style.zIndex = 2;
-    zIndexCookieSave();
+    focusWindow(settingsWindow);
 }
 settingsWindow.onclick = settingsWindowFocus;
 settingsWindow.onmousedown = settingsWindowFocus;
@@ -187,6 +160,108 @@ settingsWindow.appendChild(document.getElementById("settings_panel"));
 document.getElementById("settings_bar").appendChild(settingsBtns[1]);
 document.getElementById("settings_panel").style.display = "";
 
+///////////////////////////////////////////////////////////////////
+// Share window
+
+
+shareWindow_x = start_extra_x;
+shareWindow_y = start_extra_y;
+
+shareWindow = createWindow('share', shareWindow_x, shareWindow_y, false, false);
+shareWindow.style.display = "none";
+shareWindow.style.boxShadow = windowShadow;
+shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 1));
+extraWindows.push(shareWindow);
+
+share_bar = document.getElementById("share_bar");
+shareWidth = 700;
+shareWindow.style.width = shareWidth;
+share_bar.style.width = shareWidth;
+
+shareTitle = document.createElement("div");
+shareTitle.innerHTML = "Share";
+shareTitle.style.position = "absolute";
+shareTitle.style.top = 7;
+shareTitle.style.left = (shareWidth-48)/2;
+shareTitle.className = "title";
+shareTitle.id = "shareTitle";
+shareTitle.style.userSelect = "none";
+document.getElementById("share_bar").appendChild(shareTitle);
+
+share_bar.onclick = function() {
+    
+    shareWindow_x = parseInt(shareWindow.style.left);
+    shareWindow_y = parseInt(shareWindow.style.top);
+    setCookie("MS5_share_x", parseInt(shareWindow_x), 30);
+    setCookie("MS5_share_y", parseInt(shareWindow_y), 30);
+}
+
+shareWindowFocus = function() {
+
+    focusWindow(shareWindow);
+}
+shareWindow.onclick = shareWindowFocus;
+shareWindow.onmousedown = shareWindowFocus;
+
+
+
+shareWindow.appendChild(document.getElementById("share_panel"));
+document.getElementById("share_bar").appendChild(shareBtns[1]);
+document.getElementById("share_panel").style.display = "";
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////
+// Statistics window
+
+// document.getElementById("settingss1_bar").appendChild(settingsBtn);
+statsWindow_x = start_extra_x;
+statsWindow_y = start_extra_y;
+
+statsWindow = createWindow('stats', statsWindow_x, statsWindow_y, false, false);
+statsWindow.style.display = "none";
+statsWindow.style.boxShadow = windowShadow;
+statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 2));
+extraWindows.push(statsWindow);
+
+stats_bar = document.getElementById("stats_bar");
+statsWidth = 375;
+statsWindow.style.width = statsWidth;
+stats_bar.style.width = statsWidth;
+
+statsTitle = document.createElement("div");
+statsTitle.innerHTML = "Statistics";
+statsTitle.style.position = "absolute";
+statsTitle.style.top = 7;
+statsTitle.style.left = (statsWidth-96)/2;
+statsTitle.className = "title";
+statsTitle.id = "statsTitle";
+statsTitle.style.userSelect = "none";
+document.getElementById("stats_bar").appendChild(statsTitle);
+
+stats_bar.onclick = function() {
+    
+    statsWindow_x = parseInt(statsWindow.style.left);
+    statsWindow_y = parseInt(statsWindow.style.top);
+    setCookie("MS5_stats_x", parseInt(statsWindow_x), 30);
+    setCookie("MS5_stats_y", parseInt(statsWindow_y), 30);
+}
+
+statsWindowFocus = function() {
+
+    focusWindow(statsWindow);
+}
+statsWindow.onclick = statsWindowFocus;
+statsWindow.onmousedown = statsWindowFocus;
+
+
+// statsWindow.appendChild(document.getElementById("stats_panel"));
+document.getElementById("stats_bar").appendChild(statsBtns[1]);
+// document.getElementById("stats_panel").style.display = "";
 
 
 ///////////////////////////////////////////////////////////////////
@@ -206,11 +281,6 @@ settingsToggle = function() {
         displaySettings = true;
     }
     setCookie("MS5_displaySettings", displaySettings, 30);
-    
-    // shareWindow.style.zIndex = 1;
-    // settingsWindow.style.zIndex = 2;
-    // zIndexCookieSave();
-    // console.error("settings toc");
 }
 
 displayShare = false;
@@ -225,15 +295,25 @@ shareToggle = function() {
         
         shareWindow.style.display = "";
         displayShare = true;    
-        showExportedState();
-        
+        showExportedState(); 
     }
-    setCookie("MS5_displayShare", displayShare, 30);
+    setCookie("MS5_displayShare", displayShare, 30); 
+}
+
+displayStats = false;
+statsToggle = function() {
     
-    // shareWindow.style.zIndex = 2;
-    // settingsWindow.style.zIndex = 1;
-    // zIndexCookieSave();
-    // console.error("share toc");
+    if (displayStats) {
+        
+        statsWindow.style.display = "none";
+        displayStats = false;
+    }
+    else {
+        
+        statsWindow.style.display = "";
+        displayStats = true;    
+    }
+    setCookie("MS5_displayStats", displayStats, 30); 
 }
 
 // settingsImg.onclick = function() { settingsToggle(); }
@@ -243,13 +323,65 @@ shareToggle = function() {
 
 
 
+focusWindow = function(focus) {
+
+    tempFocus = 0;
+    for (f = 0; f < extraWindows.length; f++) {
+        if (extraWindows[f] == focus) {
+            
+            tempFocus = f;
+        }
+    }
+
+    for (f = tempFocus; f > 0; f--) {
+
+        extraWindows[f] = extraWindows[f - 1]; 
+    }
+    extraWindows[0] = focus;
+
+    for (f = 0; f < extraWindows.length; f++) {
+
+        extraWindows[f].style.zIndex = extraWindows.length - f; 
+    }
+    zIndexCookieSave();
+}
 
 zIndexCookieSave = function() {
     
     setCookie("MS5_settings_z", parseInt(settingsWindow.style.zIndex));
     setCookie("MS5_share_z", parseInt(shareWindow.style.zIndex));
+    setCookie("MS5_stats_z", parseInt(statsWindow.style.zIndex));
 }
 
+resetWindows = function() {
+
+    gameWindow_x = start_game_x;
+    gameWindow_y = start_game_y;
+    shareWindow_x = start_extra_x;
+    shareWindow_y = start_extra_y;
+    settingsWindow_x = start_extra_x;
+    settingsWindow_y = start_extra_y;
+    statsWindow_x = start_extra_x;
+    statsWindow_y = start_extra_y;
+
+    document.getElementById("game").style.left = start_game_x;
+    document.getElementById("game").style.top = start_game_y;
+    document.getElementById("settings").style.left = start_extra_x;
+    document.getElementById("settings").style.top = start_extra_y;
+    document.getElementById("share").style.left = start_extra_x;
+    document.getElementById("share").style.top = start_extra_y;
+    document.getElementById("stats").style.left = start_extra_x;
+    document.getElementById("stats").style.top = start_extra_y;
+
+    setCookie("MS5_game_x", parseInt(gameWindow_x), 30);
+    setCookie("MS5_game_y", parseInt(gameWindow_y), 30);
+    setCookie("MS5_settings_x", parseInt(settingsWindow_x), 30);
+    setCookie("MS5_settings_y", parseInt(settingsWindow_y), 30);
+    setCookie("MS5_share_x", parseInt(shareWindow_x), 30);
+    setCookie("MS5_share_y", parseInt(shareWindow_y), 30);
+    setCookie("MS5_stats_x", parseInt(statsWindow_x), 30);
+    setCookie("MS5_stats_y", parseInt(statsWindow_y), 30);
+}
 
 
 window.onmouseup = function() { 

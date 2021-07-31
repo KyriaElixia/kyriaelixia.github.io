@@ -207,6 +207,8 @@ createGameGrid = function() {
     settingsWindow.style.top =  settingsWindow_y;
     shareWindow.style.left = shareWindow_x;
     shareWindow.style.top =  shareWindow_y;
+    statsWindow.style.left = statsWindow_x;
+    statsWindow.style.top =  statsWindow_y;
     
     
     if (retrying) {
@@ -862,6 +864,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
  
         document.getElementById("settings").style.backgroundColor = "#ebebeb";
         document.getElementById("share").style.backgroundColor = "#ebebeb";
+        document.getElementById("stats").style.backgroundColor = "#ebebeb";
         document.body.style.color = "black";
     } else {
         
@@ -869,6 +872,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     
         document.getElementById("settings").style.backgroundColor = "#777777";
         document.getElementById("share").style.backgroundColor = "#777777";
+        document.getElementById("stats").style.backgroundColor = "#777777";
         document.body.style.color = "#cfcfcf";
     }
 
@@ -884,10 +888,15 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     document.getElementById("share_bar").className = "window_bar" + mode;
     document.getElementById("share_button_1").className = "customButton" + mode;
     document.getElementById("share_button_2").className = "customButton" + mode;
+    document.getElementById("stats").className = "window" + mode;
+    document.getElementById("stats_bar").className = "window_bar" + mode;
+    document.getElementById("stats_button_1").className = "customButton" + mode;
+    document.getElementById("stats_button_2").className = "customButton" + mode;
     document.getElementById("scaleSlider").className = "slider" + mode;
     document.getElementById("gameTitle").className = "title" + mode;
     document.getElementById("settingsTitle").className = "title" + mode;
     document.getElementById("shareTitle").className = "title" + mode;
+    document.getElementById("statsTitle").className = "title" + mode;
     document.getElementById("customWidth").className = "io" + mode;
     document.getElementById("customHeight").className = "io" + mode;
     document.getElementById("customMines").className = "io" + mode;
@@ -1025,11 +1034,17 @@ loadCookies = function() {
     gameWindow_y = parseInt(checkCookie("MS5_game_y", gameWindow_y));
     settingsWindow_x = parseInt(checkCookie("MS5_settings_x", settingsWindow_x));
     settingsWindow_y = parseInt(checkCookie("MS5_settings_y", settingsWindow_y));
-    settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 2));
+    settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 3));
     shareWindow_x = parseInt(checkCookie("MS5_share_x", shareWindow_x));
     shareWindow_y = parseInt(checkCookie("MS5_share_y", shareWindow_y));
-    shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 1));
+    shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 2));
+    statsWindow_x = parseInt(checkCookie("MS5_stats_x", statsWindow_x));
+    statsWindow_y = parseInt(checkCookie("MS5_stats_y", statsWindow_y));
+    statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 1));
     
+    extraWindows[extraWindows.length-settingsWindow.style.zIndex] = settingsWindow;
+    extraWindows[extraWindows.length-shareWindow.style.zIndex] = shareWindow;
+    extraWindows[extraWindows.length-statsWindow.style.zIndex] = statsWindow;
 
     dark_mode = checkCookie("MS5_dark_mode", "" + dark_mode) == "true" ? true : false;
     maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
@@ -1037,6 +1052,7 @@ loadCookies = function() {
     freeBorder = checkCookie("MS5_freeBorder", "" + freeBorder) == "true" ? true : false;
     displaySettings = checkCookie("MS5_displaySettings", "" + displaySettings) == "true" ? true : false;
     displayShare = checkCookie("MS5_displayShare", "" + displayShare) == "true" ? true : false;
+    displayStats = checkCookie("MS5_displayStats", "" + displayStats) == "true" ? true : false;
     
     scaleCookie = parseInt(checkCookie("MS5_scale"));
     scale = scaleCookie > 20 ? scaleCookie : scale;
@@ -1082,6 +1098,10 @@ setSettings = function() {
     if (displayShare) {
         displayShare = false;
         shareToggle();
+    }
+    if (displayStats) {
+        displayStats = false;
+        statsToggle();
     }
 
 

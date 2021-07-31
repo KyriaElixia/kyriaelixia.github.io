@@ -5,11 +5,13 @@
 }
 body {
     font-family: menloFont;
+    overflow: hidden;
     /* font-weight: bold; */
 }
 input {
     font-family: menloFont;
 }
+
 
 
 
