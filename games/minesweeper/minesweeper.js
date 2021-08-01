@@ -9,7 +9,7 @@
 // - better shuffle spread
 // - inverted mouse controls option
 // - different/custom sprite packs option?
-// - Less hardcoded dark mode switch
+// + Less hardcoded dark mode switch
 // - game history with win/loss, time, game+recording link
 
 
@@ -37,6 +37,7 @@ flagWarning = true;
 freeBorder = false;
 peeking = false;
 retrying = false;
+currentDifficulty = "Intermediate";
 
 editing = false;
 document.getElementById("toggleEditor").checked = false;
@@ -214,6 +215,8 @@ createGameGrid = function() {
     if (retrying) {
         toggleRetry(true);
     }
+
+    createStatsTable();
 }
 
 createGameTile = function(xx, yy, dx, dy, src) {
@@ -431,6 +434,62 @@ createRetryOverlay = function() {
     return retryOverlay;
 }
 
+createStatsTable = function() {
+
+    document.getElementById("stats_table").remove();
+    diffs = ["Beginner", "Intermediate", "Expert", "Custom"];
+    tracking = ["Full clears", "Bombs exploded", "Bombs found", "Fastest clear"];
+
+    tbl = document.createElement("table");
+    tbl.id = "stats_table";
+    tbl.border = 1;
+    tbl.style.borderCollapse = "collapse";
+    tbl.cellPadding = 5;
+    cellBorder = "2px solid white";
+    for (t = 0; t <= tracking.length; t++) {
+
+        tr = document.createElement("tr");
+        for (d = 0; d <= diffs.length; d++) {
+            
+            if (t == 0 && d == 0) {
+
+                td = document.createElement("td");
+                td.style.border = cellBorder;
+                // td.id = "stats_" + diffs[d - 1] + "_" + tracking[t - 1];
+                tr.appendChild(td);
+            }
+            else if (t == 0 && d != 0) {
+                th = document.createElement("th");
+                th.style.border = cellBorder;
+                th.innerHTML = diffs[d - 1];
+                tr.appendChild(th);
+            }
+            else if (d == 0 && t != 0) {
+
+                th = document.createElement("th");
+                th.style.border = cellBorder;
+                th.innerHTML = tracking[t - 1];
+                tr.appendChild(th);
+            }
+            else {
+
+                td = document.createElement("td");
+                td.style.textAlign = "center";
+                td.style.border = cellBorder;
+                td.id = "stats_" + diffs[d - 1] + "_" + tracking[t - 1].replace(" ", "_");
+                td.innerHTML = checkCookie("MS5_stats_" + diffs[d - 1] + "_" + tracking[t - 1].replace(" ", "_"), t != 5 ? 0 : "N/A");
+                tr.appendChild(td);
+            }
+        }
+        tbl.appendChild(tr);
+    }
+    document.getElementById("stats_panel").appendChild(tbl);
+}
+
+createHistoryTable = function() {
+
+}
+
 setGameTitle = function() {
 
     if (editing && false) {
@@ -448,20 +507,24 @@ resizeGrid = function(onlySized = false) {
 
         width = 9; height = 9; mines = 10;
         setCookie("MS5_difficulty", "Beginner", 30);
+        currentDifficulty = "Beginner";
     }
     else if (document.getElementById("diffIntermediate").checked) {
         
         width = 16; height = 16; mines = 40;
         setCookie("MS5_difficulty", "Intermediate", 30);
+        currentDifficulty = "Intermediate";
     }
     else if (document.getElementById("diffExpert").checked) {
         
         width = 30; height = 16; mines = 99;
         setCookie("MS5_difficulty", "Expert", 30);
+        currentDifficulty = "Expert";
     }
     else if (document.getElementById("diffCustom").checked) {
         
         setCookie("MS5_difficulty", "Custom", 30);
+        currentDifficulty = "Custom";
 
         cwe = document.getElementById("customWidth");
         che = document.getElementById("customHeight");
@@ -839,6 +902,7 @@ gameOver = function() {
             updateTile(x, y);
         }
     }
+    setStatisticsCookies(false);
 }
 
 wonGame = function() {
@@ -854,6 +918,7 @@ wonGame = function() {
 
         updateSmiley("cool");
     }
+    setStatisticsCookies(true);
 }
 
 toggleDarkMode = function(modeSelect = "light", doRerender = true) {
@@ -1307,11 +1372,11 @@ retry = function() {
 checkWinCondition = function() {
 
     if (minesLeft == 0 && playing) {
-        win = true;
+        
         for (j = 0; j < height; j++) {
             for (i = 0; i < width; i++) {
                 if ((field[i][j] == "flag" && grid[i][j] != "bomb") || field[i][j] == "tile") {
-                    win = false;
+                    
                     return false;
                 }
             }
@@ -1321,6 +1386,49 @@ checkWinCondition = function() {
         return true; 
     }
     return false;
+}
+
+setStatisticsCookies = function(didWin) {
+
+    if (didWin) {
+
+        cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[0].replace(" ", "_");
+        setCookie(cookieName, parseInt(checkCookie(cookieName, 0)) + 1, 30);
+    }
+    else {
+
+        cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[1].replace(" ", "_");
+        setCookie(cookieName, parseInt(checkCookie(cookieName, 0)) + 1, 30);
+    }
+
+ 
+    bf = 0;
+
+    for (Y = 0; Y < height; Y++) {
+        for (X = 0; X < width; X++) {
+
+            if (field[X][Y] == "flag" && grid[X][Y] == "bomb") {
+
+                bf++;
+            }
+        }
+    }
+
+
+    cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[2].replace(" ", "_");
+    setCookie(cookieName, parseInt(checkCookie(cookieName, 0)) + bf, 30);
+    
+    cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[3].replace(" ", "_");
+    bestTime = parseInt(checkCookie(cookieName, -1));
+    if (bestTime == NaN) {
+        bestTime = -1;
+    }
+    
+    if ((bestTime < 0 || time < bestTime) && didWin) {
+        setCookie(cookieName, time, 30);
+    }
+
+    createStatsTable();
 }
 
 copyGameURL = function() {

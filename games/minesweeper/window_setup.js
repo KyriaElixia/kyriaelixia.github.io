@@ -122,7 +122,7 @@ settingsWindow_y = start_extra_y;
 settingsWindow = createWindow('settings', settingsWindow_x, settingsWindow_y, false, false);
 settingsWindow.style.display = "none";
 settingsWindow.style.boxShadow = windowShadow;
-settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 2));
+settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 3));
 extraWindows.push(settingsWindow);
 
 settings_bar = document.getElementById("settings_bar");
@@ -170,7 +170,7 @@ shareWindow_y = start_extra_y;
 shareWindow = createWindow('share', shareWindow_x, shareWindow_y, false, false);
 shareWindow.style.display = "none";
 shareWindow.style.boxShadow = windowShadow;
-shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 1));
+shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 2));
 extraWindows.push(shareWindow);
 
 share_bar = document.getElementById("share_bar");
@@ -225,11 +225,11 @@ statsWindow_y = start_extra_y;
 statsWindow = createWindow('stats', statsWindow_x, statsWindow_y, false, false);
 statsWindow.style.display = "none";
 statsWindow.style.boxShadow = windowShadow;
-statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 2));
+statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 1));
 extraWindows.push(statsWindow);
 
 stats_bar = document.getElementById("stats_bar");
-statsWidth = 375;
+statsWidth = 800;
 statsWindow.style.width = statsWidth;
 stats_bar.style.width = statsWidth;
 
@@ -259,9 +259,9 @@ statsWindow.onclick = statsWindowFocus;
 statsWindow.onmousedown = statsWindowFocus;
 
 
-// statsWindow.appendChild(document.getElementById("stats_panel"));
+statsWindow.appendChild(document.getElementById("stats_panel"));
 document.getElementById("stats_bar").appendChild(statsBtns[1]);
-// document.getElementById("stats_panel").style.display = "";
+document.getElementById("stats_panel").style.display = "";
 
 
 ///////////////////////////////////////////////////////////////////
