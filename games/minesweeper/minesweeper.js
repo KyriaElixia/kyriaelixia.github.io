@@ -438,52 +438,83 @@ createStatsTable = function() {
 
     document.getElementById("stats_table").remove();
     diffs = ["Beginner", "Intermediate", "Expert", "Custom"];
-    tracking = ["Full clears", "Bombs exploded", "Bombs found", "Fastest clear"];
+    tracking = [["Full sweeps", "Bombs exploded", "Bombs found"], 
+                ["Fastest sweep", "Avg. game time", "Avg. full sweep time", "Avg. explosion time"],
+                ["1-tiles seen", "2-tiles seen", "3-tiles seen", "4-tiles seen", "5-tiles seen", "6-tiles seen", "7-tiles seen", "8-tiles seen"]];
+
+    timingA = 4;
+    timingB = 7;
 
     tbl = document.createElement("table");
     tbl.id = "stats_table";
     tbl.border = 1;
     tbl.style.borderCollapse = "collapse";
     tbl.cellPadding = 5;
-    cellBorder = "2px solid white";
-    for (t = 0; t <= tracking.length; t++) {
+    cellBorder = dark_mode ? "2px solid #777777" : "2px solid #ebebeb";
+    tbl.style.overflow = "scroll";
+    tbl.style.height = 500;
+    cellColor = dark_mode ? "#3c3c3c" : "#bdbdbd";
+    cellColor2 = dark_mode ? "#646464" : "#dadada";
 
-        tr = document.createElement("tr");
-        for (d = 0; d <= diffs.length; d++) {
-            
-            if (t == 0 && d == 0) {
+    for (c = 0; c < tracking.length; c++) {    
+        for (t = 0; t <= tracking[c].length; t++) {
 
-                td = document.createElement("td");
-                td.style.border = cellBorder;
-                // td.id = "stats_" + diffs[d - 1] + "_" + tracking[t - 1];
-                tr.appendChild(td);
-            }
-            else if (t == 0 && d != 0) {
-                th = document.createElement("th");
-                th.style.border = cellBorder;
-                th.innerHTML = diffs[d - 1];
-                tr.appendChild(th);
-            }
-            else if (d == 0 && t != 0) {
+            tr = document.createElement("tr");
+            for (d = 0; d <= diffs.length; d++) {
+                
+                if (t == 0 && d == 0) {
 
-                th = document.createElement("th");
-                th.style.border = cellBorder;
-                th.innerHTML = tracking[t - 1];
-                tr.appendChild(th);
-            }
-            else {
+                    td = document.createElement("td");
+                    td.style.border = cellBorder;
+                   
+                    // td.id = "stats_" + diffs[d - 1] + "_" + tracking[t - 1];
+                    tr.appendChild(td);
+                }
+                else if (t == 0 && d != 0) {
+                    th = document.createElement("th");
+                    th.style.border = cellBorder;
+   
+                    if (c == 0) {
+                        th.innerHTML = diffs[d - 1];
+                        // th.style.backgroundColor = cellColor;
+                    }
+                    else {
+                        th.innerHTML = "<br>";
+                    }
+                    tr.appendChild(th);
+                }
+                else if (d == 0 && t != 0) {
 
-                td = document.createElement("td");
-                td.style.textAlign = "center";
-                td.style.border = cellBorder;
-                td.id = "stats_" + diffs[d - 1] + "_" + tracking[t - 1].replace(" ", "_");
-                td.innerHTML = checkCookie("MS5_stats_" + diffs[d - 1] + "_" + tracking[t - 1].replace(" ", "_"), t != 5 ? 0 : "N/A");
-                tr.appendChild(td);
+                    th = document.createElement("th");
+                    th.style.border = cellBorder;
+                    
+                    th.innerHTML = tracking[c][t - 1];
+                    tr.appendChild(th);
+                }
+                else {
+
+                    td = document.createElement("td");
+                    td.style.textAlign = "center";
+                    td.style.border = cellBorder;
+                    
+                    
+                    td.id = "stats_" + diffs[d - 1] + "_" + tracking[c][t - 1].replace(" ", "_");
+                    td.innerHTML = checkCookie("MS5_stats_" + diffs[d - 1] + "_" + tracking[c][t - 1].replace(" ", "_"), c != 1 ? 0 : "N/A"); //t < timingA || t > timingB
+                    tr.appendChild(td);
+                }
             }
+            if ((t % 2 == 0 && c == 0) || (c != 0 && t % 2 == 1)) {
+                tr.style.backgroundColor = cellColor;
+            }
+            else if ((t % 2 == 1 && c == 0) || (c != 0 && t % 2 == 0 && t != 0)) {
+                tr.style.backgroundColor = cellColor2;
+            }
+
+            tbl.appendChild(tr);
         }
-        tbl.appendChild(tr);
     }
     document.getElementById("stats_panel").appendChild(tbl);
+    document.getElementById("stats_panel").style.width = 595;
 }
 
 createHistoryTable = function() {
@@ -1107,9 +1138,14 @@ loadCookies = function() {
     statsWindow_y = parseInt(checkCookie("MS5_stats_y", statsWindow_y));
     statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 1));
     
-    extraWindows[extraWindows.length-settingsWindow.style.zIndex] = settingsWindow;
-    extraWindows[extraWindows.length-shareWindow.style.zIndex] = shareWindow;
-    extraWindows[extraWindows.length-statsWindow.style.zIndex] = statsWindow;
+    toFocus = new Array(extraWindows.length);
+    toFocus[settingsWindow.style.zIndex - 1] = settingsWindow;
+    toFocus[shareWindow.style.zIndex - 1] = shareWindow;
+    toFocus[statsWindow.style.zIndex - 1] = statsWindow;
+    // extraWindows[extraWindows.length-settingsWindow.style.zIndex] = settingsWindow;
+    // extraWindows[extraWindows.length-shareWindow.style.zIndex] = shareWindow;
+    // extraWindows[extraWindows.length-statsWindow.style.zIndex] = statsWindow;
+    
 
     dark_mode = checkCookie("MS5_dark_mode", "" + dark_mode) == "true" ? true : false;
     maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
@@ -1133,6 +1169,15 @@ loadCookies = function() {
         cd = document.getElementById("cookie_disclaimer");
         cd.style.display = "";
         cd.style.left = (document.body.clientWidth - cd.offsetWidth)/2;
+    }
+}
+
+loadWindowZIndex = function() {
+
+    for (tf = 0; tf < toFocus.length; tf++) {
+
+        focusWindow(toFocus[tf]);
+        
     }
 }
 
@@ -1388,22 +1433,73 @@ checkWinCondition = function() {
     return false;
 }
 
+statsCookieName = function(a1, a2) {
+
+    return "MS5_stats_" + currentDifficulty + "_" + tracking[a1][a2].replace(" ", "_")
+}
+
 setStatisticsCookies = function(didWin) {
+    
+    decPlaces = 3;
+
+    total_wins = parseInt(checkCookie(statsCookieName(0, 0), 0));
+    total_losses = parseInt(checkCookie(statsCookieName(0, 1), 0));
+    total_games = total_wins + total_losses;
+    
+    avg_win_time = parseInt(checkCookie(statsCookieName(1, 2), -1)).toFixed(decPlaces);
+    avg_win_time = avg_win_time == NaN ? -1 : avg_win_time;
+    avg_loss_time = parseInt(checkCookie(statsCookieName(1, 3), -1)).toFixed(decPlaces);
+    avg_loss_time = avg_loss_time == NaN ? -1 : avg_loss_time;
+    avg_game_time = parseInt(checkCookie(statsCookieName(1, 1), -1)).toFixed(decPlaces);
+    avg_game_time = avg_game_time == NaN ? -1 : avg_game_time;
 
     if (didWin) {
+        
+        // Avg. full sweep time 
+        if (avg_win_time >= 0) {
 
-        cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[0].replace(" ", "_");
-        setCookie(cookieName, parseInt(checkCookie(cookieName, 0)) + 1, 30);
+            new_avg_win_time = (avg_win_time * total_wins + time) / (total_wins + 1)
+            setCookie(statsCookieName(1, 2), new_avg_win_time.toFixed(decPlaces), 30);
+        }
+        else {
+
+            setCookie(statsCookieName(1, 2), time, 30);
+        }
+
+        //Full sweep
+        setCookie(statsCookieName(0, 0), total_wins + 1, 30);
     }
     else {
 
-        cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[1].replace(" ", "_");
-        setCookie(cookieName, parseInt(checkCookie(cookieName, 0)) + 1, 30);
+        // Avg. explosion time 
+        if (avg_loss_time >= 0) {
+
+            new_avg_loss_time = (avg_loss_time * total_losses + time) / (total_losses + 1)
+            setCookie(statsCookieName(1, 3), new_avg_loss_time.toFixed(decPlaces), 30);
+        }
+        else {
+
+            setCookie(statsCookieName(1, 3), time, 30);
+        }
+
+        // bombs exploded
+        setCookie(statsCookieName(0, 1), total_losses + 1, 30);
     }
+
+    if (avg_game_time >= 0) {
+
+        new_avg_game_time = (avg_game_time * total_games + time) / (total_games + 1)
+        setCookie(statsCookieName(1, 1), new_avg_game_time.toFixed(decPlaces), 30);
+    }
+    else {
+
+        setCookie(statsCookieName(1, 1), time, 30);
+    }
+
 
  
     bf = 0;
-
+    nr_tiles = [0, 0, 0, 0, 0, 0, 0, 0];
     for (Y = 0; Y < height; Y++) {
         for (X = 0; X < width; X++) {
 
@@ -1411,21 +1507,30 @@ setStatisticsCookies = function(didWin) {
 
                 bf++;
             }
+            else if (field[X][Y] != "tile" && field[X][Y] != "flag" && field[X][Y] != "maybe" && grid[X][Y] > 0 && grid[X][Y] < 9) {
+                nr_tiles[grid[X][Y] - 1]++
+            }
         }
     }
 
+    for (n = 0; n < nr_tiles.length; n++) {
 
-    cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[2].replace(" ", "_");
-    setCookie(cookieName, parseInt(checkCookie(cookieName, 0)) + bf, 30);
+        setCookie(statsCookieName(2, n), parseInt(checkCookie(statsCookieName(2, n), 0)) + nr_tiles[n], 30);
+    }
+
+    bombs_found = parseInt(checkCookie(statsCookieName(0, 2), 0));
+    // bombs found
+
+    setCookie(statsCookieName(0, 2), bombs_found + bf, 30);
     
-    cookieName = "MS5_stats_" + currentDifficulty + "_" + tracking[3].replace(" ", "_");
-    bestTime = parseInt(checkCookie(cookieName, -1));
+    // Fastest sweep
+    bestTime = parseInt(checkCookie(statsCookieName(1, 0), -1));
     if (bestTime == NaN) {
         bestTime = -1;
     }
     
     if ((bestTime < 0 || time < bestTime) && didWin) {
-        setCookie(cookieName, time, 30);
+        setCookie(statsCookieName(1, 0), time, 30);
     }
 
     createStatsTable();

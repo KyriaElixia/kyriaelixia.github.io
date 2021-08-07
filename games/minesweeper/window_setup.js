@@ -123,6 +123,7 @@ settingsWindow = createWindow('settings', settingsWindow_x, settingsWindow_y, fa
 settingsWindow.style.display = "none";
 settingsWindow.style.boxShadow = windowShadow;
 settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 3));
+settingsWindow.style.backgroundColor = "#ebebeb";
 extraWindows.push(settingsWindow);
 
 settings_bar = document.getElementById("settings_bar");
@@ -171,6 +172,7 @@ shareWindow = createWindow('share', shareWindow_x, shareWindow_y, false, false);
 shareWindow.style.display = "none";
 shareWindow.style.boxShadow = windowShadow;
 shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 2));
+shareWindow.style.backgroundColor = "#ebebeb";
 extraWindows.push(shareWindow);
 
 share_bar = document.getElementById("share_bar");
@@ -226,12 +228,16 @@ statsWindow = createWindow('stats', statsWindow_x, statsWindow_y, false, false);
 statsWindow.style.display = "none";
 statsWindow.style.boxShadow = windowShadow;
 statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 1));
+statsWindow.style.backgroundColor = "#ebebeb";
 extraWindows.push(statsWindow);
 
 stats_bar = document.getElementById("stats_bar");
-statsWidth = 800;
+statsWidth = 600;
 statsWindow.style.width = statsWidth;
 stats_bar.style.width = statsWidth;
+statsWindow.style.height = 400;
+document.getElementById("stats_panel").style.height = parseInt(statsWindow.style.height) - parseInt(stats_bar.style.height)-5;
+
 
 statsTitle = document.createElement("div");
 statsTitle.innerHTML = "Statistics";
@@ -279,6 +285,7 @@ settingsToggle = function() {
         
         settingsWindow.style.display = "";
         displaySettings = true;
+        focusWindow(settingsWindow);
     }
     setCookie("MS5_displaySettings", displaySettings, 30);
 }
@@ -294,7 +301,8 @@ shareToggle = function() {
     else {
         
         shareWindow.style.display = "";
-        displayShare = true;    
+        displayShare = true;
+        focusWindow(shareWindow);   
         showExportedState(); 
     }
     setCookie("MS5_displayShare", displayShare, 30); 
@@ -311,7 +319,8 @@ statsToggle = function() {
     else {
         
         statsWindow.style.display = "";
-        displayStats = true;    
+        displayStats = true;
+        focusWindow(statsWindow);  
     }
     setCookie("MS5_displayStats", displayStats, 30); 
 }
