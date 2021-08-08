@@ -76,11 +76,13 @@ for (i = 0; i < 2; i++) {
     statsBtn = document.createElement("div");
     statsBtn.style.width = 30;
     statsBtn.style.height = 30;
-    statsBtn.style.fontSize = 25;
+    // statsBtn.style.fontSize = 25;
+    statsBtn.style.fontSize = 21;
     statsBtn.style.position = "absolute";
     statsBtn.style.left = 60 *(1-i);
     statsBtn.style.top = 0;
-    statsBtn.innerHTML = "&#8904;";
+    // statsBtn.innerHTML = "&#8904;";
+    statsBtn.innerHTML = "&#9783;";
     statsBtn.className = "customButton";
     statsBtn.style.verticalAlign = "text-bottom";
     statsBtn.style.textAlign = "center";
@@ -232,7 +234,7 @@ statsWindow.style.backgroundColor = "#ebebeb";
 extraWindows.push(statsWindow);
 
 stats_bar = document.getElementById("stats_bar");
-statsWidth = 600;
+statsWidth = 700;
 statsWindow.style.width = statsWidth;
 stats_bar.style.width = statsWidth;
 statsWindow.style.height = 400;

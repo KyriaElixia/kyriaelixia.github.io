@@ -453,6 +453,7 @@ createStatsTable = function() {
     cellBorder = dark_mode ? "2px solid #777777" : "2px solid #ebebeb";
     tbl.style.overflow = "scroll";
     tbl.style.height = 500;
+    tbl.style.width = 675;
     cellColor = dark_mode ? "#3c3c3c" : "#bdbdbd";
     cellColor2 = dark_mode ? "#646464" : "#dadada";
 
@@ -514,7 +515,7 @@ createStatsTable = function() {
         }
     }
     document.getElementById("stats_panel").appendChild(tbl);
-    document.getElementById("stats_panel").style.width = 595;
+    document.getElementById("stats_panel").style.width = 695;
 }
 
 createHistoryTable = function() {
