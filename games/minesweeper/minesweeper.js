@@ -438,7 +438,7 @@ createStatsTable = function() {
 
     document.getElementById("stats_table").remove();
     diffs = ["Beginner", "Intermediate", "Expert", "Custom"];
-    tracking = [["Full sweeps", "Mines exploded", "Mines swept"], 
+    tracking = [["Full sweeps", "Mines exploded", "Mines swept", "Avg. sweep percent"], 
                 ["Fastest sweep", "Avg. game time", "Avg. full sweep time", "Avg. explosion time"],
                 ["1-tiles seen", "2-tiles seen", "3-tiles seen", "4-tiles seen", "5-tiles seen", "6-tiles seen", "7-tiles seen", "8-tiles seen"]];
 
@@ -499,8 +499,8 @@ createStatsTable = function() {
                     td.style.border = cellBorder;
                     
                     
-                    td.id = "stats_" + diffs[d - 1] + "_" + tracking[c][t - 1].replace(" ", "_");
-                    td.innerHTML = checkCookie("MS5_stats_" + diffs[d - 1] + "_" + tracking[c][t - 1].replace(" ", "_"), c != 1 ? 0 : "N/A"); //t < timingA || t > timingB
+                    td.id = ("stats_" + diffs[d - 1] + "_" + tracking[c][t - 1]).replace(" ", "_");
+                    td.innerHTML = checkCookie(statsCookieName(c, t - 1, diffs[d - 1]), c != 1 ? 0 : "N/A"); //t < timingA || t > timingB
                     tr.appendChild(td);
                 }
             }
@@ -1434,9 +1434,9 @@ checkWinCondition = function() {
     return false;
 }
 
-statsCookieName = function(a1, a2) {
+statsCookieName = function(a1, a2, cDiff = currentDifficulty) {
 
-    return "MS5_stats_" + currentDifficulty + "_" + tracking[a1][a2].replace(" ", "_")
+    return "MS5_stats_" + cDiff + "_" + tracking[a1][a2].replace(" ", "_");
 }
 
 setStatisticsCookies = function(didWin) {
@@ -1497,7 +1497,7 @@ setStatisticsCookies = function(didWin) {
         setCookie(statsCookieName(1, 1), time, 30);
     }
 
-
+    
  
     bf = 0;
     nr_tiles = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -1523,6 +1523,18 @@ setStatisticsCookies = function(didWin) {
     // bombs found
 
     setCookie(statsCookieName(0, 2), bombs_found + bf, 30);
+
+
+    if (currentDifficulty != "Custom") {
+
+        // total_games + 1 because of new win or loss
+        setCookie(statsCookieName(0, 3), ((bombs_found + bf)/((total_games + 1)*mines)).toFixed(decPlaces)*100, 30);
+    }
+    else {
+        
+        setCookie(statsCookieName(0, 3), "-", 30);
+    }
+
     
     // Fastest sweep
     bestTime = parseInt(checkCookie(statsCookieName(1, 0), -1));
