@@ -1441,7 +1441,7 @@ statsCookieName = function(a1, a2, cDiff = currentDifficulty) {
 
 setStatisticsCookies = function(didWin) {
     
-    decPlaces = 3;
+    decPlaces = 2;
 
     total_wins = parseInt(checkCookie(statsCookieName(0, 0), 0));
     total_losses = parseInt(checkCookie(statsCookieName(0, 1), 0));
