@@ -438,7 +438,7 @@ createStatsTable = function() {
 
     document.getElementById("stats_table").remove();
     diffs = ["Beginner", "Intermediate", "Expert", "Custom"];
-    tracking = [["Full sweeps", "Mines exploded", "Mines found"], 
+    tracking = [["Full sweeps", "Mines exploded", "Mines swept"], 
                 ["Fastest sweep", "Avg. game time", "Avg. full sweep time", "Avg. explosion time"],
                 ["1-tiles seen", "2-tiles seen", "3-tiles seen", "4-tiles seen", "5-tiles seen", "6-tiles seen", "7-tiles seen", "8-tiles seen"]];
 
