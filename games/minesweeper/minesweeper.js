@@ -438,7 +438,7 @@ createStatsTable = function() {
 
     document.getElementById("stats_table").remove();
     diffs = ["Beginner", "Intermediate", "Expert", "Custom"];
-    tracking = [["Full sweeps", "Bombs exploded", "Bombs found"], 
+    tracking = [["Full sweeps", "Mines exploded", "Mines found"], 
                 ["Fastest sweep", "Avg. game time", "Avg. full sweep time", "Avg. explosion time"],
                 ["1-tiles seen", "2-tiles seen", "3-tiles seen", "4-tiles seen", "5-tiles seen", "6-tiles seen", "7-tiles seen", "8-tiles seen"]];
 
@@ -450,7 +450,7 @@ createStatsTable = function() {
     tbl.border = 1;
     tbl.style.borderCollapse = "collapse";
     tbl.cellPadding = 5;
-    cellBorder = dark_mode ? "2px solid #777777" : "2px solid #ebebeb";
+    cellBorder = dark_mode ? "3px solid #777777" : "3px solid #ebebeb";
     tbl.style.overflow = "scroll";
     tbl.style.height = 500;
     tbl.style.width = 675;
