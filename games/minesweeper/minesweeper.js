@@ -524,13 +524,15 @@ createHistoryTable = function() {
 
 setGameTitle = function() {
 
-    if (editing && false) {
-        
+    if (editing) {
+
+        document.getElementById("gameTitle").innerHTML = "Minesweeper - Editor";
     }
     else {
         
-        document.getElementById("gameTitle").style.left = parseInt(gameWindow.style.width)/2 - document.getElementById("gameTitle").offsetWidth/2;
+        document.getElementById("gameTitle").innerHTML = "Minesweeper - " + currentDifficulty;
     }
+    document.getElementById("gameTitle").style.left = parseInt(gameWindow.style.width)/2 - document.getElementById("gameTitle").offsetWidth/2;
 }
 
 resizeGrid = function(onlySized = false) {
@@ -1096,7 +1098,7 @@ toggleEditor = function() {
 
         editing = false;
         playing = true;
-        document.getElementById("gameTitle").innerHTML = "Minesweeper";
+        // document.getElementById("gameTitle").innerHTML = "Minesweeper";
         restart();
     }
     else {
@@ -1106,7 +1108,7 @@ toggleEditor = function() {
         retrying = true;
         toggleRetry();
         restart();
-        document.getElementById("gameTitle").innerHTML = "Minesweeper Editor";
+        // document.getElementById("gameTitle").innerHTML = "Minesweeper - Editor";
         document.getElementById("shareState").value = "";
         
         resizeGrid();
@@ -1235,7 +1237,7 @@ loadGameFromURL = function() {
     }
     else if (cookieGame.length != 0) {
         
-        console.error(cookieGame)
+        // console.error(cookieGame)
         importGrid(cookieGame);
     }
 }
@@ -1528,7 +1530,7 @@ setStatisticsCookies = function(didWin) {
     if (currentDifficulty != "Custom") {
 
         // total_games + 1 because of new win or loss
-        setCookie(statsCookieName(0, 3), ((bombs_found + bf)/((total_games + 1)*mines)).toFixed(decPlaces)*100, 30);
+        setCookie(statsCookieName(0, 3), (((bombs_found + bf)/((total_games + 1)*mines))*100).toFixed(3), 30);
     }
     else {
         
@@ -1712,7 +1714,7 @@ importState = function(state_str, time_str = 0) {
     
     impState = compressor.uncompress(state_str, 2*q, 2);
     time = radix.convert(time_str, 36, 10);
-    console.warn(impState, "time", time);
+    // console.warn(impState, "time", time);
     for (i = 0; i < impState.length; i++) {
 
         x = i % width;
