@@ -155,12 +155,17 @@ importState = function(state_str, time_str = 0) {
     setMinesDisplay();
     setTimerDisplay();
 
-    if (firstClick && !checkWinCondition()) {
+    isNotWon = !checkWinCondition(true)
+    if (firstClick && isNotWon) {
 
         firstClick = false;
         timeCounter = setInterval(clock, 1000);
-
+        
         generateLink();
+    }
+    else {
+
+        playing = false;  
     }
 }
 
@@ -318,4 +323,119 @@ main = function() {
         setCookie("MS5_scale", scale, 30);
         reRender();
     }
+}
+
+statsCookieName = function(a1, a2, cDiff = currentDifficulty) {
+
+    return "MS5_stats_" + cDiff + "_" + tracking[a1][a2].replace(" ", "_");
+}
+
+setStatisticsCookies = function(didWin) {
+    
+    decPlaces = 2;
+
+    total_wins = parseInt(checkCookie(statsCookieName(0, 0), 0));
+    total_losses = parseInt(checkCookie(statsCookieName(0, 1), 0));
+    total_games = total_wins + total_losses;
+    
+    avg_win_time = parseInt(checkCookie(statsCookieName(1, 2), -1)).toFixed(decPlaces);
+    avg_win_time = avg_win_time == NaN ? -1 : avg_win_time;
+    avg_loss_time = parseInt(checkCookie(statsCookieName(1, 3), -1)).toFixed(decPlaces);
+    avg_loss_time = avg_loss_time == NaN ? -1 : avg_loss_time;
+    avg_game_time = parseInt(checkCookie(statsCookieName(1, 1), -1)).toFixed(decPlaces);
+    avg_game_time = avg_game_time == NaN ? -1 : avg_game_time;
+
+    if (didWin) {
+        
+        // Avg. full sweep time 
+        if (avg_win_time >= 0) {
+
+            new_avg_win_time = (avg_win_time * total_wins + time) / (total_wins + 1)
+            setCookie(statsCookieName(1, 2), new_avg_win_time.toFixed(decPlaces), 30);
+        }
+        else {
+
+            setCookie(statsCookieName(1, 2), time, 30);
+        }
+
+        //Full sweep
+        setCookie(statsCookieName(0, 0), total_wins + 1, 30);
+    }
+    else if (!didWin){
+
+        // Avg. explosion time 
+        if (avg_loss_time >= 0) {
+
+            new_avg_loss_time = (avg_loss_time * total_losses + time) / (total_losses + 1)
+            setCookie(statsCookieName(1, 3), new_avg_loss_time.toFixed(decPlaces), 30);
+        }
+        else {
+
+            setCookie(statsCookieName(1, 3), time, 30);
+        }
+
+        // bombs exploded
+        setCookie(statsCookieName(0, 1), total_losses + 1, 30);
+    }
+
+    if (avg_game_time >= 0) {
+
+        new_avg_game_time = (avg_game_time * total_games + time) / (total_games + 1)
+        setCookie(statsCookieName(1, 1), new_avg_game_time.toFixed(decPlaces), 30);
+    }
+    else {
+
+        setCookie(statsCookieName(1, 1), time, 30);
+    }
+
+    
+ 
+    bf = 0;
+    nr_tiles = [0, 0, 0, 0, 0, 0, 0, 0];
+    for (Y = 0; Y < height; Y++) {
+        for (X = 0; X < width; X++) {
+
+            if (field[X][Y] == "flag" && grid[X][Y] == "bomb") {
+
+                bf++;
+            }
+            else if (field[X][Y] != "tile" && field[X][Y] != "flag" && field[X][Y] != "maybe" && grid[X][Y] > 0 && grid[X][Y] < 9) {
+                nr_tiles[grid[X][Y] - 1]++
+            }
+        }
+    }
+
+    for (n = 0; n < nr_tiles.length; n++) {
+
+        setCookie(statsCookieName(2, n), parseInt(checkCookie(statsCookieName(2, n), 0)) + nr_tiles[n], 30);
+    }
+
+    bombs_found = parseInt(checkCookie(statsCookieName(0, 2), 0));
+    // bombs found
+
+    setCookie(statsCookieName(0, 2), bombs_found + bf, 30);
+
+
+    if (currentDifficulty != "Custom") {
+
+        // total_games + 1 because of new win or loss
+        setCookie(statsCookieName(0, 3), (((bombs_found + bf)/((total_games + 1)*mines))*100).toFixed(3), 30);
+    }
+    else {
+        
+        setCookie(statsCookieName(0, 3), "-", 30);
+    }
+
+    
+    // Fastest sweep
+    bestTime = parseInt(checkCookie(statsCookieName(1, 0), -1));
+    if (bestTime == NaN) {
+        bestTime = -1;
+    }
+    
+    if ((bestTime < 0 || time < bestTime) && didWin) {
+        setCookie(statsCookieName(1, 0), time, 30);
+    }
+
+    createStatsTable();
 }
