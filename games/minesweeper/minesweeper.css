@@ -79,6 +79,11 @@ input {
 
     background-color: var(--inputBackgroundColorHoverDark);
 }
+.toggleButton_dark:disabled {
+
+    text-decoration: line-through;
+    color: #a0a7ad;
+}
 
 
 

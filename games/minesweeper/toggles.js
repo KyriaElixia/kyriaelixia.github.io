@@ -142,6 +142,8 @@ toggleEditor = function() {
 
         editing = false;
         playing = true;
+        retrying = true;
+        toggleRetry();
         // document.getElementById("gameTitle").innerHTML = "Minesweeper";
         restart();
     }
