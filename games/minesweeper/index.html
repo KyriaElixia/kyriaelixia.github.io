@@ -103,7 +103,7 @@
 
 <div id="share_panel" style="display: none;">
 
-    <table style="text-align: center;" border="0">   
+    <table style="text-align: center; user-select: none;" border="0">   
         <tr>
             <td><br></td>
         </tr>
@@ -141,64 +141,7 @@
 
 <div id="stats_panel" style="overflow-x: hidden; overflow-y: scroll; user-select: none;">
     <table id="stats_table"></table>
-    <!-- <table cellpadding="5" border="1">
-        <tr>
-            <td></td>
-            <th>Beginner</th>
-            <th>Intermediate</th>
-            <th>Expert</th>
-            <th>Custom</th>
-        </tr>
-        <tr>
-            <th>Wins</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <th>Losses</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <th>Flags placed</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <th>Bombs found</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <th>Fastest wins</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <th>Avg. win time</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <th>Avg. loss time</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-    </table> -->
+  
 </div>
 
 <div id="cookie_disclaimer" class="cookie" style="display: none;">
@@ -214,7 +157,7 @@
     </table>
 </div>
 
-<div id="debug" style="display: none;">
+<div id="debug" style="display: none; position: absolute; top: 50; user-select: none;" ondragstart="false">
     <table>
 
         <!-- LIGHT -->
@@ -400,6 +343,10 @@
 <script src="../../libraries/radix.js"></script>
 <script src="../../libraries/compress.js"></script>
 <script src="window_setup.js"></script>
+<script src="vars.js"></script>
+<script src="elements.js"></script>
+<script src="import_export.js"></script>
+<script src="toggles.js"></script>
 <script src="minesweeper.js"></script>
 <script> 
     loadCookies();

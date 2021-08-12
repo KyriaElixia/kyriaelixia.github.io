@@ -1,0 +1,321 @@
+
+importGrid = function(importCode) {
+
+    split = importCode.split("-");
+    w = parseInt(radix.convert(split[0], 36, 10));
+    // console.warn(w, split);
+    for (r = 5; r > 0; r--) {
+        if (w % r == 0) {
+            break;
+        }
+    }
+
+    code = compressor.uncompress(split[1], r, 1);
+    
+    mineCount = 0;
+    for (i = 0; i < code.length; i++) {
+        if (code[i] == "1") { mineCount++; }
+    }
+
+    document.getElementById("customWidth").value = w;
+    document.getElementById("customHeight").value = code.length/w;
+    document.getElementById("customMines").value = mineCount;
+    document.getElementById("diffCustom").checked = true;
+
+    resizeGrid();
+
+    for (i = 0; i < code.length; i++) {
+        
+        x = i % w;
+        y = Math.floor(i/w);
+        
+        grid[x][y] = code[i] == "1" ? "bomb" : "tile";
+    }
+    
+    placeNumbers();
+    toggleRetry(true);
+    retry();
+    
+    if (split.length == 3) {
+        importState(split[2]);
+    }
+    else if (split.length == 4) {
+        
+        importState(split[2], split[3]);
+    }
+    setGameTitle();
+}
+
+exportGrid = function() {
+
+    for (r = 5; r > 0; r--) {
+
+        if (width % r == 0) {
+            break;
+        }
+    }
+    
+    toCmp = "";
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+
+            toCmp += grid[x][y] == "bomb" ? 1 : 0;
+        }
+    }
+
+    toExp = radix.convert(width, 10, 36) + "-" + compressor.compress(toCmp, 1, r);
+    // console.warn("cmp", compressor.uncompress(toExp,1,r))
+    return toExp;
+}
+
+exportState = function() {
+
+    for (q = 2; q > 0; q--) {
+        
+        if (width % q == 0) {
+            break;
+        }
+    }
+    
+    cmpState = "";
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            
+            switch(field[x][y]) {
+
+                case "0-tile":
+                case "1-tile":
+                case "2-tile":
+                case "3-tile":
+                case "4-tile":
+                case "5-tile":
+                case "6-tile":
+                case "7-tile":
+                case "8-tile":
+                    cmpState += "0";
+                break;
+                case "tile":
+                case "bomb":
+                case "exploded-bomb":
+                        cmpState += "1";
+                break;
+                case "flag":
+                case "not-bomb":
+                    cmpState += "2";
+                break;
+                case "maybe":
+                    cmpState += "3";
+                break;
+            }
+        }
+    }
+    exState = compressor.compress(cmpState, 2, 2*q)
+    // console.warn(q, cmpState)
+    // console.warn(cmpState, "//cmpState");
+    // console.error(2, 2*q,compressor.radixCompress(cmpState,2,4))
+    // console.warn(exState, "//exState");
+    // console.error(compressor.radixUncompress(compressor.radixCompress(cmpState,2,2*q),2*q,2));
+    toExp = document.getElementById("shareURL").value + "-" + exState + "-" + radix.convert(time, 10, 36);
+    return toExp;
+}
+
+importState = function(state_str, time_str = 0) {
+
+    for (q = 2; q > 0; q--) {
+        
+        if (width % q == 0) {
+            break;
+        }
+    }
+    
+    impState = compressor.uncompress(state_str, 2*q, 2);
+    time = radix.convert(time_str, 36, 10);
+    // console.warn(impState, "time", time);
+    for (i = 0; i < impState.length; i++) {
+
+        x = i % width;
+        y = Math.floor(i/width);
+
+        if (impState[i] == "0") {
+
+            field[x][y] = grid[x][y] + "-tile";
+        }
+        else if (impState[i] == "2") {
+            
+            field[x][y] = "flag";
+            minesLeft--;
+        }
+        else if (impState[i] == "3") {
+            
+            field[x][y] = "maybe";
+        }
+        updateTile(x,y);
+    }
+
+    setMinesDisplay();
+    setTimerDisplay();
+
+    if (firstClick && !checkWinCondition()) {
+
+        firstClick = false;
+        timeCounter = setInterval(clock, 1000);
+
+        generateLink();
+    }
+}
+
+loadCookies = function() {
+
+    gameWindow_x = parseInt(checkCookie("MS5_game_x", gameWindow_x));
+    gameWindow_y = parseInt(checkCookie("MS5_game_y", gameWindow_y));
+    settingsWindow_x = parseInt(checkCookie("MS5_settings_x", settingsWindow_x));
+    settingsWindow_y = parseInt(checkCookie("MS5_settings_y", settingsWindow_y));
+    settingsWindow.style.zIndex = parseInt(checkCookie("MS5_settings_z", 3));
+    shareWindow_x = parseInt(checkCookie("MS5_share_x", shareWindow_x));
+    shareWindow_y = parseInt(checkCookie("MS5_share_y", shareWindow_y));
+    shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 2));
+    statsWindow_x = parseInt(checkCookie("MS5_stats_x", statsWindow_x));
+    statsWindow_y = parseInt(checkCookie("MS5_stats_y", statsWindow_y));
+    statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 1));
+    
+    toFocus = new Array(extraWindows.length);
+    toFocus[settingsWindow.style.zIndex - 1] = settingsWindow;
+    toFocus[shareWindow.style.zIndex - 1] = shareWindow;
+    toFocus[statsWindow.style.zIndex - 1] = statsWindow;
+    // extraWindows[extraWindows.length-settingsWindow.style.zIndex] = settingsWindow;
+    // extraWindows[extraWindows.length-shareWindow.style.zIndex] = shareWindow;
+    // extraWindows[extraWindows.length-statsWindow.style.zIndex] = statsWindow;
+    
+
+    dark_mode = checkCookie("MS5_dark_mode", "" + dark_mode) == "true" ? true : false;
+    maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
+    flagWarning = checkCookie("MS5_flagWarning", "" + flagWarning) == "true" ? true : false;
+    freeBorder = checkCookie("MS5_freeBorder", "" + freeBorder) == "true" ? true : false;
+    displaySettings = checkCookie("MS5_displaySettings", "" + displaySettings) == "true" ? true : false;
+    displayShare = checkCookie("MS5_displayShare", "" + displayShare) == "true" ? true : false;
+    displayStats = checkCookie("MS5_displayStats", "" + displayStats) == "true" ? true : false;
+    
+    scaleCookie = parseInt(checkCookie("MS5_scale"));
+    scale = scaleCookie > 20 ? scaleCookie : scale;
+    document.getElementById("scaleValue").innerHTML = scale + "px scale";
+    document.getElementById("scaleSlider").value = scale;
+    
+    document.getElementById("diff" + checkCookie("MS5_difficulty", "Intermediate")).checked = true;
+
+
+    showedCookies = checkCookie("MS5_showedCookies", "false") == "true" ? true : false;
+    if (!showedCookies) {
+
+        cd = document.getElementById("cookie_disclaimer");
+        cd.style.display = "";
+        cd.style.left = (document.body.clientWidth - cd.offsetWidth)/2;
+    }
+}
+
+loadWindowZIndex = function() {
+
+    for (tf = 0; tf < toFocus.length; tf++) {
+
+        focusWindow(toFocus[tf]);
+        
+    }
+}
+
+setSettings = function() {
+
+    if (dark_mode) {
+        toggleDarkMode("dark", false);
+    } 
+    if (maybe) {
+        toggleMaybe(true);
+    }
+    if (flagWarning) {
+        toggleFlagWarning(true);
+    }
+    if (freeBorder) {
+        toggleFreeBorder(true);
+    }
+    if (displaySettings) {
+        displaySettings = false;
+        settingsToggle();
+    }
+    if (displayShare) {
+        displayShare = false;
+        shareToggle();
+    }
+    if (displayStats) {
+        displayStats = false;
+        statsToggle();
+    }
+
+
+    document.getElementById('toggleLightsCheck').checked = !dark_mode;
+    document.getElementById('toggleMaybeCheck').checked = maybe;
+    document.getElementById('toggleFlagWarningCheck').checked = flagWarning;
+    document.getElementById('toggleFreeBorderCheck').checked = freeBorder;
+}
+
+loadGameFromURL = function() {
+
+    URLgame = window.location.href.split("?")
+    cookieGame = checkCookie("MS5_lastGameState", "");
+
+    if (URLgame.length > 1) {
+        
+        // console.warn("loading game from url", URLgame[1]);
+        importGrid(URLgame[1]);
+        generateLink();
+    }
+    else if (cookieGame.length != 0) {
+        
+        // console.error(cookieGame)
+        importGrid(cookieGame);
+    }
+}
+
+generateLink = function() {
+
+    document.getElementById("shareURL").value = window.location.href.split("?")[0] + "?" + exportGrid();
+    showExportedState();
+}
+
+copyGameURL = function() {
+
+    document.getElementById("shareURL").select();
+    document.execCommand("copy");
+    document.getElementById("shareURLbtn").innerHTML = "Link copied!";
+}
+
+copyGameStateURL = function() {
+
+    document.getElementById("shareState").select();
+    document.execCommand("copy");
+    document.getElementById("shareStateBtn").innerHTML = "Link copied!";
+}
+
+showExportedState = function() {
+
+    if (displayShare && document.getElementById("shareURL").value != "") {
+            
+        if (editing) {
+            
+            document.getElementById("shareState").value = "";
+        }
+        else {
+
+            document.getElementById("shareState").value = exportState();
+        }
+    }
+}
+
+main = function() {
+    
+    referenceScale = parseInt(document.getElementById("scaleSlider").value);
+    if (scale != referenceScale) {
+
+        scale = referenceScale;
+        document.getElementById("scaleValue").innerHTML = scale + "px scale";
+        setCookie("MS5_scale", scale, 30);
+        reRender();
+    }
+}
