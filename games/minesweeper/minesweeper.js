@@ -394,6 +394,7 @@ gameOver = function() {
         }
     }
     setStatisticsCookies(false);
+    setHistoryCookie(false);
 }
 
 wonGame = function() {
@@ -410,6 +411,7 @@ wonGame = function() {
         updateSmiley("cool");
     }
     setStatisticsCookies(true);
+    setHistoryCookie(true);
 }
 
 placeNumbers = function() {
@@ -454,7 +456,7 @@ checkWinCondition = function(blockStats = false) {
         // WIN 
         if (!blockStats) {
             wonGame(); 
-            console.warn("BLOCKED")
+            // console.warn("BLOCKED")
         }
         return true; 
     }

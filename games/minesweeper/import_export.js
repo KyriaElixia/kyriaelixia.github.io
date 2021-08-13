@@ -286,16 +286,33 @@ generateLink = function() {
 
 copyGameURL = function() {
 
-    document.getElementById("shareURL").select();
-    document.execCommand("copy");
+    // document.getElementById("shareURL").select();
+    // document.execCommand("copy");
+    copyLink(document.location.href + "?" + exportGrid())
     document.getElementById("shareURLbtn").innerHTML = "Link copied!";
 }
 
 copyGameStateURL = function() {
 
-    document.getElementById("shareState").select();
-    document.execCommand("copy");
+    // document.getElementById("shareState").select();
+    // document.execCommand("copy");
+    copyLink(exportState());
     document.getElementById("shareStateBtn").innerHTML = "Link copied!";
+}
+
+
+copyLink = function(URL_to_copy) {
+
+    share_url = URL_to_copy;//document.location.href + "?" + exportGrid(true);
+
+    link = document.createElement('textarea');
+    link.value = share_url;
+    link.setAttribute('readonly', '');
+    link.style = {position: 'absolute', left: '-9999px'};
+    document.body.appendChild(link);
+    link.select();
+    document.execCommand('copy');
+    document.body.removeChild(link);
 }
 
 showExportedState = function() {
@@ -438,4 +455,21 @@ setStatisticsCookies = function(didWin) {
     }
 
     createStatsTable();
+}
+
+setHistoryCookie = function(didWin) {
+
+    
+    for (th = trackingHistory; th > 0; th--) {
+
+        val = checkCookie("MS5_history_" + (th - 1), "");
+        // console.warn("val", th, val)
+        setCookie("MS5_history_" + th, val, 30);
+    }
+
+    hist = didWin + "&" + currentDifficulty + "&" + Math.floor((bf/mines) * 100) + "&" + time + "&" + document.location.href + "?" + exportGrid();
+    // console.warn(encodeURIComponent(hist));
+    setCookie("MS5_history_0", encodeURIComponent(hist), 30);
+
+    createHistoryTable();
 }

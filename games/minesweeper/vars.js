@@ -25,6 +25,8 @@ peeking = false;
 retrying = false;
 currentDifficulty = "Intermediate";
 
+trackingHistory = 10;
+
 editing = false;
 document.getElementById("toggleEditor").checked = false;
 

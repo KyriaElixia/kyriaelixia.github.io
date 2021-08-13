@@ -576,16 +576,16 @@ clearGrid = function() {
 
 getShareURL = function(doReturn) {
 
-    share = "https://kyriaelixia.github.io/games/nonogram/?" + exportGrid(true);
+    share = document.location.href + "?" + exportGrid(true);
 
-   link = document.createElement('textarea');
-   link.value = share;
-   link.setAttribute('readonly', '');
-   link.style = {position: 'absolute', left: '-9999px'};
-   document.body.appendChild(link);
-   link.select();
-   document.execCommand('copy');
-   document.body.removeChild(link);
+    link = document.createElement('textarea');
+    link.value = share;
+    link.setAttribute('readonly', '');
+    link.style = {position: 'absolute', left: '-9999px'};
+    document.body.appendChild(link);
+    link.select();
+    document.execCommand('copy');
+    document.body.removeChild(link);
 
     if (doReturn == true) {
 

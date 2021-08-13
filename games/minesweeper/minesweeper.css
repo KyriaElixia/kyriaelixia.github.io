@@ -177,7 +177,6 @@ input {
 }
 
 
-
 .cookie {
 
     /* width: 50%; */
@@ -201,4 +200,20 @@ input {
     left: 20%;
     height: 50px;
     z-index: 10;
+}
+
+.debug {
+
+    width: 40px;
+    user-select: none;
+}
+.debug_digit {
+
+    width: 24px;
+    user-select: none;
+}
+.debug_divider {
+
+    width: 8px;
+    user-select: none;
 }

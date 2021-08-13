@@ -98,6 +98,7 @@ createGameGrid = function() {
     }
 
     createStatsTable();
+    createHistoryTable();
 }
 
 createGameTile = function(xx, yy, dx, dy, src) {
@@ -401,7 +402,83 @@ createStatsTable = function() {
 
 createHistoryTable = function() {
 
+    document.getElementById("history_table").remove(); 
+    hist_tbl = document.createElement("table");
+    hist_tbl.id = "history_table";
+    hist_tbl.style.width = "100%";
+    // hist_tbl.style.height = "360px";
 
+
+    for (h = 0; h < trackingHistory; h++) {
+
+        hist_cookie = checkCookie("MS5_history_" + h, "ERROR");
+
+        if (hist_cookie != "ERROR") {
+
+            hist_cookie = hist_cookie.split("&");
+            tr = document.createElement("tr");
+            tr.style.width = "100%";
+            // tr.backgroundColor = "lightgray";
+            td = document.createElement("td");
+            td.style.verticalAlign = "top";
+            td.style.height = "0px";
+            hist_tbl.appendChild(tr);
+            tr.appendChild(td);
+
+            saved_tbl = document.createElement("table");
+            saved_tbl.style.width = "100%";
+
+            outcome_bg = "";
+            outcome = "";
+            if (hist_cookie[0] == "true") {
+                //win
+                outcome_bg = dark_mode ? "#658B65" : "#C8EEC8";
+                outcome = "sweep";
+            }
+            else {
+                //loss
+                outcome_bg = dark_mode ? "#8B6565" : "#EEC8C8";
+                outcome = "explosion";
+            }
+
+            saved_tbl.style.backgroundColor = outcome_bg;
+            info_tr = document.createElement("tr");
+            diff_td = document.createElement("td");
+            time_td = document.createElement("td");
+            info_tr.appendChild(diff_td);
+            info_tr.appendChild(time_td);
+            
+            diff_td.width = "230px";
+            
+
+            diff_td.innerHTML = hist_cookie[1] + " " + outcome;
+            time_td.innerHTML = hist_cookie[2] + "% " + hist_cookie[3] + "s";
+            
+            share_tr = document.createElement("tr");
+            game_td = document.createElement("td");
+            replay_td = document.createElement("td");
+            share_tr.appendChild(game_td);
+            share_tr.appendChild(replay_td);
+
+            game_link = document.createElement("a");
+            game_link.href = hist_cookie[4];
+            game_link.innerHTML = "Game link";
+            game_link.style.fontSize = 12;
+            game_link.style.color = dark_mode ? "#004386" : "#0080ff";
+            game_td.appendChild(game_link);
+
+            replay_td.innerHTML = "Playback link";
+            replay_td.style.fontSize = 12;
+            replay_td.style.color = dark_mode ? "#004386" : "#0080ff";
+
+            saved_tbl.appendChild(info_tr);
+            saved_tbl.appendChild(share_tr);
+            td.appendChild(saved_tbl);
+        }
+    }
+
+    document.getElementById("history_panel").appendChild(hist_tbl);
+    
 }
 
 setGameTitle = function() {
@@ -459,7 +536,7 @@ resizeGrid = function(onlySized = false) {
         document.getElementById("customHeight").value = height;
         document.getElementById("customMines").value = mines;
     }
-
+    document.getElementById("current_difficulty").innerHTML = currentDifficulty;
     
     
     if (!onlySized) {

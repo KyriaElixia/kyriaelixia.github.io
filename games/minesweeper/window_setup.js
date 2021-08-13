@@ -178,7 +178,7 @@ shareWindow.style.backgroundColor = "#ebebeb";
 extraWindows.push(shareWindow);
 
 share_bar = document.getElementById("share_bar");
-shareWidth = 700;
+shareWidth = 400;
 shareWindow.style.width = shareWidth;
 share_bar.style.width = shareWidth;
 
@@ -210,6 +210,8 @@ shareWindow.onmousedown = shareWindowFocus;
 
 
 shareWindow.appendChild(document.getElementById("share_panel"));
+shareWindow.appendChild(document.getElementById("history_panel"));
+
 document.getElementById("share_bar").appendChild(shareBtns[1]);
 document.getElementById("share_panel").style.display = "";
 
