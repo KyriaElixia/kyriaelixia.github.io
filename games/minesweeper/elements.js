@@ -456,20 +456,30 @@ createHistoryTable = function() {
             
             share_tr = document.createElement("tr");
             game_td = document.createElement("td");
-            replay_td = document.createElement("td");
+            date_td = document.createElement("td");
             share_tr.appendChild(game_td);
-            share_tr.appendChild(replay_td);
+            share_tr.appendChild(date_td);
 
             game_link = document.createElement("a");
-            game_link.href = hist_cookie[4];
+            game_link.href = hist_cookie[5];
             game_link.innerHTML = "Game link";
             game_link.style.fontSize = 12;
             game_link.style.color = dark_mode ? "#004386" : "#0080ff";
             game_td.appendChild(game_link);
 
-            replay_td.innerHTML = "Playback link";
-            replay_td.style.fontSize = 12;
-            replay_td.style.color = dark_mode ? "#004386" : "#0080ff";
+            divspan = document.createElement("span");
+            divspan.innerHTML = "  ";
+            game_td.appendChild(divspan);
+
+            replay_link = document.createElement("a");
+            replay_link.innerHTML = "Playback link";
+            replay_link.style.fontSize = 12;
+            replay_link.style.color = dark_mode ? "#004386" : "#0080ff";
+            game_td.appendChild(replay_link);
+
+            
+            date_td.innerHTML = hist_cookie[4];
+            date_td.style.fontSize = 12;
 
             saved_tbl.appendChild(info_tr);
             saved_tbl.appendChild(share_tr);

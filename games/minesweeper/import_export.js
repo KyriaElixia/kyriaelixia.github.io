@@ -467,7 +467,14 @@ setHistoryCookie = function(didWin) {
         setCookie("MS5_history_" + th, val, 30);
     }
 
-    hist = didWin + "&" + currentDifficulty + "&" + Math.floor((bf/mines) * 100) + "&" + time + "&" + document.location.href + "?" + exportGrid();
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    today = mm + '/' + dd + '/' + yyyy;
+
+    hist = didWin + "&" + currentDifficulty + "&" + Math.floor((bf/mines) * 100) + "&" + time + "&" + today + "&" + document.location.href + "?" + exportGrid();
     // console.warn(encodeURIComponent(hist));
     setCookie("MS5_history_0", encodeURIComponent(hist), 30);
 
