@@ -358,11 +358,12 @@ setStatisticsCookies = function(didWin) {
     total_losses = parseInt(checkCookie(statsCookieName(0, 1), 0));
     total_games = total_wins + total_losses;
     
-    avg_win_time = parseInt(checkCookie(statsCookieName(1, 2), -1)).toFixed(decPlaces);
+    // parseFloat twice because ".toFixed()" returns a string
+    avg_win_time = parseFloat(parseFloat(checkCookie(statsCookieName(1, 2), -1)).toFixed(decPlaces), decPlaces); 
     avg_win_time = avg_win_time == NaN ? -1 : avg_win_time;
-    avg_loss_time = parseInt(checkCookie(statsCookieName(1, 3), -1)).toFixed(decPlaces);
+    avg_loss_time = parseFloat(parseFloat(checkCookie(statsCookieName(1, 3), -1)).toFixed(decPlaces), decPlaces);
     avg_loss_time = avg_loss_time == NaN ? -1 : avg_loss_time;
-    avg_game_time = parseInt(checkCookie(statsCookieName(1, 1), -1)).toFixed(decPlaces);
+    avg_game_time = parseFloat(parseFloat(checkCookie(statsCookieName(1, 1), -1)).toFixed(decPlaces), decPlaces);
     avg_game_time = avg_game_time == NaN ? -1 : avg_game_time;
 
     if (didWin) {
@@ -370,11 +371,11 @@ setStatisticsCookies = function(didWin) {
         // Avg. full sweep time 
         if (avg_win_time >= 0) {
 
-            new_avg_win_time = (avg_win_time * total_wins + time) / (total_wins + 1)
+            new_avg_win_time = (avg_win_time * total_wins + time) / (total_wins + 1);
             setCookie(statsCookieName(1, 2), new_avg_win_time.toFixed(decPlaces), 30);
         }
         else {
-
+            temp_cum_avg.push(time);
             setCookie(statsCookieName(1, 2), time, 30);
         }
 
