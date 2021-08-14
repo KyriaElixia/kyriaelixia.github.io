@@ -375,7 +375,7 @@ setStatisticsCookies = function(didWin) {
             setCookie(statsCookieName(1, 2), new_avg_win_time.toFixed(decPlaces), 30);
         }
         else {
-            temp_cum_avg.push(time);
+            
             setCookie(statsCookieName(1, 2), time, 30);
         }
 
