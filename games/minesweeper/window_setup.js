@@ -41,7 +41,7 @@ for (i = 0; i < 2; i++) {
     settingsBtn.id = "settings_button_" + (i+1);
     settingsBtn.style.userSelect = "none";
     settingsBtn.onclick = function() { settingsToggle(); }
-    settingsBtn.title = "Open/close settings";
+    settingsBtn.title = "Open/close the settings window";
 
     settingsBtns[i] = settingsBtn;
 }
@@ -64,7 +64,7 @@ for (i = 0; i < 2; i++) {
     shareBtn.id = "share_button_" + (i+1);
     shareBtn.style.userSelect = "none";
     shareBtn.onclick = function() { shareToggle(); }
-    shareBtn.title = "Open/close share window";
+    shareBtn.title = "Open/close the share/history window";
     
     shareBtns.push(shareBtn);
 }
@@ -89,7 +89,7 @@ for (i = 0; i < 2; i++) {
     statsBtn.id = "stats_button_" + (i+1);
     statsBtn.style.userSelect = "none";
     statsBtn.onclick = function() { statsToggle(); }
-    statsBtn.title = "Open/close stats window";
+    statsBtn.title = "Open/close the statistics window";
     
     statsBtns.push(statsBtn);
 }
@@ -178,15 +178,16 @@ shareWindow.style.backgroundColor = "#ebebeb";
 extraWindows.push(shareWindow);
 
 share_bar = document.getElementById("share_bar");
-shareWidth = 400;
+shareWidth = 450;
 shareWindow.style.width = shareWidth;
 share_bar.style.width = shareWidth;
+shareWindow.style.height = 600;
 
 shareTitle = document.createElement("div");
-shareTitle.innerHTML = "Share";
+shareTitle.innerHTML = "Share / History";
 shareTitle.style.position = "absolute";
 shareTitle.style.top = 7;
-shareTitle.style.left = (shareWidth-48)/2;
+shareTitle.style.left = (shareWidth-144)/2;
 shareTitle.className = "title";
 shareTitle.id = "shareTitle";
 shareTitle.style.userSelect = "none";

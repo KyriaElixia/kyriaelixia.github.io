@@ -14,3 +14,5 @@ TODO:
 - different/custom sprite packs option?
 + Less hardcoded dark mode switch
 - game history with win/loss, time, game+recording link
+
+- game copy buttons need to be disabled when restarting etc.

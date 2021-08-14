@@ -56,8 +56,14 @@ createGameGrid = function() {
     x_diff = 0;
     x_diff =(7*scale - 2*13*timerScale)/4
 
-    gameDiv.appendChild(createCounterTile(scale + x_diff, 5/2*scale-7/2*timerScale, "timer", timerScale));
-    gameDiv.appendChild(createCounterTile((width-2) * scale + (3*scale-13*timerScale) - x_diff, 5/2*scale-7/2*timerScale, "mines", timerScale));
+    timeCounterDiv = createCounterTile(scale + x_diff, 5/2*scale-7/2*timerScale, "timer", timerScale);
+    timeCounterDiv.title = "Timer";
+
+    mineCounterDiv = createCounterTile((width-2) * scale + (3*scale-13*timerScale) - x_diff, 5/2*scale-7/2*timerScale, "mines", timerScale);
+    mineCounterDiv.title = "Mines left";
+
+    gameDiv.appendChild(timeCounterDiv);
+    gameDiv.appendChild(mineCounterDiv);
 
 
     //
@@ -433,12 +439,12 @@ createHistoryTable = function() {
             if (hist_cookie[0] == "true") {
                 //win
                 outcome_bg = dark_mode ? "#658B65" : "#C8EEC8";
-                outcome = "sweep";
+                outcome = "Full sweep";
             }
             else {
                 //loss
                 outcome_bg = dark_mode ? "#8B6565" : "#EEC8C8";
-                outcome = "explosion";
+                outcome = "Explosion";
             }
 
             saved_tbl.style.backgroundColor = outcome_bg;
@@ -448,10 +454,10 @@ createHistoryTable = function() {
             info_tr.appendChild(diff_td);
             info_tr.appendChild(time_td);
             
-            diff_td.width = "230px";
+            diff_td.width = "300px";
             
 
-            diff_td.innerHTML = hist_cookie[1] + " " + outcome;
+            diff_td.innerHTML = (h+1) + ". " + hist_cookie[1] + " - " + outcome;
             time_td.innerHTML = hist_cookie[2] + "% " + hist_cookie[3] + "s";
             
             share_tr = document.createElement("tr");

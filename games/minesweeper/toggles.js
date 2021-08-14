@@ -156,6 +156,7 @@ toggleEditor = function() {
         restart();
         // document.getElementById("gameTitle").innerHTML = "Minesweeper - Editor";
         document.getElementById("shareState").value = "";
+        document.getElementById("shareStateBtn").disabled = true;
         
         resizeGrid();
         setMinesDisplay();

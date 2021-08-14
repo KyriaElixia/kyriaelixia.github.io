@@ -55,9 +55,9 @@
         </tr>
         <tr>
             <td><strong style="cursor: pointer;" onclick="document.getElementById('diffCustom').checked = true;"><input style="cursor: pointer;" type="radio" name="diffForm" id="diffCustom">Custom</strong></td>
-            <td><input class="io" type="number" name="customWidth" id="customWidth" min="9" size="5"></td>
-            <td><input class="io" type="number" name="customHeight" id="customHeight" min="9" size="5"></td>
-            <td><input class="io" type="number" name="customMines" id="customMines" min="0" size="5"></td>
+            <td><input class="io" type="number" name="customWidth" id="customWidth" min="9" style="width: 50; height: 22;"></td>
+            <td><input class="io" type="number" name="customHeight" id="customHeight" min="9" style="width: 50; height: 22;"></td>
+            <td><input class="io" type="number" name="customMines" id="customMines" min="0" style="width: 50; height: 22;"></td>
         </tr>
         <tr>
             <td>
@@ -89,7 +89,7 @@
             <td>
 
                 <button class="toggleButton" onclick="toggleFlagWarning();" title="Shows warning tiles if too many flags are placed around a tile/number"><input style="cursor: pointer;" type="checkbox" id="toggleFlagWarningCheck"> Flag warnings</button>
-                <button class="toggleButton" onclick="toggleFreeBorder();" title="Disables bomb placement around the game border"><input style="cursor: pointer;" type="checkbox" id="toggleFreeBorderCheck"> Free border</button>
+                <button class="toggleButton" onclick="toggleFreeBorder();" title="Enables or disables bomb placement around the game border"><input style="cursor: pointer;" type="checkbox" id="toggleFreeBorderCheck"> Free border</button>
             </td>
             <tr>
                 <td>
@@ -108,17 +108,17 @@
     <div id="current_game_panel">
         <table id="current_game_table" style="width: 100%;"> 
             <tr>
-                <th align="center">Current game: <span id="current_difficulty">Intermediate</span></th>
+                <th align="center">Copy Current Minefield To Clipboard: <span id="current_difficulty" style="display: none;">Intermediate</span></th>
             </tr>
             <tr>
                 <td colspan="2" align="center">
-                    <button style="width: 175; height: 50;" onclick="copyGameURL();" class="toggleButton" id="shareURLbtn" onmouseout="this.innerHTML='Copy game link'">Copy game link</button>
+                    <button style="width: 175; height: 50;" onclick="copyGameURL();" class="toggleButton" id="shareURLbtn" onmouseout="this.innerHTML='Copy Minefield'" disabled>Copy Minefield</button>
                 
-                    <button style="width: 190; height: 50;" onclick="copyGameStateURL();" class="toggleButton" id="shareStateBtn" onmouseout="this.innerHTML='Copy game state link'">Copy game state link</button>
+                    <button style="width: 190; height: 50;" onclick="copyGameStateURL();" class="toggleButton" id="shareStateBtn" onmouseout="this.innerHTML='Copy Minefield State'" disabled>Copy Minefield State</button>
                 </td>
             </tr>
             <tr>
-                <th>Game history</th>
+                <th>Sweeping History</th>
             </tr>
         </table>
     </div>
@@ -189,7 +189,7 @@
 </div>
 
 
-<div id="history_panel" style="overflow-x: hidden; overflow-y: scroll; user-select: none; height: 254;">
+<div id="history_panel" style="overflow-x: hidden; overflow-y: scroll; user-select: none; height: 455;">
     <table id="history_table"></table>
   
 </div>

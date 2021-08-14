@@ -281,6 +281,7 @@ loadGameFromURL = function() {
 generateLink = function() {
 
     document.getElementById("shareURL").value = window.location.href.split("?")[0] + "?" + exportGrid();
+    document.getElementById("shareURLbtn").disabled = false;
     showExportedState();
 }
 
@@ -322,10 +323,12 @@ showExportedState = function() {
         if (editing) {
             
             document.getElementById("shareState").value = "";
+            document.getElementById("shareStateBtn").disabled = true;
         }
         else {
 
             document.getElementById("shareState").value = exportState();
+            document.getElementById("shareStateBtn").disabled = false;
         }
     }
 }
@@ -474,7 +477,7 @@ setHistoryCookie = function(didWin) {
 
     today = dd + '/' + mm + '/' + yyyy;
 
-    hist = didWin + "&" + currentDifficulty + "&" + Math.floor((bf/mines) * 100) + "&" + time + "&" + today + "&" + document.location.href + "?" + exportGrid();
+    hist = didWin + "&" + currentDifficulty + "&" + Math.round((bf/mines) * 100) + "&" + time + "&" + today + "&" + document.location.href + "?" + exportGrid();
     // console.warn(encodeURIComponent(hist));
     setCookie("MS5_history_0", encodeURIComponent(hist), 30);
 
