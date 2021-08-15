@@ -1,7 +1,7 @@
 
 @font-face {
     font-family: menloFont;
-    src: url(https://kyriaelixia.github.io/fonts/Menlo.ttf);
+    src: url(https://kyriaelixia.github.io/fonts/Menlo.ttf), format('truetype');
 }
 body {
     font-family: menloFont;
@@ -14,15 +14,8 @@ input {
 }
 
 
-html {
-
-    font-family: menloFont;
-}
-option {
-    font-family: menloFont;
-}
 select {
-    font-family: menloFont; 
+    font-family: menloFont;
 }
 
 
@@ -34,8 +27,6 @@ select {
     
     --inputBackgroundColorDark: #646464;
     --inputBackgroundColorHoverDark: #3c3c3c;
-
-    font-family: menloFont;
 }
 
 .toggleButton {
@@ -172,7 +163,7 @@ select {
     color: black;
     border: 0px;
     border-radius: 4px;
-    font-family: menloFont;
+    
 }
 .io_dark {
 
@@ -180,7 +171,7 @@ select {
     color: #cfcfcf;
     border: 0px;
     border-radius: 4px;
-    font-family: menloFont;
+    
 }
 
 .title {

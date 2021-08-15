@@ -606,6 +606,9 @@ resizeGrid = function(onlySized = false) {
     reRender();
     document.getElementById("shareURL").value = "";
     document.getElementById("shareState").value = "";
+    document.getElementById("shareURLbtn").disabled = true;
+    document.getElementById("shareStateBtn").disabled = true;
+
     
     showExportedState();
     setGameTitle();
