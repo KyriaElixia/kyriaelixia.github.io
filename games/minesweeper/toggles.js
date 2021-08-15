@@ -45,6 +45,8 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     document.getElementById("customMines").className = "io" + mode;
     document.getElementById("shareURL").className = "io" + mode;
     document.getElementById("shareState").className = "io" + mode;
+    document.getElementById("filterDifficulty").className = "io" + mode;
+    document.getElementById("filterOutcome").className = "io" + mode;
     document.getElementById("cookie_disclaimer").className = "cookie" + mode;
     
     buttons = document.getElementsByTagName("button");

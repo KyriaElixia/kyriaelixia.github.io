@@ -101,7 +101,7 @@
     <br>
 </div>
 
-<div id="share_panel" style="display: none; height: 110;">
+<div id="share_panel" style="display: none; height: 135;">
     <textarea class="io" id="shareURL" cols="68" rows="3" style="resize: none; border: 0px; font-weight: bold; display: none;" readonly placeholder="Start a game to generate link"></textarea>
     <textarea class="io" id="shareState" cols="68" rows="6" style="resize: none; font-weight: bold; display: none;" readonly placeholder="Start a game to generate link"></textarea>
     
@@ -119,6 +119,24 @@
             </tr>
             <tr>
                 <th>Sweeping History</th>
+            </tr>
+            <tr>
+                <td align="center" style="font-size: 14;">
+                    Filter
+                    <select name="filterDifficulty" id="filterDifficulty" class="io" onchange="createHistoryTable();">
+                        <option value="All difficulties">All difficulties</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Expert">Expert</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                    &
+                    <select name="filterOutcome" id="filterOutcome" class="io" onchange="createHistoryTable();">
+                        <option value="All outcomes">All outcomes</option>
+                        <option value="Full sweeps">Full sweeps</option>
+                        <option value="Explosions">Explosions</option>
+                    </select>
+                </td>
             </tr>
         </table>
     </div>
@@ -189,7 +207,7 @@
 </div>
 
 
-<div id="history_panel" style="overflow-x: hidden; overflow-y: scroll; user-select: none; height: 455;">
+<div id="history_panel" style="overflow-x: hidden; overflow-y: scroll; user-select: none; height: 430;">
     <table id="history_table"></table>
   
 </div>

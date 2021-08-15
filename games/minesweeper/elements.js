@@ -422,17 +422,6 @@ createHistoryTable = function() {
         if (hist_cookie != "ERROR") {
 
             hist_cookie = hist_cookie.split("&");
-            tr = document.createElement("tr");
-            tr.style.width = "100%";
-            // tr.backgroundColor = "lightgray";
-            td = document.createElement("td");
-            td.style.verticalAlign = "top";
-            td.style.height = "0px";
-            hist_tbl.appendChild(tr);
-            tr.appendChild(td);
-
-            saved_tbl = document.createElement("table");
-            saved_tbl.style.width = "100%";
 
             outcome_bg = "";
             outcome = "";
@@ -447,49 +436,78 @@ createHistoryTable = function() {
                 outcome = "Explosion";
             }
 
-            saved_tbl.style.backgroundColor = outcome_bg;
-            info_tr = document.createElement("tr");
-            diff_td = document.createElement("td");
-            time_td = document.createElement("td");
-            info_tr.appendChild(diff_td);
-            info_tr.appendChild(time_td);
-            
-            diff_td.width = "300px";
-            
+            difficultyCriteria = false;
+            outcomeCriteria = false;
 
-            diff_td.innerHTML = (h+1) + ". " + hist_cookie[1] + " - " + outcome;
-            time_td.innerHTML = hist_cookie[2] + "% " + hist_cookie[3] + "s";
-            
-            share_tr = document.createElement("tr");
-            game_td = document.createElement("td");
-            date_td = document.createElement("td");
-            share_tr.appendChild(game_td);
-            share_tr.appendChild(date_td);
+            filterDifficulty = document.getElementById("filterDifficulty").value;
+            filterOutcome = document.getElementById("filterOutcome").value;
 
-            game_link = document.createElement("a");
-            game_link.href = hist_cookie[5];
-            game_link.innerHTML = "Game link";
-            game_link.style.fontSize = 12;
-            game_link.style.color = dark_mode ? "#004386" : "#0080ff";
-            game_td.appendChild(game_link);
+            if (filterDifficulty == hist_cookie[1] || filterDifficulty == "All difficulties") {
+                difficultyCriteria = true;
+            }
+            if (filterOutcome == outcome + "s" || filterOutcome == "All outcomes") {
+                outcomeCriteria = true;
+            }
 
-            divspan = document.createElement("span");
-            divspan.innerHTML = "  ";
-            game_td.appendChild(divspan);
+            if (difficultyCriteria && outcomeCriteria) {
+                tr = document.createElement("tr");
+                tr.style.width = "100%";
+                // tr.backgroundColor = "lightgray";
+                td = document.createElement("td");
+                td.style.verticalAlign = "top";
+                td.style.height = "0px";
+                hist_tbl.appendChild(tr);
+                tr.appendChild(td);
 
-            replay_link = document.createElement("a");
-            replay_link.innerHTML = "Playback link";
-            replay_link.style.fontSize = 12;
-            replay_link.style.color = dark_mode ? "#004386" : "#0080ff";
-            game_td.appendChild(replay_link);
+                saved_tbl = document.createElement("table");
+                saved_tbl.style.width = "100%";
 
-            
-            date_td.innerHTML = hist_cookie[4];
-            date_td.style.fontSize = 12;
+                
 
-            saved_tbl.appendChild(info_tr);
-            saved_tbl.appendChild(share_tr);
-            td.appendChild(saved_tbl);
+                saved_tbl.style.backgroundColor = outcome_bg;
+                info_tr = document.createElement("tr");
+                diff_td = document.createElement("td");
+                time_td = document.createElement("td");
+                info_tr.appendChild(diff_td);
+                info_tr.appendChild(time_td);
+                
+                diff_td.width = "300px";
+                
+
+                diff_td.innerHTML = (h+1) + ". " + hist_cookie[1] + " - " + outcome;
+                time_td.innerHTML = hist_cookie[2] + "% " + hist_cookie[3] + "s";
+                
+                share_tr = document.createElement("tr");
+                game_td = document.createElement("td");
+                date_td = document.createElement("td");
+                share_tr.appendChild(game_td);
+                share_tr.appendChild(date_td);
+
+                game_link = document.createElement("a");
+                game_link.href = hist_cookie[5];
+                game_link.innerHTML = "Game link";
+                game_link.style.fontSize = 12;
+                game_link.style.color = dark_mode ? "#004386" : "#0080ff";
+                game_td.appendChild(game_link);
+
+                divspan = document.createElement("span");
+                divspan.innerHTML = "  ";
+                game_td.appendChild(divspan);
+
+                replay_link = document.createElement("a");
+                replay_link.innerHTML = "Playback link";
+                replay_link.style.fontSize = 12;
+                replay_link.style.color = dark_mode ? "#004386" : "#0080ff";
+                game_td.appendChild(replay_link);
+
+                
+                date_td.innerHTML = hist_cookie[4];
+                date_td.style.fontSize = 12;
+
+                saved_tbl.appendChild(info_tr);
+                saved_tbl.appendChild(share_tr);
+                td.appendChild(saved_tbl);
+            }
         }
     }
 

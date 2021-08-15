@@ -15,4 +15,7 @@ TODO:
 + Less hardcoded dark mode switch
 / game history with win/loss, time, game+recording link
 
+
+¤ 15/8-21
 + game copy buttons need to be disabled when restarting etc.
++ history filtering
