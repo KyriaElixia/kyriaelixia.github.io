@@ -160,7 +160,7 @@ input {
     background-color: var(--inputBackgroundColor);
     color: black;
     border: 0px;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 .io_dark {
 
