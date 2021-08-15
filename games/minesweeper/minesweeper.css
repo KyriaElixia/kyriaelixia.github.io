@@ -9,11 +9,21 @@ body {
     /* font-weight: bold; */
 }
 input {
+    
     font-family: menloFont;
 }
 
 
+html {
 
+    font-family: menloFont;
+}
+option {
+    font-family: menloFont;
+}
+select {
+    font-family: menloFont; 
+}
 
 
 :root {
@@ -24,8 +34,9 @@ input {
     
     --inputBackgroundColorDark: #646464;
     --inputBackgroundColorHoverDark: #3c3c3c;
-}
 
+    font-family: menloFont;
+}
 
 .toggleButton {
 
@@ -161,6 +172,7 @@ input {
     color: black;
     border: 0px;
     border-radius: 4px;
+    font-family: menloFont;
 }
 .io_dark {
 
@@ -168,6 +180,7 @@ input {
     color: #cfcfcf;
     border: 0px;
     border-radius: 4px;
+    font-family: menloFont;
 }
 
 .title {
