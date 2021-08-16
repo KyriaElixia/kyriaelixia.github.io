@@ -191,7 +191,7 @@ loadCookies = function() {
     // extraWindows[extraWindows.length-shareWindow.style.zIndex] = shareWindow;
     // extraWindows[extraWindows.length-statsWindow.style.zIndex] = statsWindow;
     
-
+    trackingHistory = parseInt(checkCookie("MS5_history_amount", 0));
     dark_mode = checkCookie("MS5_dark_mode", "" + dark_mode) == "true" ? true : false;
     maybe = checkCookie("MS5_maybe", "" + maybe) == "true" ? true : false;
     flagWarning = checkCookie("MS5_flagWarning", "" + flagWarning) == "true" ? true : false;
@@ -463,13 +463,14 @@ setStatisticsCookies = function(didWin) {
 
 setHistoryCookie = function(didWin) {
 
-    
-    for (th = trackingHistory; th > 0; th--) {
+    trackingHistory++;
+    setCookie("MS5_history_amount",trackingHistory, 30);
+    // for (th = trackingHistory; th > 0; th--) {
 
-        val = checkCookie("MS5_history_" + (th - 1), "");
-        // console.warn("val", th, val)
-        setCookie("MS5_history_" + th, val, 30);
-    }
+    //     // console.warn("val", th, val)
+    //     val = checkCookie("MS5_history_" + (th - 1), "");
+    //     setCookie("MS5_history_" + th, val, 30);
+    // }
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -480,7 +481,7 @@ setHistoryCookie = function(didWin) {
 
     hist = didWin + "&" + currentDifficulty + "&" + Math.round((bf/mines) * 100) + "&" + time + "&" + today + "&" + document.location.href + "?" + exportGrid();
     // console.warn(encodeURIComponent(hist));
-    setCookie("MS5_history_0", encodeURIComponent(hist), 30);
+    setCookie("MS5_history_"+trackingHistory, encodeURIComponent(hist), 30);
 
     createHistoryTable();
 }

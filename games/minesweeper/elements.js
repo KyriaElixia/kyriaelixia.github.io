@@ -410,8 +410,7 @@ createStatsTable = function() {
                                     avg_count++;
                                 }
                             }
-                            all_val /= avg_count;
-                            all_val = all_val.toFixed(3)
+                            all_val = avg_count == 0 ? "N/A" : (all_val / avg_count).toFixed(2);
                         }
                         else if (all_type == "l") {
 
@@ -423,13 +422,14 @@ createStatsTable = function() {
                                     all_val = val;
                                 }
                             }
+                            all_val = all_val == -1 ? "N/A" : all_val;
                         }                        
                         
                         td.innerHTML = all_val;
                     }
                     else {
 
-                        td.innerHTML = checkCookie(statsCookieName(c, t - 1, diffs[d - 1]), c != 1 ? 0 : "N/A"); //t < timingA || t > timingB
+                        td.innerHTML = checkCookie(statsCookieName(c, t - 1, diffs[d - 1]), c != 1 && !(c == 0 && t == 4) ? 0 : "N/A"); //t < timingA || t > timingB
                     }
                     td.id = ("stats_" + diffs[d - 1] + "_" + tracking[c][t - 1]).replace(" ", "_");
                         
@@ -459,7 +459,7 @@ createHistoryTable = function() {
     // hist_tbl.style.height = "360px";
 
 
-    for (h = 0; h < trackingHistory; h++) {
+    for (h = trackingHistory; h > 0; h--) {
 
         hist_cookie = checkCookie("MS5_history_" + h, "ERROR");
 
@@ -518,7 +518,7 @@ createHistoryTable = function() {
                 diff_td.width = "300px";
                 
 
-                diff_td.innerHTML = (h+1) + ". " + hist_cookie[1] + " - " + outcome;
+                diff_td.innerHTML = h + ". " + hist_cookie[1] + " - " + outcome;
                 time_td.innerHTML = hist_cookie[2] + "% " + hist_cookie[3] + "s";
                 
                 share_tr = document.createElement("tr");
