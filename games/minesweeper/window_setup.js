@@ -237,12 +237,12 @@ statsWindow.style.backgroundColor = "#ebebeb";
 extraWindows.push(statsWindow);
 
 stats_bar = document.getElementById("stats_bar");
-statsWidth = 700;
+statsWidth = 750;
 statsWindow.style.width = statsWidth;
 stats_bar.style.width = statsWidth;
 statsWindow.style.height = 400;
 document.getElementById("stats_panel").style.height = parseInt(statsWindow.style.height) - parseInt(stats_bar.style.height)-5;
-
+document.getElementById("stats_panel").style.width = 747;
 
 statsTitle = document.createElement("div");
 statsTitle.innerHTML = "Statistics";

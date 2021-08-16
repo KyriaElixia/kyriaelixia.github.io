@@ -440,7 +440,7 @@ setStatisticsCookies = function(didWin) {
     if (currentDifficulty != "Custom") {
 
         // total_games + 1 because of new win or loss
-        setCookie(statsCookieName(0, 3), (((bombs_found + bf)/((total_games + 1)*mines))*100).toFixed(3), 30);
+        setCookie(statsCookieName(0, 3), (((bombs_found + bf)/((total_games + 1)*mines))*100).toFixed(decPlaces), 30);
     }
     else {
         

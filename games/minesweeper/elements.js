@@ -325,10 +325,12 @@ createRetryOverlay = function() {
 createStatsTable = function() {
 
     document.getElementById("stats_table").remove();
-    diffs = ["Beginner", "Intermediate", "Expert", "Custom"];
+    diffs = ["Beginner", "Intermediate", "Expert", "Custom", "All"];
     tracking = [["Full sweeps", "Mines exploded", "Mines swept", "Avg. sweep percent"], 
                 ["Fastest sweep", "Avg. game time", "Avg. full sweep time", "Avg. explosion time"],
                 ["1-tiles seen", "2-tiles seen", "3-tiles seen", "4-tiles seen", "5-tiles seen", "6-tiles seen", "7-tiles seen", "8-tiles seen"]];
+
+    all_calc = [["s", "s", "s", "a"], ["l", "a", "a", "a"], ["s", "s", "s", "s", "s", "s", "s", "s"]];
 
     timingA = 4;
     timingB = 7;
@@ -341,7 +343,7 @@ createStatsTable = function() {
     cellBorder = dark_mode ? "3px solid #777777" : "3px solid #ebebeb";
     tbl.style.overflow = "scroll";
     tbl.style.height = 500;
-    tbl.style.width = 675;
+    tbl.style.width = 730;//675;
     cellColor = dark_mode ? "#3c3c3c" : "#bdbdbd";
     cellColor2 = dark_mode ? "#646464" : "#dadada";
 
@@ -386,9 +388,51 @@ createStatsTable = function() {
                     td.style.textAlign = "center";
                     td.style.border = cellBorder;
                     
-                    
+                    if (d == 5) {
+
+                        all_type = all_calc[c][t - 1];
+                        all_val = 0;
+                        avg_count = 0;
+
+
+                        if (all_type == "s") {
+                            for (r = 0; r < diffs.length; r++) {
+                                all_val += parseInt(checkCookie(statsCookieName(c, t - 1, diffs[r]), c != 1 ? 0 : "N/A"));
+                            }
+                        }
+                        else if (all_type == "a") {
+                            for (r = 0; r < diffs.length; r++) {
+                                
+                                val = parseFloat(checkCookie(statsCookieName(c, t - 1, diffs[r]), c != 1 ? 0 : "N/A"));
+                                if (val > 0) {
+                                   
+                                    all_val += val;
+                                    avg_count++;
+                                }
+                            }
+                            all_val /= avg_count;
+                            all_val = all_val.toFixed(3)
+                        }
+                        else if (all_type == "l") {
+
+                            all_val = -1;
+                            for (r = 0; r < diffs.length; r++) {                        
+                                
+                                val = parseInt(checkCookie(statsCookieName(c, t - 1, diffs[r]), c != 1 ? 0 : "N/A"));
+                                if (val >= 0 && (val < all_val || all_val == -1)) {
+                                    all_val = val;
+                                }
+                            }
+                        }                        
+                        
+                        td.innerHTML = all_val;
+                    }
+                    else {
+
+                        td.innerHTML = checkCookie(statsCookieName(c, t - 1, diffs[d - 1]), c != 1 ? 0 : "N/A"); //t < timingA || t > timingB
+                    }
                     td.id = ("stats_" + diffs[d - 1] + "_" + tracking[c][t - 1]).replace(" ", "_");
-                    td.innerHTML = checkCookie(statsCookieName(c, t - 1, diffs[d - 1]), c != 1 ? 0 : "N/A"); //t < timingA || t > timingB
+                        
                     tr.appendChild(td);
                 }
             }
@@ -403,7 +447,7 @@ createStatsTable = function() {
         }
     }
     document.getElementById("stats_panel").appendChild(tbl);
-    document.getElementById("stats_panel").style.width = 695;
+    
 }
 
 createHistoryTable = function() {
