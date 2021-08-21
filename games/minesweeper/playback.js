@@ -95,12 +95,12 @@ togglePlayback = function(setVal = "toggle") {
     else {
 
         if (document.getElementById("playbackSlider").max == document.getElementById("playbackSlider").value) {
-            playbackFrom(0);
+            replayPlayback(loadedPlayback);
             document.getElementById("playback_cursor").style.display = "";
         }
         else if (!replaying && !playbacking) {
 
-            playbackFrom(0);
+            replayPlayback(loadedPlayback);
             document.getElementById("playback_cursor").style.display = "";
         }
         else {

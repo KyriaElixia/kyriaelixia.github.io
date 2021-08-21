@@ -465,6 +465,10 @@ gameOver = function() {
     if (!playbacking) {
         setStatisticsCookies(false);
         setHistoryCookie(false);
+
+        loadedPlayback = exportPlayback();
+        disablePlaybackPanel(false);
+        replayPlayback(loadedPlayback, false);
     }
 }
 
@@ -484,6 +488,9 @@ wonGame = function() {
     if (!playbacking) {
         setStatisticsCookies(true);
         setHistoryCookie(true);
+
+        loadedPlayback = exportPlayback();
+        disablePlaybackPanel(false);
     }
 }
 

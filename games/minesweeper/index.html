@@ -133,7 +133,7 @@
                     <button style="width: 60px;" class="toggleButton" id="togglePlayback" onclick="togglePlayback();">Pause</button>
                 </td>
                 <td align="left" colspan="2">
-                    <input id="playbackSlider" type="range" class="slider" style="width: 100%;" min="0" max="10" onclick="playbackFrom(this.value);">
+                    <input id="playbackSlider" type="range" class="slider" style="width: 100%;" min="0" max="10" onclick="if (!replaying && !playbacking) {replayPlayback(loadedPlayback);} else { playbackFrom(this.value); }">
                 </td>
             </tr>
             <tr>
