@@ -2,7 +2,7 @@
 TODO:
 
 ¤ 25/7-21
-- game recording and playback
++ game recording and playback
 - savestate when switching between game and editor / when leaving and reloading page
 - cookie information display
 + statistics (wins, losses, flags placed, bombs marked, incorrectly flagged, fastest wins)
@@ -13,7 +13,7 @@ TODO:
 - inverted mouse controls option
 - different/custom sprite packs option?
 + Less hardcoded dark mode switch
-/ game history with win/loss, time, game+recording link
++ game history with win/loss, time, game+recording link
 
 
 ¤ 15/8-21
