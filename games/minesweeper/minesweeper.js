@@ -468,7 +468,7 @@ gameOver = function() {
 
         loadedPlayback = exportPlayback();
         disablePlaybackPanel(false);
-        replayPlayback(loadedPlayback, false);
+        loadReplay(loadedPlayback);
     }
 }
 
@@ -491,6 +491,7 @@ wonGame = function() {
 
         loadedPlayback = exportPlayback();
         disablePlaybackPanel(false);
+        loadReplay(loadedPlayback);
     }
 }
 

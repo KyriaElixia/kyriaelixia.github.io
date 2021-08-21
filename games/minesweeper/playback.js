@@ -12,45 +12,10 @@ replayPlayback = function(replayStr, autoPlay = true) {
     
     playing = false;
     playbacking = true;
-    toReplay = replayStr.split("!");
     
     if (autoPlay) {
-
-        if (toReplay.length <= 2) {
-            return false;
-        }
         
-        doubles = false;
-        sliceLen = 3;
-        if (width > 35 || height > 35) {
-            doubles = true;
-            sliceLen = 5;
-        }
-    
-        playbackTime = [];
-        playbackList = [];
-        for (r = 1; r < toReplay.length; r++) {
-            
-            playbackTime.push(parseInt(radix.convert(toReplay[r].slice(0,2), 36, 10)));
-            astr = toReplay[r].slice(2, toReplay[r].length);
-            alist = [["M", 0, 0]];
-            for (s = 0; s < astr.length/sliceLen; s++) {
-                
-                sstr = astr.slice(s * sliceLen, sliceLen * (s + 1));
-                
-                s1 = sstr.slice(1, 1 + (sliceLen-1)/2);
-                s2 = sstr.slice(1 + (sliceLen-1)/2, sliceLen);
-                if (!(astr.length/sliceLen > 5 && (sstr[0] == "P" || sstr[0] == "C"))) {
-                    alist.push([sstr[0], parseInt(radix.convert(s1, 36, 10)), parseInt(radix.convert(s2, 36, 10))])
-                }
-            }
-            if (alist.length > 1) {
-    
-                alist[0][1] = alist[1][1];
-                alist[0][2] = alist[1][2];
-            }
-            playbackList.push(alist);
-        }
+        loadReplay(replayStr);
     }
     
     actionDiv = playbackFPS/(playbackList[0].length)
@@ -66,6 +31,46 @@ replayPlayback = function(replayStr, autoPlay = true) {
         document.getElementById("playback_cursor").style.display = "";
         togglePlayback(true);
         disablePlaybackPanel(!playbacking);
+    }
+}
+
+loadReplay = function(toLoad) {
+
+    toReplay = toLoad.split("!");
+    if (toReplay.length <= 2) {
+        return false;
+    }
+    
+    doubles = false;
+    sliceLen = 3;
+    if (width > 35 || height > 35) {
+        doubles = true;
+        sliceLen = 5;
+    }
+
+    playbackTime = [];
+    playbackList = [];
+    for (r = 1; r < toReplay.length; r++) {
+        
+        playbackTime.push(parseInt(radix.convert(toReplay[r].slice(0,2), 36, 10)));
+        astr = toReplay[r].slice(2, toReplay[r].length);
+        alist = [["M", 0, 0]];
+        for (s = 0; s < astr.length/sliceLen; s++) {
+            
+            sstr = astr.slice(s * sliceLen, sliceLen * (s + 1));
+            
+            s1 = sstr.slice(1, 1 + (sliceLen-1)/2);
+            s2 = sstr.slice(1 + (sliceLen-1)/2, sliceLen);
+            if (!(astr.length/sliceLen > 5 && (sstr[0] == "P" || sstr[0] == "C"))) {
+                alist.push([sstr[0], parseInt(radix.convert(s1, 36, 10)), parseInt(radix.convert(s2, 36, 10))])
+            }
+        }
+        if (alist.length > 1) {
+
+            alist[0][1] = alist[1][1];
+            alist[0][2] = alist[1][2];
+        }
+        playbackList.push(alist);
     }
 }
 
