@@ -169,6 +169,42 @@ importState = function(state_str, time_str = 0) {
     }
 }
 
+exportPlayback = function() {
+
+    exportStr = "";
+    timeGroup = -1;
+    doubles = false;
+    if (width > 35 || height > 35) {
+        doubles = true;
+    }  
+
+    for (r = 0; r < recordedGame.length; r++) {
+
+        if (recordedGame[r][0] != timeGroup) {
+            exportStr += "!" + doubleNum(recordedGame[r][0]);
+            timeGroup = recordedGame[r][0];
+        }
+
+        exportStr += recordedGame[r][1]
+        for (k = 2; k < recordedGame[r].length; k++) {
+            exportStr += doubles ? doubleNum(recordedGame[r][k]) : singleNum(recordedGame[r][k]);
+        }
+    }
+    return exportStr;
+}
+
+singleNum = function(num) {
+
+    convNum = radix.convert(num, 10, 36);
+    return convNum.length > 2 ? "-1" : convNum
+}
+
+doubleNum = function(num) {
+
+    convNum = radix.convert(num, 10, 36);
+    return convNum.length == 1 ? "0" + convNum : convNum.length > 2 ? "-1" : convNum; 
+}
+
 loadCookies = function() {
 
     gameWindow_x = parseInt(checkCookie("MS5_game_x", gameWindow_x));
@@ -179,6 +215,9 @@ loadCookies = function() {
     shareWindow_x = parseInt(checkCookie("MS5_share_x", shareWindow_x));
     shareWindow_y = parseInt(checkCookie("MS5_share_y", shareWindow_y));
     shareWindow.style.zIndex = parseInt(checkCookie("MS5_share_z", 2));
+    historyWindow_x = parseInt(checkCookie("MS5_history_x", historyWindow_x));
+    historyWindow_y = parseInt(checkCookie("MS5_history_y", historyWindow_y));
+    historyWindow.style.zIndex = parseInt(checkCookie("MS5_history_z", 2));
     statsWindow_x = parseInt(checkCookie("MS5_stats_x", statsWindow_x));
     statsWindow_y = parseInt(checkCookie("MS5_stats_y", statsWindow_y));
     statsWindow.style.zIndex = parseInt(checkCookie("MS5_stats_z", 1));
@@ -186,9 +225,10 @@ loadCookies = function() {
     toFocus = new Array(extraWindows.length);
     toFocus[settingsWindow.style.zIndex - 1] = settingsWindow;
     toFocus[shareWindow.style.zIndex - 1] = shareWindow;
+    toFocus[historyWindow.style.zIndex - 1] = historyWindow;
     toFocus[statsWindow.style.zIndex - 1] = statsWindow;
     // extraWindows[extraWindows.length-settingsWindow.style.zIndex] = settingsWindow;
-    // extraWindows[extraWindows.length-shareWindow.style.zIndex] = shareWindow;
+    // extraWindows[extraWindows.length-historyWindow.style.zIndex] = historyWindow;
     // extraWindows[extraWindows.length-statsWindow.style.zIndex] = statsWindow;
     
     trackingHistory = parseInt(checkCookie("MS5_history_amount", 0));
@@ -198,6 +238,7 @@ loadCookies = function() {
     freeBorder = checkCookie("MS5_freeBorder", "" + freeBorder) == "true" ? true : false;
     displaySettings = checkCookie("MS5_displaySettings", "" + displaySettings) == "true" ? true : false;
     displayShare = checkCookie("MS5_displayShare", "" + displayShare) == "true" ? true : false;
+    displayHistory = checkCookie("MS5_displayHistory", "" + displayHistory) == "true" ? true : false;
     displayStats = checkCookie("MS5_displayStats", "" + displayStats) == "true" ? true : false;
     
     scaleCookie = parseInt(checkCookie("MS5_scale"));
@@ -221,8 +262,7 @@ loadWindowZIndex = function() {
 
     for (tf = 0; tf < toFocus.length; tf++) {
 
-        focusWindow(toFocus[tf]);
-        
+        focusWindow(toFocus[tf]); 
     }
 }
 
@@ -248,11 +288,14 @@ setSettings = function() {
         displayShare = false;
         shareToggle();
     }
+    if (displayHistory) {
+        displayHistory = false;
+        historyToggle();
+    }
     if (displayStats) {
         displayStats = false;
         statsToggle();
     }
-
 
     document.getElementById('toggleLightsCheck').checked = !dark_mode;
     document.getElementById('toggleMaybeCheck').checked = maybe;
@@ -266,13 +309,24 @@ loadGameFromURL = function() {
     cookieGame = checkCookie("MS5_lastGameState", "");
 
     if (URLgame.length > 1) {
-        
         // console.warn("loading game from url", URLgame[1]);
-        importGrid(URLgame[1]);
-        generateLink();
+        
+        
+
+        if (URLgame[1].split("_").length > 1) {
+
+            importGrid(URLgame[1].split("_")[0]);
+            generateLink();
+
+            loadedPlayback = URLgame[1].split("_")[1];
+            replayPlayback(loadedPlayback);
+        }
+        else {
+            importGrid(URLgame[1]);
+            generateLink();
+        }
     }
     else if (cookieGame.length != 0) {
-        
         // console.error(cookieGame)
         importGrid(cookieGame);
     }
@@ -289,7 +343,7 @@ copyGameURL = function() {
 
     // document.getElementById("shareURL").select();
     // document.execCommand("copy");
-    copyLink(document.location.href + "?" + exportGrid())
+    copyLink(window.location.href.split("?")[0] + "?" + exportGrid())
     document.getElementById("shareURLbtn").innerHTML = "Link copied!";
 }
 
@@ -301,10 +355,9 @@ copyGameStateURL = function() {
     document.getElementById("shareStateBtn").innerHTML = "Link copied!";
 }
 
-
 copyLink = function(URL_to_copy) {
 
-    share_url = URL_to_copy;//document.location.href + "?" + exportGrid(true);
+    share_url = URL_to_copy;//window.location.href + "?" + exportGrid(true);
 
     link = document.createElement('textarea');
     link.value = share_url;
@@ -318,7 +371,7 @@ copyLink = function(URL_to_copy) {
 
 showExportedState = function() {
 
-    if (displayShare && document.getElementById("shareURL").value != "") {
+    if (displayHistory && document.getElementById("shareURL").value != "") {
             
         if (editing) {
             
@@ -479,7 +532,7 @@ setHistoryCookie = function(didWin) {
 
     today = dd + '/' + mm + '/' + yyyy;
 
-    hist = didWin + "&" + currentDifficulty + "&" + Math.round((bf/mines) * 100) + "&" + time + "&" + today + "&" + document.location.href + "?" + exportGrid();
+    hist = didWin + "&" + currentDifficulty + "&" + Math.round((bf/mines) * 100) + "&" + time + "&" + today + "&" + window.location.href.split("?")[0] + "?" + exportGrid() + "&_" + exportPlayback();
     // console.warn(encodeURIComponent(hist));
     setCookie("MS5_history_"+trackingHistory, encodeURIComponent(hist), 30);
 

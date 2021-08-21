@@ -44,6 +44,7 @@ restart = function() {
         
         // console.warn("restart");
         clearInterval(timeCounter);
+        togglePlayback(false);
     
         for (i = 0; i < width; i++) {
             for (j = 0; j < height; j++) {
@@ -60,6 +61,7 @@ restart = function() {
         document.getElementById("retryButton").disabled = true;
         firstClick = true;
         playing = true;
+        playbacking = false;
         time = 0;
         minesLeft = mines;
         setTimerDisplay();
@@ -70,12 +72,15 @@ restart = function() {
         document.getElementById("shareURLbtn").disabled = true;
         document.getElementById("shareStateBtn").disabled = true;
         showExportedState();
+        document.getElementById("playback_cursor").style.display = "none";
+        disablePlaybackPanel(!playbacking);
     }
 }
 
-retry = function() {
+retry = function(clickOn = false) {
 
     clearInterval(timeCounter);
+    togglePlayback(false);
 
     for (i = 0; i < width; i++) {
         for (j = 0; j < height; j++) {
@@ -88,6 +93,7 @@ retry = function() {
     recordedGame = [];
     firstClick = true;
     playing = true;
+    playbacking = false;
     time = 0;
     minesLeft = mines;
 
@@ -97,14 +103,19 @@ retry = function() {
     setTimerDisplay();
     setMinesDisplay();
     updateSmiley("happy");
+    document.getElementById("playback_cursor").style.display = "none";
 }
 
 leftAction = function(ax, ay) {
 
-    if (firstClick && clickDown) {
+    if (firstClick) {
 
         firstClick = false;
-        timeCounter = setInterval(clock, 1000);
+        if (!playbacking) {
+
+            timeCounter = setInterval(clock, 1000);
+            document.getElementById("shareStateBtn").disabled = false;
+        }
 
         if (!retrying) {
             shuffle(ax, ay);
@@ -112,7 +123,13 @@ leftAction = function(ax, ay) {
         generateLink();
     }
 
-    if (field[ax][ay] == "tile" && (clickDown || fastOpening)) {
+    if (field[ax][ay] == "tile") {
+
+        if (!clearing && !fastOpening && !playbacking) {
+            recordedGame.push([time, "L", ax, ay]);
+            // console.info([time, "L", ax, ay]);
+        }
+
         if (grid[ax][ay] != "bomb") {
 
             field[ax][ay] = grid[ax][ay] + "-tile";
@@ -126,26 +143,33 @@ leftAction = function(ax, ay) {
                     clearOpenTiles();
                 }
             }
-        } else {
+        } 
+        else {
 
             field[ax][ay] = "exploded-" + grid[ax][ay];
             gameOver();
         }
+        
     }
-    // else if (grid[ax][ay] > 0 && field[ax][ay] != "tile" && !fastOpening && !clearing) {
-        
-        
-        // }
-        
+    else if ((ax == peek_x && ay == peek_y || playbacking) && isRevealed(ax, ay) && !fastOpening && !clearing) {
+        if (flagCount(ax, ay)) {
+         
+            if (!playbacking) {
+                recordedGame.push([time, "L", ax, ay]);
+                // console.info([time, "L", ax, ay]);
+            }
+            fastOpen(ax, ay);
+        }
+    }
+    
     updateTile(ax, ay);
     setMinesDisplay();
     checkWinCondition();
-} 
+}
 
-rightAction = function(ax, ay) {
+rightAction = function(ax, ay, spaceAction = false) {
     
-    // console.log("right", ax, ay);
-
+    dolog = true;
     if (field[ax][ay] == "tile") {
 
         field[ax][ay] = "flag";
@@ -163,6 +187,15 @@ rightAction = function(ax, ay) {
         }
         field[ax][ay] = "tile";
     }
+    else {
+
+        dolog = false;
+    }
+
+    if (dolog && !spaceAction && !playbacking) {
+        recordedGame.push([time, "R", ax, ay]);
+        // console.info([time, "R", ax, ay]);
+    }
     updateTile(ax, ay);
     setMinesDisplay();
     checkWinCondition();
@@ -179,13 +212,24 @@ spaceAction = function(ax, ay) {
     // console.log("space", ax, ay);
     if (ax >= 0 && ax < width && ay >= 0 && ay < height) {
 
-        if (field[ax][ay] == "tile" || field[ax][ay] == "flag" || field[ax][ay] == "maybe") {
+        if (!isRevealed(ax, ay)) {
             
-            rightAction(ax, ay);
+            if (!playbacking) {
+                recordedGame.push([time, "S", ax, ay]);
+                // console.info([time, "S", ax, ay]);
+            }
+            rightAction(ax, ay, true);
         }
         else if (grid[ax][ay] > 0 && grid[ax][ay] < 9) {
             
-            flagCount(ax, ay, false);
+            if (flagCount(ax, ay)) {
+
+                if (!playbacking) {
+                    recordedGame.push([time, "S", ax, ay]);
+                    // console.info([time, "S", ax, ay]);
+                }
+                fastOpen(ax, ay);
+            }
         }
         checkWinCondition();
     }
@@ -231,14 +275,14 @@ closePeek = function(px, py) {
 fastOpen = function(fx, fy) {
 
     fastOpening = true;
-    for (y = -1; y <= 1; y++) {
-        for (x = -1; x <= 1; x++) {
+    for (yf = -1; yf <= 1; yf++) {
+        for (xf = -1; xf <= 1; xf++) {
 
-            xx = fx + x;
-            yy = fy + y;
-            if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
+            xxf = fx + xf;
+            yyf = fy + yf;
+            if ((xf != 0 || yf != 0) && xxf >= 0 && xxf < width && yyf >= 0 && yyf < height) {
                 
-                leftAction(xx, yy);
+                leftAction(xxf, yyf);
             }
         }
     }
@@ -297,7 +341,7 @@ editorFlagNumber = function(FX, FY) {
                     }
                     grid[XX][YY] = count;
                     field[XX][YY] = count + "-tile";
-                    console.log(XX,YY)
+                    
                     updateTile(XX, YY);
                 }
             }
@@ -305,16 +349,15 @@ editorFlagNumber = function(FX, FY) {
     }
 }
 
-flagCount = function(fx, fy, doPeek = true) {
+flagCount = function(fx, fy) {
 
     count = 0;
-    
-    for (y = -1; y <= 1; y++) {
-        for (x = -1; x <= 1; x++) {
-            xx = fx + x;
-            yy = fy + y;
-            if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
-                if (field[xx][yy] == "flag") {
+    for (cy = -1; cy <= 1; cy++) {
+        for (cx = -1; cx <= 1; cx++) {
+            cxx = fx + cx;
+            cyy = fy + cy;
+            if ((cx != 0 || cy != 0) && cxx >= 0 && cxx < width && cyy >= 0 && cyy < height) {
+                if (field[cxx][cyy] == "flag") {
 
                     count++;
                 }
@@ -324,16 +367,40 @@ flagCount = function(fx, fy, doPeek = true) {
 
     if (count == grid[fx][fy]) {
         
-        fastOpen(fx, fy);
-        recordedGame.push("L_"+ time + "_" + fx + "_" + fy);
-        console.info("L_"+ time + "_" + fx + "_" + fy);
-    } 
-    else if (doPeek) {
-
-        openPeek(fx, fy);
-        recordedGame.push("P_"+ time + "_" + fx + "_" + fy);
-        console.info("P_"+ time + "_" + fx + "_" + fy);
+        return true
     }
+    else {
+        return false;
+    }
+}
+
+isRevealed = function(rx, ry) {
+
+    switch(field[rx][ry]) {
+
+        case "tile":
+        case "flag":
+        case "maybe":
+            return false;
+    }
+    return true;
+}
+
+isNumber = function(rx, ry) {
+
+    switch(field[rx][ry]) {
+
+        case "1-tile":
+        case "2-tile":
+        case "3-tile":
+        case "4-tile":
+        case "5-tile":
+        case "6-tile":
+        case "7-tile":
+        case "8-tile":
+            return true;
+    }
+    return false;
 }
 
 checkFlagWarning = function(cx, cy) {
@@ -343,7 +410,7 @@ checkFlagWarning = function(cx, cy) {
             xx = cx + x;
             yy = cy + y;
             if ((x != 0 || y != 0) && xx >= 0 && xx < width && yy >= 0 && yy < height) {
-                if (field[xx][yy] != "flag" && field[xx][yy] != "tile" && field[xx][yy] != "maybe" && field[xx][yy] != "0-tile") {
+                if (isRevealed(xx, yy) && field[xx][yy] != "0-tile") {
 
                     count = 0;
                     for (i = -1; i <= 1; i++) {
@@ -395,8 +462,10 @@ gameOver = function() {
             updateTile(x, y);
         }
     }
-    setStatisticsCookies(false);
-    setHistoryCookie(false);
+    if (!playbacking) {
+        setStatisticsCookies(false);
+        setHistoryCookie(false);
+    }
 }
 
 wonGame = function() {
@@ -412,8 +481,10 @@ wonGame = function() {
 
         updateSmiley("cool");
     }
-    setStatisticsCookies(true);
-    setHistoryCookie(true);
+    if (!playbacking) {
+        setStatisticsCookies(true);
+        setHistoryCookie(true);
+    }
 }
 
 placeNumbers = function() {
@@ -445,7 +516,7 @@ placeNumbers = function() {
 
 checkWinCondition = function(blockStats = false) {
 
-    if (minesLeft == 0 && playing) {
+    if (minesLeft == 0 && (playing || playbacking)) {
         
         for (j = 0; j < height; j++) {
             for (i = 0; i < width; i++) {

@@ -7,6 +7,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
  
         document.getElementById("settings").style.backgroundColor = "#ebebeb";
         document.getElementById("share").style.backgroundColor = "#ebebeb";
+        document.getElementById("history").style.backgroundColor = "#ebebeb";
         document.getElementById("stats").style.backgroundColor = "#ebebeb";
         document.body.style.color = "black";
     } else {
@@ -15,9 +16,12 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     
         document.getElementById("settings").style.backgroundColor = "#777777";
         document.getElementById("share").style.backgroundColor = "#777777";
+        document.getElementById("history").style.backgroundColor = "#777777";
         document.getElementById("stats").style.backgroundColor = "#777777";
         document.body.style.color = "#cfcfcf";
     }
+
+    disablePlaybackPanel(!playbacking);
 
     updateImgSrc();
     mode = dark_mode ? "_dark" : "";
@@ -31,14 +35,20 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     document.getElementById("share_bar").className = "window_bar" + mode;
     document.getElementById("share_button_1").className = "customButton" + mode;
     document.getElementById("share_button_2").className = "customButton" + mode;
+    document.getElementById("history").className = "window" + mode;
+    document.getElementById("history_bar").className = "window_bar" + mode;
+    document.getElementById("history_button_1").className = "customButton" + mode;
+    document.getElementById("history_button_2").className = "customButton" + mode;
     document.getElementById("stats").className = "window" + mode;
     document.getElementById("stats_bar").className = "window_bar" + mode;
     document.getElementById("stats_button_1").className = "customButton" + mode;
     document.getElementById("stats_button_2").className = "customButton" + mode;
     document.getElementById("scaleSlider").className = "slider" + mode;
+    document.getElementById("playbackSlider").className = "slider" + mode;
     document.getElementById("gameTitle").className = "title" + mode;
     document.getElementById("settingsTitle").className = "title" + mode;
     document.getElementById("shareTitle").className = "title" + mode;
+    document.getElementById("historyTitle").className = "title" + mode;
     document.getElementById("statsTitle").className = "title" + mode;
     document.getElementById("customWidth").className = "io" + mode;
     document.getElementById("customHeight").className = "io" + mode;
@@ -47,6 +57,7 @@ toggleDarkMode = function(modeSelect = "light", doRerender = true) {
     document.getElementById("shareState").className = "io" + mode;
     document.getElementById("filterDifficulty").className = "io" + mode;
     document.getElementById("filterOutcome").className = "io" + mode;
+    document.getElementById("playbackSpeed").className = "io" + mode;
     document.getElementById("cookie_disclaimer").className = "cookie" + mode;
     
     buttons = document.getElementsByTagName("button");
@@ -133,7 +144,7 @@ toggleRetry = function(start = false) {
     else {
         retrying = true;
         document.getElementById("retry-overlay").style.display = "";
-        document.getElementById("restartButton").onclick = function() { retry(); }
+        document.getElementById("restartButton").onclick = function() { retry(true); }
         document.getElementById("retryButton").disabled = false;
     }
 }

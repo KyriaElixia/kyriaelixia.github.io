@@ -86,15 +86,21 @@ createGameGrid = function() {
     }
     
     gameWindow.appendChild(gameDiv);
+
+    cursor_x_offset = scale;
+    cursor_y_offset = 5 * scale;
+    gameDiv.appendChild(createCursor(cursor_x, cursor_y));
     
     setTimerDisplay();
     setMinesDisplay();
     gameWindow.style.left = gameWindow_x;
     gameWindow.style.top =  gameWindow_y;
-    settingsWindow.style.left = settingsWindow_x;
-    settingsWindow.style.top =  settingsWindow_y;
     shareWindow.style.left = shareWindow_x;
     shareWindow.style.top =  shareWindow_y;
+    settingsWindow.style.left = settingsWindow_x;
+    settingsWindow.style.top =  settingsWindow_y;
+    historyWindow.style.left = historyWindow_x;
+    historyWindow.style.top =  historyWindow_y;
     statsWindow.style.left = statsWindow_x;
     statsWindow.style.top =  statsWindow_y;
     
@@ -107,7 +113,7 @@ createGameGrid = function() {
     createHistoryTable();
 }
 
-createGameTile = function(xx, yy, dx, dy, src) {
+createGameTile = function(xx, yy, dx, dy, src) { 
 
     tile = document.createElement("div");
     tile.style.userSelect = "none";
@@ -154,31 +160,36 @@ createGameTile = function(xx, yy, dx, dy, src) {
                 clickDown = true;
                 document.getElementById("gameTileImg_" + mx + "_" + my).src = imgSrc["0-tile"]; 
             }
-            else if (e.which == 1 && field[mx][my] != "tile" && field[mx][my] != "flag" && field[mx][my] != "maybe" && grid[mx][my] > 0 && grid[mx][my] < 9) {
+            else if (e.which == 1 && isRevealed(mx, my) && grid[mx][my] > 0 && grid[mx][my] < 9) {
         
-                flagCount(mx, my);
-
+                if (!flagCount(mx, my)) {
+                    // recordedGame.push("P_"+ time + "_" + mx + "_" + my);
+                    if (!playbacking) {
+                        recordedGame.push([time, "P", mx, my]);
+                        // console.info([time, "P", mx, my]);
+                    }
+                    peek_log = true;
+                }
+                openPeek(mx, my);
             }
             else if (e.which == 3) {
                 
-                rightAction(mx, my); 
-                recordedGame.push("R_"+ time + "_" + mx + "_" + my);
-                console.info("R_"+ time + "_" + mx + "_" + my);
+                rightAction(mx, my);      
             }
         }
         else if (editing && e.which == 1) {
 
             if (field[mx][my] != "bomb") {
-                // console.log("set bomb", mx, my, grid[mx][my], field[mx][my])
+               
                 grid[mx][my] = "bomb";
                 field[mx][my] = "bomb";
                 minesLeft++;
             }
             else if (field[mx][my] == "bomb") {
+
                 grid[mx][my] = 0;
                 field[mx][my] = "0-tile";
                 minesLeft--;
-                // console.log("del bomb", mx, my, grid[mx][my], field[mx][my])
             }
 
             // placeNumbers();
@@ -193,12 +204,12 @@ createGameTile = function(xx, yy, dx, dy, src) {
         if (playing && !editing) {
             if (e.which == 1) {
                 
+                // if ((isNumber(mx, my) && flagCount(mx, my)) || field[mx][my] == "tile") {
+                //     recordedGame.push("L_"+ time + "_" + mx + "_" + my);
+                //     console.info("L_"+ time + "_" + mx + "_" + my);
+                // }
                 leftAction(mx, my);
-                
-                if (!peeking) {
-                    recordedGame.push("L_"+ time + "_" + mx + "_" + my);
-                    console.info("L_"+ time + "_" + mx + "_" + my);
-                }
+
                 showExportedState();
             }
         }
@@ -450,7 +461,7 @@ createStatsTable = function() {
     
 }
 
-createHistoryTable = function() {
+createHistoryTable = function() {   
 
     document.getElementById("history_table").remove(); 
     hist_tbl = document.createElement("table");
@@ -539,6 +550,10 @@ createHistoryTable = function() {
                 game_td.appendChild(divspan);
 
                 replay_link = document.createElement("a");
+                if (hist_cookie.length <= 6) {
+                    hist_cookie[6] = "";
+                }
+                replay_link.href = (hist_cookie[5] + hist_cookie[6]);
                 replay_link.innerHTML = "Playback link";
                 replay_link.style.fontSize = 12;
                 replay_link.style.color = dark_mode ? "#004386" : "#0080ff";
@@ -555,8 +570,28 @@ createHistoryTable = function() {
         }
     }
 
-    document.getElementById("history_panel").appendChild(hist_tbl);
+    document.getElementById("history_table_holder").appendChild(hist_tbl);
     
+}
+
+createCursor = function(cx = cursor_x, cy = cursor_y) {
+
+    cursorImg = document.createElement("img");
+    cursorImg.style.userSelect = "none";
+    cursorImg.style.display = playbacking ? "" : "none";
+    cursorImg.oncontextmenu = function() {return false;};
+    cursorImg.ondragstart = function() {return false;};
+    cursorImg.ondrop = function() {return false;};
+    
+    cursorImg.style.position = "absolute";
+    cursorImg.style.width = scale; 
+    cursorImg.style.height = scale;
+    cursorImg.style.top = cx; 
+    cursorImg.style.left = cy;
+    cursorImg.id = "playback_cursor";
+    cursorImg.src = "sprites/cursor.png";
+
+    return cursorImg;
 }
 
 setGameTitle = function() {
@@ -641,6 +676,7 @@ resizeGrid = function(onlySized = false) {
     toggleRetry();
     firstClick = true;
     playing = true;
+    playbacking = false;
     minesLeft = editing ? 0 : mines;
     time = 0;
     clearInterval(timeCounter);
@@ -652,7 +688,9 @@ resizeGrid = function(onlySized = false) {
     document.getElementById("shareState").value = "";
     document.getElementById("shareURLbtn").disabled = true;
     document.getElementById("shareStateBtn").disabled = true;
-
+    document.getElementById("playback_cursor").style.display = "none";
+    disablePlaybackPanel(!playbacking);
+    togglePlayback(false);
     
     showExportedState();
     setGameTitle();

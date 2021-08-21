@@ -19,3 +19,4 @@ TODO:
 ¤ 15/8-21
 + game copy buttons need to be disabled when restarting etc.
 + history filtering
++Avg.sweep% for all diffs not calculated as each diff, leads to discrepancy

@@ -23,20 +23,30 @@ flagWarning = true;
 freeBorder = false;
 peeking = false;
 retrying = false;
+playbacking = false;
+replaying = false;
+playbackTimer = false;
 currentDifficulty = "Intermediate";
 
 trackingHistory = 0;
 
 editing = false;
 document.getElementById("toggleEditor").checked = false;
+document.getElementById("playbackSpeed").value = 1;
 
 mx = -1;
 my = -1;
 peek_x = 0;
 peek_y = 0;
+peek_log = false;
+cursor_x_offset = scale;
+cursor_y_offset = 5 * scale;
+cursor_x = cursor_x_offset
+cursor_y = cursor_y_offset;
 
 clearList = [];
 recordedGame = [];
+loadedPlayback = "";
 
 grid = new Array(width);
 field = new Array(width);
