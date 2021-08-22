@@ -320,6 +320,10 @@ loadGameFromURL = function() {
 
             loadedPlayback = URLgame[1].split("_")[1];
             replayPlayback(loadedPlayback);
+
+            if (!displayShare) {
+                shareToggle();
+            }
         }
         else {
             importGrid(URLgame[1]);
