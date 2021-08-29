@@ -1,3 +1,17 @@
+<head>
+    <link rel="stylesheet" href="minesweeper.css">
+    <style>
+        @font-face {
+            font-family: menloFont;
+            src: url(https://kyriaelixia.github.io/fonts/Menlo.ttf), format('truetype');
+        }
+        body {
+
+            font-family: menloFont;
+        }
+    </style>
+</head>
+
 
 <h2>Controls</h2>
 • Left click (on unopened tile) - Open tile
@@ -24,7 +38,63 @@ Clear the minefield by marking all mines and opening the rest. The numbers tell 
 
 The game difficulty, outcome, clear percentage and clear time as well as the current date will be stored for all games. 
 The game link to play a game again will be stored for 50 games and the playback link to view a replay of a game will be
-stored for 10 games. This is due to an I/O error caused by too many stored cookies. All information is stored in the links, 
+stored for 10 games. This is due to an I/O error caused by too many large cookies. All information is stored in the links, 
 which means that if you want to store a game link or playback link forever, just copy that link and paste in a .txt file.
 
+<br>
+<br>
+<br>
+<h2>Saved cookies</h2>
+<h3>Utility and settings cookies</h3>
+<h4>Settings, window positions/visibility, last gamestate among other things</h4>
+<div id="other_cookies"></div>
+<br>
+<h3>Statistics cookies</h3>
+<h4>All cookies that keep track of the statistics</h4>
+<div id="stats_cookies"></div>
+<br>
+<h3>History cookies</h3>
+<h4>All cookies that keep track of the game history</h4>
+<div id="history_cookies"></div>
+<script>
+
+    ptrn = new RegExp("MS5_.*");
+    raw_cookies = document.cookie.split(";");
+    cookies = [];
+    for (rc of raw_cookies) {
+
+        if (ptrn.test(rc)) {
+
+            cookies.push(rc);
+        }
+    }
+
+    stats_ptrn = new RegExp(".*_stats_.*");
+    history_ptrn = new RegExp(".*_history_[0-9]+");
+
+    for (c of cookies) {
+
+        ctext = document.createElement("span");
+        ctext.innerHTML = c;
+
+        if (stats_ptrn.test(c)) {
+
+            document.getElementById("stats_cookies").appendChild(ctext);
+            document.getElementById("stats_cookies").appendChild(document.createElement("br"));
+            // console.info("stats", c);
+        }
+        else if (history_ptrn.test(c)) {
+            
+            document.getElementById("history_cookies").appendChild(ctext);
+            document.getElementById("history_cookies").appendChild(document.createElement("br"));
+            // console.info("history", c);
+        }
+        else {
+            document.getElementById("other_cookies").appendChild(ctext);
+            document.getElementById("other_cookies").appendChild(document.createElement("br"));
+            // console.info("other", c);
+        }
+    }
+
+</script>
    
