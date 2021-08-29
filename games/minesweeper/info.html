@@ -52,7 +52,7 @@ which means that if you want to store a game link or playback link forever, just
 <br>
 <br>
 <br>
-<h2>Saved cookies</h2>
+<h2 id="cookie_header">Saved cookies</h2>
 <h3>Utility and settings cookies</h3>
 <h4>Settings, window positions/visibility, last gamestate among other things</h4>
 <div id="other_cookies"></div>
@@ -76,6 +76,7 @@ which means that if you want to store a game link or playback link forever, just
             cookies.push(rc);
         }
     }
+    document.getElementById("cookie_header").innerHTML = "Saved cookies (" + cookies.length + " in total)";
 
     stats_ptrn = new RegExp(".*_stats_[^xyz].+");
     history_ptrn = new RegExp(".*_history_[0-9]+");
