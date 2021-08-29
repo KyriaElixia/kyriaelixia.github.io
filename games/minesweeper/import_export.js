@@ -522,12 +522,24 @@ setHistoryCookie = function(didWin) {
 
     trackingHistory++;
     setCookie("MS5_history_amount",trackingHistory, 30);
-    // for (th = trackingHistory; th > 0; th--) {
 
-    //     // console.warn("val", th, val)
-    //     val = checkCookie("MS5_history_" + (th - 1), "");
-    //     setCookie("MS5_history_" + th, val, 30);
-    // }
+    for (th = trackingHistory - totalSavedPlaybacks; th > 0; th--) {
+
+        console.warn("val", th, val)
+
+        val = checkCookie("MS5_history_" + th, "");
+        val = val.split("&");
+        if (trackingHistory - th < totalSavedGames) {
+
+            new_val = val[0] + "&" + val[1] + "&" + val[2] + "&" + val[3] + "&" + val[4] + "&" + val[5];
+            setCookie("MS5_history_" + th, new_val, 30);
+        }
+        else {
+            
+            new_val = val[0] + "&" + val[1] + "&" + val[2] + "&" + val[3] + "&" + val[4];
+            setCookie("MS5_history_" + th, new_val, 30);
+        }
+    }
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -538,7 +550,7 @@ setHistoryCookie = function(didWin) {
 
     hist = didWin + "&" + currentDifficulty + "&" + Math.round((bf/mines) * 100) + "&" + time + "&" + today + "&" + window.location.href.split("?")[0] + "?" + exportGrid() + "&_" + exportPlayback();
     // console.warn(encodeURIComponent(hist));
-    setCookie("MS5_history_"+trackingHistory, encodeURIComponent(hist), 30);
+    setCookie("MS5_history_" + trackingHistory, encodeURIComponent(hist), 30);
 
     createHistoryTable();
 }

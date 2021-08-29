@@ -1,0 +1,21 @@
+
+.half {
+
+    height: 50%;
+    width: 50%;
+}
+
+#colors {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+#settings {
+    height: 0%;
+}
+
+#holder {
+
+    width: 100%;
+    height: 100%;
+}

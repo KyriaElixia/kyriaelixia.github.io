@@ -538,27 +538,49 @@ createHistoryTable = function() {
                 share_tr.appendChild(game_td);
                 share_tr.appendChild(date_td);
 
-                game_link = document.createElement("a");
-                game_link.href = hist_cookie[5];
-                game_link.innerHTML = "Game link";
-                game_link.style.fontSize = 12;
-                game_link.style.color = dark_mode ? "#004386" : "#0080ff";
-                game_td.appendChild(game_link);
+                if ((trackingHistory - h) < totalSavedGames) {
+
+                    game_link = document.createElement("a");
+                    if (hist_cookie.length <= 5) {
+                        hist_cookie[5] = "";
+                    }
+                    game_link.href = hist_cookie[5];
+                    game_link.innerHTML = "Game link";
+                    game_link.style.fontSize = 12;
+                    game_link.style.color = dark_mode ? "#004386" : "#0080ff";
+                    game_td.appendChild(game_link);
+                }
+                else {
+                    
+                    game_link = document.createElement("span");
+                    game_link.innerHTML = "No game or playback link"
+                    game_link.style.fontSize = 12;
+                    game_td.appendChild(game_link);
+                }
 
                 divspan = document.createElement("span");
                 divspan.innerHTML = "  ";
                 game_td.appendChild(divspan);
 
-                replay_link = document.createElement("a");
-                if (hist_cookie.length <= 6) {
-                    hist_cookie[6] = "";
-                }
-                replay_link.href = (hist_cookie[5] + hist_cookie[6]);
-                replay_link.innerHTML = "Playback link";
-                replay_link.style.fontSize = 12;
-                replay_link.style.color = dark_mode ? "#004386" : "#0080ff";
-                game_td.appendChild(replay_link);
+                if ((trackingHistory - h) < totalSavedPlaybacks) {
 
+                    replay_link = document.createElement("a");
+                    if (hist_cookie.length <= 6) {
+                        hist_cookie[6] = "";
+                    }
+                    replay_link.href = (hist_cookie[5] + hist_cookie[6]);
+                    replay_link.innerHTML = "Playback link";
+                    replay_link.style.fontSize = 12;
+                    replay_link.style.color = dark_mode ? "#004386" : "#0080ff";
+                    game_td.appendChild(replay_link);
+                }
+                else {
+
+                    replay_link = document.createElement("span");
+                    replay_link.innerHTML = "";
+                    replay_link.style.fontSize = 12;
+                    game_td.appendChild(replay_link);
+                }
                 
                 date_td.innerHTML = hist_cookie[4];
                 date_td.style.fontSize = 12;
@@ -569,9 +591,7 @@ createHistoryTable = function() {
             }
         }
     }
-
-    document.getElementById("history_table_holder").appendChild(hist_tbl);
-    
+    document.getElementById("history_table_holder").appendChild(hist_tbl);   
 }
 
 createCursor = function(cx = cursor_x, cy = cursor_y) {

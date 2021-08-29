@@ -47,6 +47,8 @@ cursor_y = cursor_y_offset;
 clearList = [];
 recordedGame = [];
 loadedPlayback = "";
+totalSavedGames = 50;
+totalSavedPlaybacks = 10;
 
 grid = new Array(width);
 field = new Array(width);
