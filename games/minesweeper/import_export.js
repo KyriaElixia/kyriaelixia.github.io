@@ -525,7 +525,7 @@ setHistoryCookie = function(didWin) {
 
     for (th = trackingHistory - totalSavedPlaybacks; th > 0; th--) {
 
-        console.warn("val", th, val)
+        // console.warn("val", th, val)
 
         val = checkCookie("MS5_history_" + th, "");
         val = val.split("&");
